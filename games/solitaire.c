@@ -32,15 +32,44 @@ Stack *outcells[4];
 Stack *maincells[7];
 
 static int auto_move();
+static void update_status_text(int redraw);
+static void check_for_end_of_game();
+
+int no_auto = 0;        /* boolean */
+int use_auto_moves = 1; /* boolean */
+int flip_3s = 0;        /* boolean - zero means flip 1 at a time */
+                        /*           non-zero means flip 3 at a time */
+int vegas = 0;          /* boolean - in vegas style, you pay $52 to play */
+                        /*           and you win $5 for each card that you */
+                        /*           place in the outdeck.  The deck is only */
+                        /*           turned 3 times.  flip_3s is implied to */
+                        /*           be true. */
+int winnings = 0;
+int vegas_deck_count = 0;
+int display_vegas_xlogo = 0; /* set to 1 to display xlogo in pile area at */
+                             /* end of vegas game. */
+static OptionDesc new_options[] = {
+  { "-noauto", OPTION_BOOLEAN, &no_auto }, 
+  { "-flip3s", OPTION_BOOLEAN, &flip_3s },
+  { "-vegas", OPTION_BOOLEAN, &vegas },
+  { 0, 0, 0 }
+};
+
+OptionDesc *app_options = new_options;
 
 int
 main(int argc, char **argv)
 {
   init_ace(argc, argv);
+
+  use_auto_moves = !no_auto;
+  if (vegas)
+    flip_3s = 1;
+
   if (table_width == 0 || table_height == 0)
     {
       table_width = W*7+M*8;
-      table_height = H+2*M+19*F;
+      table_height = H+3*M+19*F+font_height;
     }
   init_table(table_width, table_height);
   table_loop();
@@ -67,10 +96,18 @@ start_again()
     stack_flip_card(maincells[p], maincells[p]);
 
   stack_undo_reset();
+
+  winnings -= 52;
+  update_status_text(1);
+  vegas_deck_count = 0;
+  display_vegas_xlogo = 0;
 }
 
 static int xlogo_x;
 static int xlogo_y;
+
+static int vegas_xlogo_x;
+static int vegas_xlogo_y;
 
 void
 init()
@@ -87,6 +124,9 @@ init()
 
   xlogo_x = 3*M+2*W+W/2-xlogo->w/2;
   xlogo_y = M+H/2-xlogo->h/2;
+
+  vegas_xlogo_x = M+W/2-xlogo->w/2;
+  vegas_xlogo_y = M+H/2-xlogo->h/2;
 
   set_centered_pic(splash);
 
@@ -137,11 +177,13 @@ resize(int w, int h)
   stack_move(hole, offset+margin+cw, margin);
 
   if (xlogo->w > cw)
-    xlogo_x = xlogo_y = 0;
+    xlogo_x = xlogo_y = vegas_xlogo_x = vegas_xlogo_y = 0;
   else
     {
       xlogo_x = 3 * margin + 2 * cw + cw/2 - xlogo->w/2;
       xlogo_y = margin + ch/2 - xlogo->h/2;
+      vegas_xlogo_x = margin + cw/2 - xlogo->w/2;
+      vegas_xlogo_y = margin + ch/2 - xlogo->h/2;
     }
 }
 
@@ -150,6 +192,11 @@ redraw()
 {
   if (xlogo_x || xlogo_y)
     put_picture(xlogo, xlogo_x, xlogo_y, 0, 0, xlogo->h, xlogo->w);
+
+  if (display_vegas_xlogo && (vegas_xlogo_x || vegas_xlogo_y))
+    put_picture(xlogo, vegas_xlogo_x, vegas_xlogo_y, 0, 0, xlogo->h, xlogo->w);
+  update_status_text(0);
+
   stack_redraw();
 }
 
@@ -170,15 +217,20 @@ key(int k, int x, int y)
       double_click(x, y, 1);
       check_for_end_of_game();
     }
+
   if (k == 'w')
     set_centered_pic(youwin);
   if (k == 'l')
     set_centered_pic(youlose);
+
   if (k == KEY_F(2) || k == 'r' || k == 'R')
   {
     set_centered_pic(0);
     start_again();
-    while (auto_move());
+
+    if (use_auto_moves)
+      while (auto_move());
+
   }
   if ((k == 8 || k == 127 || k == KEY_DELETE))
   {
@@ -290,6 +342,10 @@ auto_move_stack(Stack *s)
       if (stack_count_cards(outcells[i]) == 0)
       {
 	stack_animate(s, outcells[i]);
+
+        winnings += 5;
+        update_status_text(1);
+
 	return 1;
       }
     return 0; /* can't happen? */
@@ -301,6 +357,10 @@ auto_move_stack(Stack *s)
       && VALUE(c) <= lowest[COLOR(c)?1:0] + 3)
   {
     stack_animate(s, outcells[pile_for[SUIT(c)]]);
+
+    winnings += 5;
+    update_status_text(1);
+
     return 1;
   }
   return 0;
@@ -329,6 +389,14 @@ auto_move()
   if (stack_count_cards(hole) == 0 && stack_count_cards(deck) > 0)
   {
     stack_flip_card(deck, hole);
+
+    if (flip_3s)
+    {
+      for (i=0; i<2; i++)
+        if (stack_count_cards(deck))
+          stack_flip_card(deck, hole);
+    }
+
     something_moved += 1;
   }
   something_moved += auto_move_stack(hole);
@@ -340,7 +408,9 @@ auto_move()
 static void
 check_for_end_of_game()
 {
-  while (auto_move());
+  if (use_auto_moves)
+    while (auto_move());
+
   if (stack_count_cards(outcells[0]) == 13
       && stack_count_cards(outcells[1]) == 13
       && stack_count_cards(outcells[2]) == 13
@@ -354,6 +424,7 @@ void
 click(int x, int y, int b)
 {
   int c, f;
+
   Picture *cp = get_centered_pic();
   src_stack = 0;
 
@@ -389,15 +460,42 @@ click(int x, int y, int b)
   if (src_stack == deck)
   {
     if (stack_count_cards(deck) == 0)
+    {
+      if (vegas)
+      {
+        vegas_deck_count++;
+        if (vegas_deck_count >= 3)
+	{
+          start_again();
+	  return;
+	}
+      }
       stack_flip_stack(hole, deck);
+    }
     else
+    {
       stack_flip_card(deck, hole);
+      if (flip_3s)
+        for (c=0; c<2; c++)
+          if (stack_count_cards(deck) != 0)
+	    stack_flip_card(deck, hole);
+      if (vegas && vegas_deck_count == 2 && stack_count_cards(deck) == 0)
+      {
+        display_vegas_xlogo = 1;
+        invalidate (vegas_xlogo_x, vegas_xlogo_y,
+                    xlogo->w, xlogo->h);
+      }
+    }
     return;
   }
 
-  for (c=0; c<4; c++)
-    if (src_stack == outcells[c])
-      return;
+  if (vegas)
+    for (c=0; c<4; c++)
+      if (src_stack == outcells[c])
+      {
+        winnings -= 5;
+	update_status_text(1);
+      }
 
   if (src_n>=0 && stack_count_cards(src_stack) > 0)
   {
@@ -417,15 +515,10 @@ double_click(int x, int y, int b)
   int dest_n;
   src_stack = 0;
   /*printf("double click\n");*/
+
   f = stack_find(x, y, &src_stack, &src_n);
   if (!f)
     return;
-
-  if (f == deck)
-    {
-      click(x, y, b);
-      return;
-    }
 
   if (b > 1) return;
 
@@ -512,6 +605,8 @@ drag(int x, int y, int b)
 void
 drop(int x, int y, int b)
 {
+  int i;
+
   last_n = n_droppable(x, y); /* also sets dest_stack */
 
   if (b > 1)
@@ -521,7 +616,32 @@ drop(int x, int y, int b)
     return;
   }
 
+  if (vegas)
+    for (i=0; i<4; i++)
+      if (dest_stack == outcells[i])
+      {
+        winnings += (stack_count_cards(src_stack) - last_n) * 5;
+	update_status_text(1);
+      }
+
   stack_drop(dest_stack, last_n);
 
   check_for_end_of_game();
 }
+
+static void
+update_status_text(int redraw)
+{
+  char buffer[10] = "";
+
+  if (vegas)
+  {
+    sprintf (buffer, "$%d", winnings);
+    text (buffer, M, table_height - M);
+    if (redraw)
+      invalidate (M, table_height - M - font_height, 
+                  10 * font_width, font_height);
+  }
+}
+
+

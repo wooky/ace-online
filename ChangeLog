@@ -1,3 +1,9 @@
+2001-08-31  Brian Rater  <brater@tiac.net>
+
+	* games/solitaire.c: Add vegas rules and scoring options
+	(-vegas, -flip3s) and allow auto-move to be disabled
+	(-noauto).
+
 2001-05-06  DJ Delorie  <dj@delorie.com>
 
 	* Version 1.2 released.
