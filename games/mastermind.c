@@ -87,10 +87,12 @@ main(int argc, char **argv)
   rdx = SSZ+3;
   rdy = gdy;
 
+  init_ace(argc, argv);
+
   table_width = rx + 3*rdx + SSZ + WGAP;
   table_height = gy + BSZ + CARD_MARGIN;
 
-  init_table(argc, argv, table_width, table_height);
+  init_table(table_width, table_height);
   table_loop();
 }
 

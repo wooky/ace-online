@@ -31,20 +31,22 @@ Stack *freecells[4];
 Stack *outcells[4];
 Stack *maincells[8];
 
-extern int table_width, table_height;
-
 static int auto_move();
 
 int
 main(int argc, char **argv)
 {
   xlogo = get_picture("xemboss");
-  if (M*9 < xlogo->w || H < xlogo->h)
-    xlogo = 0;
   splash = get_picture("freecell");
   youwin = get_picture("youwin");
   youlose = get_picture("youlose");
-  init_table(argc, argv, 8*W+9*M, H+M+19*F);
+  init_ace(argc, argv);
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = 640;
+      table_height = 480;
+    }
+  init_table(table_width, table_height);
   table_loop();
 }
 
@@ -104,11 +106,38 @@ init()
 }
 
 void
+resize(int w, int h)
+{
+  int margin, offset, cw, ch, s;
+  Picture *empty;
+
+  stack_set_card_size (w/9, w/9*4/3);
+  stack_get_card_size (&cw, &ch);
+
+  empty = (Picture *)get_image("empty", cw, ch, 0);
+
+  margin = (w - 8*cw) / 9;
+  offset = (w - margin*9 - cw*8) / 2 + margin;
+
+  for (s=0; s<4; s++)
+    {
+      stack_move(freecells[s], s*cw, 0);
+      stack_move(outcells[s], w - (4-s)*cw, 0);
+      stack_set_empty_picture(freecells[s], empty);
+      stack_set_empty_picture(outcells[s], empty);
+    }
+  for (s=0; s<8; s++)
+    stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset));
+}
+
+void
 redraw()
 {
-  if (xlogo)
-    put_picture(xlogo, W*4+(M*9)/2-xlogo->w/2, H/2-xlogo->h/2,
-		0, 0, xlogo->h, xlogo->w);
+  int cw, ch;
+  stack_get_card_size (&cw, &ch);
+  if (xlogo->w < table_width - 8*cw && xlogo->h < ch)
+      put_picture(xlogo, table_width/2-xlogo->w/2, ch/2-xlogo->h/2,
+		  0, 0, xlogo->h, xlogo->w);
   stack_redraw();
 }
 
@@ -118,7 +147,7 @@ void
 key(int k, int x, int y)
 {
   Picture *p = get_centered_pic();
-  if (k == 3 || k == 27 || k == 'q')
+  if (k == 3 || k == 27 || k == 'q' || k == 'Q')
     exit(0);
   set_centered_pic(0);
   if (k == 8 || k == 127 || k == KEY_DELETE)
@@ -128,12 +157,12 @@ key(int k, int x, int y)
   }
   if (p == splash)
     return;
-  if (k == KEY_F(1) || k == 'h')
+  if (k == KEY_F(1) || k == 'h' || k == 'H')
   {
     help("freecell.html", freecell_help);
     return;
   }
-  if (k == KEY_F(2) || p || k == 'r')
+  if (k == KEY_F(2) || p || k == 'r' || k == 'R')
   {
     start_again();
     while (auto_move());

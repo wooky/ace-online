@@ -61,7 +61,24 @@
 #define TABLE_COLOR	2
 extern int table_type;
 
-void init_table(int argc, char **argv, int table_width, int table_height);
+extern int display_width, display_height;
+extern int table_width, table_height;
+
+#define OPTION_BOOLEAN	1
+#define OPTION_STRING	2
+#define OPTION_INTEGER	3
+typedef struct {
+  char *option;
+  int type;
+  void *ptr;
+} OptionDesc;
+/* Apps do `OptionDesc *app_options = app_option_table;' if needed, last zero */
+
+/* This sets display_width/height, sets table_width/height to preferred or zero */
+void init_ace(int argc, char **argv);
+/* This creates the initial window */
+void init_table(int table_width, int table_height);
+/* Call this to begin processing events;
 void table_loop();
 
 /* Really, see image in imagelib.h */
@@ -103,6 +120,7 @@ extern void help(char *filename, char *text);
    inside an expose and will clip and optimize accordingly. */
 extern void init();
 extern void redraw();
+extern void resize(int width, int height);
 extern void key(int k, int x, int y);
 extern void click(int x, int y, int b);
 extern void double_click(int x, int y, int b);
@@ -152,12 +170,20 @@ typedef struct Stack {void *stack__p;} Stack;
 #define STACK_OFFSET_TBRIGHT	3
 #define STACK_OFFSET_TBDOWN	4
 
+typedef struct {
+  int card_width, card_height;
+  int fan_down, fan_right, fan_tbdown, fan_tbright;
+} StackSizes;
+
 Stack *	stack_create(int x, int y);
 void	stack_destroy(Stack *s);
 void	stack_set_pictures(Picture **fronts, Picture *back);
 void	stack_load_standard_deck();
 void	stack_move(Stack *s, int x, int y);
 void	stack_set_offset(Stack *s, int which_offset);
+void	stack_set_card_size(int width, int height);
+void	stack_get_card_size(int *width, int *height);
+void	stack_get_fans(int *down, int *right, int *tbdown, int *tbright);
 
 void	stack_set_empty_picture(Stack *s, Picture *p);
 void	stack_redraw();

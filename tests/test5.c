@@ -37,10 +37,11 @@ Stack *st[4];
 int
 main(int argc, char **argv)
 {
+  init_ace(argc, argv);
 #if DOWN
-  init_table(argc, argv, 4*W+5*M, 2*M+51*CARD_FAN_DOWN+H);
+  init_table(4*W+5*M, 2*M+51*CARD_FAN_DOWN+H);
 #else
-  init_table(argc, argv, 2*M+51*CARD_FAN_RIGHT+W, 4*H+5*M);
+  init_table(2*M+51*CARD_FAN_RIGHT+W, 4*H+5*M);
 #endif
   table_loop();
 }

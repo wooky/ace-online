@@ -171,7 +171,8 @@ main(int argc, char **argv)
   youlose = get_picture("youlose");
   xlogo = get_picture("xemboss");
 
-  init_table(argc, argv, 320, 320);
+  init_ace(argc, argv);
+  init_table(320, 320);
   table_loop();
 }
 

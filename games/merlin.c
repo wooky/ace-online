@@ -48,7 +48,8 @@ main(int argc, char **argv)
   youwin = get_picture("youwin");
   xlogo = get_picture("xemboss");
 
-  init_table(argc, argv, 300, 300);
+  init_ace(argc, argv);
+  init_table(300, 300);
   table_loop();
 }
 

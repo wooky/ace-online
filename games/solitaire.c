@@ -31,16 +31,18 @@ Stack *deck, *hole;
 Stack *outcells[4];
 Stack *maincells[7];
 
-static int table_width, table_height;
-
 static int auto_move();
 
 int
 main(int argc, char **argv)
 {
-  table_width = 8*M+7*W;
-  table_height = H+2*M+19*F;
-  init_table(argc, argv, table_width, table_height);
+  init_ace(argc, argv);
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = W*7+M*8;
+      table_height = H+2*M+19*F;
+    }
+  init_table(table_width, table_height);
   table_loop();
 }
 
@@ -67,6 +69,9 @@ start_again()
   stack_undo_reset();
 }
 
+static int xlogo_x;
+static int xlogo_y;
+
 void
 init()
 {
@@ -79,6 +84,9 @@ init()
   splash = get_picture("solitaire");
   youwin = get_picture("youwin");
   youlose = get_picture("youlose");
+
+  xlogo_x = 3*M+2*W+W/2-xlogo->w/2;
+  xlogo_y = M+H/2-xlogo->h/2;
 
   set_centered_pic(splash);
 
@@ -104,10 +112,44 @@ init()
 }
 
 void
+resize(int w, int h)
+{
+  int margin, offset, cw, ch, s;
+  Picture *empty;
+
+  stack_set_card_size (w/8, w/8*4/3);
+  stack_get_card_size (&cw, &ch);
+
+  empty = (Picture *)get_image("empty", cw, ch, 0);
+
+  margin = (w - 7*cw) / 8;
+  offset = (w - margin*8 - cw*7) / 2 + margin;
+
+  for (s=0; s<4; s++)
+    {
+      stack_move(outcells[s], w - (4-s)*(cw+margin), margin);
+      stack_set_empty_picture(outcells[s], empty);
+    }
+  for (s=0; s<7; s++)
+    stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset) + margin);
+
+  stack_move(deck, offset, margin);
+  stack_move(hole, offset+margin+cw, margin);
+
+  if (xlogo->w > cw)
+    xlogo_x = xlogo_y = 0;
+  else
+    {
+      xlogo_x = 3 * margin + 2 * cw + cw/2 - xlogo->w/2;
+      xlogo_y = margin + ch/2 - xlogo->h/2;
+    }
+}
+
+void
 redraw()
 {
-  put_picture(xlogo, M+W/2-xlogo->w/2, M+H/2-xlogo->h/2,
-	      0, 0, xlogo->h, xlogo->w);
+  if (xlogo_x || xlogo_y)
+    put_picture(xlogo, xlogo_x, xlogo_y, 0, 0, xlogo->h, xlogo->w);
   stack_redraw();
 }
 
@@ -116,18 +158,23 @@ extern char solitaire_help[];
 void
 key(int k, int x, int y)
 {
-  if (k == 3 || k == 27 || k == 'q')
+  if (k == 3 || k == 27 || k == 'q' || k == 'Q')
     exit(0);
-  if (k == KEY_F(1) || k == 'h')
+  if (k == KEY_F(1) || k == 'h' || k == 'H')
   {
     set_centered_pic(0);
     help("solitaire.html", solitaire_help);
   }
+  if (k == ' ')
+    {
+      double_click(x, y, 1);
+      check_for_end_of_game();
+    }
   if (k == 'w')
     set_centered_pic(youwin);
   if (k == 'l')
     set_centered_pic(youlose);
-  if (k == KEY_F(2))
+  if (k == KEY_F(2) || k == 'r' || k == 'R')
   {
     set_centered_pic(0);
     start_again();
@@ -374,6 +421,12 @@ double_click(int x, int y, int b)
   if (!f)
     return;
 
+  if (f == deck)
+    {
+      click(x, y, b);
+      return;
+    }
+
   if (b > 1) return;
 
   if (src_stack == deck)
@@ -411,8 +464,12 @@ double_click(int x, int y, int b)
     for (c=0; c<7; c++)
     {
       if (src_stack == maincells[c]) continue;
-      if (stack_count_cards(maincells[c]) == 0)	continue;
       n = n_droppable_s(maincells[c]);
+      if (stack_count_cards(maincells[c]) == 0
+	  && (VALUE(stack_get_card(src_stack, n)) != KING
+	      || FACEDOWNP(stack_get_card(src_stack, n))
+	      || (src_stack != hole && n == 0)))
+	continue;
       /*printf("- maincell %d = %d\n", c, n);*/
       if (stack_count_cards(maincells[c]) == 0)
       {
@@ -427,8 +484,9 @@ double_click(int x, int y, int b)
       stack_card_posn(maincells[c], 0, &x, &y);
       if (n < sc)
       {
-	if (dest_stack && dest_n < n || (dest_n == n && stack_count_cards(dest_stack)<stack_count_cards(maincells[c])))
-	  break;
+	if (dest_stack)
+	  if (dest_n < n || (dest_n == n && stack_count_cards(dest_stack)<stack_count_cards(maincells[c])))
+	    break;
 	dest_stack = maincells[c];
 	dest_n = n;
       }

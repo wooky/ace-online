@@ -36,6 +36,8 @@ typedef struct {
 } pixels_type;
 #define PIXELS_TYPE pixels_type *
 
+#define ROT(a,b) if (xrotate) { int t = a; a = b; b = t; }
+
 static int pixel_for (int r, int g, int b);
 
 #include "cards.h"
@@ -44,6 +46,13 @@ static int pixel_for (int r, int g, int b);
 
 static char AOP[] = "The Ace of Penguins - ";
 static char *type_names[] = {"mono", "grey", "color"};
+
+int xrotate = 0;
+OptionDesc xwin_options_list[] = {
+  { "-rotate", OPTION_BOOLEAN, &xrotate },
+  { 0, 0, 0 }
+};
+OptionDesc *xwin_options = xwin_options_list;
 
 Display *display=0;
 int screen=0;
@@ -110,17 +119,16 @@ typedef PropMotifWmHints        PropMwmHints;
 
 void break_here(){}
 
+static char *name;
+
 void
-init_xwin(int argc, char **argv, int width, int height)
+xwin_init(int argc, char **argv)
 {
-  char *name = argv[0];
   char *sl;
-  XSizeHints size_hints;
-  XTextProperty xtp;
-  XSetWindowAttributes attributes;
   XColor color;
-  PropMwmHints mwm_hints;
   int i;
+
+  name = argv[0];
 
   atexit(break_here);
   
@@ -134,6 +142,12 @@ init_xwin(int argc, char **argv, int width, int height)
   rootwin = XDefaultRootWindow(display);
   gc = XCreateGC(display, rootwin, 0, 0);
   imggc = XCreateGC(display, rootwin, 0, 0);
+
+  _Xdebug=999;
+
+  display_width = DisplayWidth(display, screen);
+  display_height = DisplayHeight(display, screen);
+  ROT(display_width, display_height);
   
   vi.visualid = XVisualIDFromVisual(visual);
   vip = XGetVisualInfo (display, VisualIDMask, &vi, &i);
@@ -161,15 +175,36 @@ init_xwin(int argc, char **argv, int width, int height)
   paste_atom = XInternAtom(display, "PASTE_DATA", 0);
   mwm_atom = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
 
-  size_hints.flags = PSize|PMinSize|PMaxSize;
+  table_background = pixel_for(0x00, 0x66, 0x00);
+
+  font = XLoadQueryFont(display, "6x13bold");
+  if (!font) font = XLoadQueryFont(display, "6x10");
+  if (!font) font = XLoadQueryFont(display, "fixed");
+  font_width = font->max_bounds.width;
+  font_height = font->ascent + font->descent;
+}
+
+void
+xwin_create(int width, int height)
+{
+  char *sl;
+  XSizeHints size_hints;
+  XTextProperty xtp;
+  XSetWindowAttributes attributes;
+
+  ROT(width, height);
+
+  size_hints.flags = PSize;
   size_hints.width = width;
   size_hints.height = height;
   size_hints.x = 0;
   size_hints.y = 0;
+#if 0
   size_hints.min_width = width;
   size_hints.min_height = height;
   size_hints.max_width = width;
   size_hints.max_height = height;
+#endif
 
   window = XCreateWindow(display,
 			 rootwin,
@@ -182,18 +217,6 @@ init_xwin(int argc, char **argv, int width, int height)
 			 0, 0);
 
   XSetWMNormalHints(display, window, &size_hints);
-
-  display_image = &static_display_image;
-  static_display_image.width = width;
-  static_display_image.height = height;
-  static_display_image.list = &static_display_image_list;
-  static_display_image.pixels = (pixels_type *) malloc (sizeof(pixels_type));
-  static_display_image.pixels->image_pixmap = (Pixmap)window;
-  static_display_image.pixels->image_mask = 0;
-
-  static_display_image_list.name = "X Window";
-  static_display_image_list.across = 1;
-  static_display_image_list.down = 1;
 
   sl = (char *)malloc(strlen(name) + strlen(AOP)+1);
   sprintf(sl, "%s%s", AOP, name);
@@ -208,25 +231,56 @@ init_xwin(int argc, char **argv, int width, int height)
 			   | ButtonReleaseMask
 			   | ButtonMotionMask
 			   | KeyPressMask
+			   | StructureNotifyMask
 			   | PointerMotionHintMask );
   XChangeWindowAttributes(display, window, CWEventMask, &attributes);
+
+  display_image = &static_display_image;
+  if (xrotate)
+    {
+      static_display_image.width = height;
+      static_display_image.height = width;
+    }
+  else
+    {
+      static_display_image.width = width;
+      static_display_image.height = height;
+    }
+  static_display_image.list = &static_display_image_list;
+  static_display_image.pixels = (pixels_type *) malloc (sizeof(pixels_type));
+  static_display_image.pixels->image_pixmap = (Pixmap)window;
+  static_display_image.pixels->image_mask = 0;
+
+  static_display_image_list.name = "X Window";
+  static_display_image_list.across = 1;
+  static_display_image_list.down = 1;
+
+  XMapWindow(display, window);
+  XFlush(display);
+}
+
+void
+xwin_fixed_size (int width, int height)
+{
+  XSizeHints size_hints;
+  PropMwmHints mwm_hints;
+
+  ROT(width, height);
+
+  XResizeWindow(display, window, width, height);
+
+  size_hints.flags = PMinSize|PMaxSize;
+  size_hints.min_width = width;
+  size_hints.min_height = height;
+  size_hints.max_width = width;
+  size_hints.max_height = height;
+  XSetWMNormalHints(display, window, &size_hints);
 
   mwm_hints.flags = MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS;
   mwm_hints.functions = MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE | MWM_FUNC_CLOSE;
   mwm_hints.decorations = MWM_DECOR_BORDER | MWM_DECOR_TITLE | MWM_DECOR_MENU | MWM_DECOR_MINIMIZE;
   XChangeProperty(display, window, mwm_atom, mwm_atom, 32, PropModeReplace,
 		  (char *)&mwm_hints, PROP_MWM_HINTS_ELEMENTS);
-
-  XMapWindow(display, window);
-  XFlush(display);
-
-  table_background = pixel_for(0x00, 0x66, 0x00);
-
-  font = XLoadQueryFont(display, "6x13bold");
-  if (!font) font = XLoadQueryFont(display, "6x10");
-  if (!font) font = XLoadQueryFont(display, "fixed");
-  font_width = font->max_bounds.width;
-  font_height = font->ascent + font->descent;
 }
 
 static struct {
@@ -265,6 +319,13 @@ static struct {
 };
 #define NUM_KEYMAPS (sizeof(key_mappings)/sizeof(key_mappings[0]))
 
+#define WROT(x,y,w,h) if (xrotate) { int t = x; x = table_width-y-h; y = t; \
+				     t = w; w = h; h = t; }
+#define PROT(x,y) if (xrotate) { int t = x; x = table_width-y; y = t; }
+#define WROT2(x,y,w,h) if (xrotate) { int t = y; y = table_width-x-w; x = t; \
+				     t = w; w = h; h = t; }
+#define PROT2(x,y) if (xrotate) { int t = y; y = table_width-x; x = t; }
+
 int
 xwin_nextevent (XWin_Event *ev)
 {
@@ -275,6 +336,7 @@ xwin_nextevent (XWin_Event *ev)
   KeySym keysym;
   char c;
   static int click_button;
+  static int last_resize_w=-1, last_resize_h=-1;
 
   while (1)
   {
@@ -283,8 +345,24 @@ xwin_nextevent (XWin_Event *ev)
     {
       switch (event.type)
       {
+      case ConfigureNotify:
+	ev->type = ev_resize;
+	WROT (event.xconfigure.x, event.xconfigure.y,
+	      event.xconfigure.width, event.xconfigure.height);
+	ev->x = event.xconfigure.x;
+	ev->y = event.xconfigure.y;
+	ev->w = event.xconfigure.width;
+	ev->h = event.xconfigure.height;
+	if (ev->w == last_resize_w && ev->h == last_resize_h)
+	  break;
+	last_resize_w = ev->w;
+	last_resize_h = ev->h;
+	return ev_resize;
+	
       case Expose:
 	ev->type = ev_expose;
+	WROT (event.xexpose.x, event.xexpose.y,
+	      event.xexpose.width, event.xexpose.height);
 	ev->x = event.xexpose.x;
 	ev->y = event.xexpose.y;
 	ev->w = event.xexpose.width;
@@ -293,6 +371,7 @@ xwin_nextevent (XWin_Event *ev)
 
       case ButtonPress:
 	ev->type = ev_buttondown;
+	PROT(event.xbutton.x, event.xbutton.y);
 	ev->x = event.xbutton.x;
 	ev->y = event.xbutton.y;
 	click_button = event.xbutton.button;
@@ -311,6 +390,7 @@ xwin_nextevent (XWin_Event *ev)
 			   &pos_x, &pos_y, &keys_buttons))
 	  break;
 	ev->type = ev_motion;
+	PROT(pos_x, pos_y);
 	ev->x = pos_x;
 	ev->y = pos_y;
 	ev->button = click_button;
@@ -322,6 +402,7 @@ xwin_nextevent (XWin_Event *ev)
 	if ((i & (i>>1)) == 0)
 	  {
 	    ev->type = ev_buttonup;
+	    PROT(event.xbutton.x, event.xbutton.y);
 	    ev->x = event.xbutton.x;
 	    ev->y = event.xbutton.y;
 	    ev->button = click_button;
@@ -344,6 +425,7 @@ xwin_nextevent (XWin_Event *ev)
 	  break;
 
 	ev->type = ev_keypress;
+	PROT(event.xkey.x, event.xkey.y);
 	ev->x = event.xkey.x;
 	ev->y = event.xkey.y;
 	ev->time = event.xkey.time;
@@ -386,6 +468,7 @@ static int have_clip = 0;
 void
 xwin_clip (int x, int y, int w, int h)
 {
+  WROT2(x, y, w, h);
   clip_rect.x = x;
   clip_rect.y = y;
   clip_rect.width = w;
@@ -417,6 +500,7 @@ extern int help_is_showing;
 void
 clear(int x, int y, int w, int h)
 {
+  WROT2(x, y, w, h);
   XSetForeground(display, gc, help_is_showing ?
 		 help_background : table_background);
   XFillRectangle(display, window, gc, x, y, w, h);
@@ -425,6 +509,7 @@ clear(int x, int y, int w, int h)
 void
 text(char *t, int x, int y)
 {
+  PROT2(x, y);
   XSetBackground(display, gc, table_background);
   XSetForeground(display, gc, WhitePixel(display, screen));
   if (font) XSetFont(display, gc, font->fid);
@@ -543,9 +628,15 @@ cvt_rgbt (image *img)
 	if (has_alpha)
 	  {
 	    a = *pp++;
-	    XPutPixel(xmask, x, y, a > 128 ? 1 : 0);
+	    if (xrotate)
+	      XPutPixel(xmask, y, width-x-1, a > 128 ? 1 : 0);
+	    else
+	      XPutPixel(xmask, x, y, a > 128 ? 1 : 0);
 	  }
-	XPutPixel(ximage, x, y, pixel_for(r, g, b));
+	if (xrotate)
+	  XPutPixel(ximage, y, width-x-1, pixel_for(r, g, b));
+	else
+	  XPutPixel(ximage, x, y, pixel_for(r, g, b));
       }
 }
 
@@ -578,9 +669,19 @@ cvt_cpt (image *img)
       {
 	int idx = *pp++;
 	if (bit_depth > 8) idx = idx*256 + *pp++;
-	XPutPixel(ximage, x, y, palette_xcolors[idx]);
+	if (xrotate)
+	  {
+	    XPutPixel(ximage, y, width-x-1, palette_xcolors[idx]);
+	  }
+	else
+	  XPutPixel(ximage, x, y, palette_xcolors[idx]);
 	if (xmask)
-	  XPutPixel(xmask, x, y, istrans[idx]);
+	  {
+	    if (xrotate)
+	      XPutPixel(xmask, y, width-x-1, istrans[idx]);
+	    else
+	      XPutPixel(xmask, x, y, istrans[idx]);
+	  }
       }
 }
 
@@ -600,7 +701,10 @@ cvt_gt (image *img)
 	if (obit_depth < bit_depth)
 	  idx <<= (bit_depth-obit_depth);
 	i = pixel_for (idx, idx, idx);
-	XPutPixel(ximage, x, y, i);
+	if (xrotate)
+	  XPutPixel(ximage, y, width-x-1, i);
+	else
+	  XPutPixel(ximage, x, y, i);
       }
 }
 
@@ -633,12 +737,14 @@ build_image (image *src)
   src->pixels = (pixels_type *)malloc(sizeof(pixels_type));
   memset (src->pixels, 0, sizeof(pixels_type));
 
-  src->pixels->image_pixmap = XCreatePixmap (display, window,
-					     src->width, src->height,
-					     DefaultDepth(display, screen));
-
-  XSetForeground(display, gc, pixel_for (192, 0, 255));
-  XFillRectangle(display, src->pixels->image_pixmap, gc, 0, 0, src->width, src->height);
+  if (xrotate)
+    src->pixels->image_pixmap = XCreatePixmap (display, window,
+					       src->height, src->width,
+					       DefaultDepth(display, screen));
+  else
+    src->pixels->image_pixmap = XCreatePixmap (display, window,
+					       src->width, src->height,
+					       DefaultDepth(display, screen));
 
   if (src->synth_func)
     {
@@ -702,30 +808,40 @@ build_image (image *src)
 
   png_read_end (png_ptr, 0);
 
-  ximage = XCreateImage (display, visual, exemplar_image->depth,
-			 exemplar_image->format, 0, 0, width, height,
-			 exemplar_image->bitmap_pad, 0);
-  ximage->data = (unsigned char *)malloc(ximage->bytes_per_line * height);
-  memset(ximage->data, 0xaa, ximage->bytes_per_line * height);
+  if (xrotate)
+    ximage = XCreateImage (display, visual, exemplar_image->depth,
+			   exemplar_image->format, 0, 0, height, width,
+			   exemplar_image->bitmap_pad, 0);
+  else
+    ximage = XCreateImage (display, visual, exemplar_image->depth,
+			   exemplar_image->format, 0, 0, width, height,
+			   exemplar_image->bitmap_pad, 0);
+  ximage->data = (unsigned char *)malloc(ximage->bytes_per_line * (xrotate ? width : height));
 
   if (color_type & PNG_COLOR_MASK_ALPHA
       || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
     {
-      xmask = XCreateImage (display, visual, 1,
-			    XYPixmap, 0, 0, width, height,
-			    8, 0);
-      xmask->data = (unsigned char *)malloc(xmask->bytes_per_line * height);
-      memset(xmask->data, ~0, xmask->bytes_per_line * height);
+      if (xrotate)
+	xmask = XCreateImage (display, visual, 1,
+			      XYPixmap, 0, 0, height, width,
+			      8, 0);
+      else
+	xmask = XCreateImage (display, visual, 1,
+			      XYPixmap, 0, 0, width, height,
+			      8, 0);
+      xmask->data = (unsigned char *)malloc(xmask->bytes_per_line * (xrotate ? width : height));
 
-      src->pixels->image_mask = XCreatePixmap (display, window,
-					       src->width, src->height, 1);
+      if (xrotate)
+	src->pixels->image_mask = XCreatePixmap (display, window,
+						 src->height, src->width, 1);
+      else
+	src->pixels->image_mask = XCreatePixmap (display, window,
+						 src->width, src->height, 1);
       if (maskgc == 0)
 	{
 	  maskgc = XCreateGC(display, src->pixels->image_mask, 0, 0);
 	  XSetClipMask(display, maskgc, None);
 	}
-      XSetForeground(display, maskgc, 1);
-      XFillRectangle(display, src->pixels->image_mask, maskgc, 0, 0, src->width, src->height);
     }
   else
     xmask = 0;
@@ -743,9 +859,17 @@ build_image (image *src)
     fprintf(stderr, "No converter for %s\n", src->list->name);
 
   XSetClipMask(display, gc, None);
-  XPutImage (display, src->pixels->image_pixmap, gc, ximage, 0, 0, 0, 0, width, height);
+  if (xrotate)
+    XPutImage (display, src->pixels->image_pixmap, gc, ximage, 0, 0, 0, 0, height, width);
+  else
+    XPutImage (display, src->pixels->image_pixmap, gc, ximage, 0, 0, 0, 0, width, height);
   if (xmask)
-    XPutImage (display, src->pixels->image_mask, maskgc, xmask, 0, 0, 0, 0, width, height);
+    {
+      if (xrotate)
+	XPutImage (display, src->pixels->image_mask, maskgc, xmask, 0, 0, 0, 0, height, width);
+      else
+	XPutImage (display, src->pixels->image_mask, maskgc, xmask, 0, 0, 0, 0, width, height);
+    }
   xwin_restore_clip ();
 
   png_destroy_read_struct(&png_ptr, &info_ptr, 0);
@@ -762,6 +886,7 @@ put_image (image *src, int x, int y, int w, int h,
 {
   Pixmap which, mask;
   GC pgc;
+  int sw, sh, dw, dh;
   if (dest == &static_display_image)
     pgc = gc;
   else
@@ -785,41 +910,65 @@ put_image (image *src, int x, int y, int w, int h,
   which = src->pixels->image_pixmap;
   mask = src->pixels->image_mask;
 
+  if (xrotate)
+    {
+      int t = x;
+      x = y;
+      y = src->width - t - w;
+      t = w;
+      w = h;
+      h = t;
+      t = dy;
+      dy = dest->width - dx - src->width;
+      dx = t;
+      sw = src->height;
+      sh = src->width;
+      dw = dest->height;
+      dh = dest->width;
+    }
+  else
+    {
+      sw = src->width;
+      sh = src->height;
+      dw = dest->width;
+      dh = dest->height;
+    }
+
   if (flags & PUT_ROTATED)
     {
       Pixmap temp;
       int rx, ry, nx, ny;
       if (!src->pixels->rotated_pixmap)
 	{
-	  temp = XCreatePixmap(display, window, src->width, src->height,
+	  temp = XCreatePixmap(display, window, sw, sh,
 			       DefaultDepth(display, screen));
-	  src->pixels->rotated_pixmap = XCreatePixmap(display, window, src->width, src->height,
+	  src->pixels->rotated_pixmap = XCreatePixmap(display, window, sw, sh,
 						      DefaultDepth(display, screen));
-	  for (rx=0; rx<src->width; rx++)
+	  for (rx=0; rx<sw; rx++)
 	    XCopyArea (display, which, temp, pgc,
-		       rx, 0, 1, src->height, src->width-rx-1, 0);
-	  for (ry=0; ry<src->height; ry++)
+		       rx, 0, 1, sh, sw-rx-1, 0);
+	  for (ry=0; ry<sh; ry++)
 	    XCopyArea (display, temp, src->pixels->rotated_pixmap, pgc,
-		       0, ry, src->width, 1, 0, src->height-ry-1);
+		       0, ry, sw, 1, 0, sh-ry-1);
 	  XFreePixmap(display, temp);
 	}
       if (src->pixels->image_mask && !src->pixels->rotated_mask)
 	{
-	  temp = XCreatePixmap(display, window, src->width, src->height, 1);
-	  src->pixels->rotated_mask = XCreatePixmap(display, window, src->width, src->height, 1);
-	  for (rx=0; rx<src->width; rx++)
+	  temp = XCreatePixmap(display, window, sw, sh, 1);
+	  src->pixels->rotated_mask = XCreatePixmap(display, window, sw, sh, 1);
+	  for (rx=0; rx<sw; rx++)
 	    XCopyArea (display, mask, temp, maskgc,
-		       rx, 0, 1, src->height, src->width-rx-1, 0);
-	  for (ry=0; ry<src->height; ry++)
+		       rx, 0, 1, sh, sw-rx-1, 0);
+	  for (ry=0; ry<sh; ry++)
 	    XCopyArea (display, temp, src->pixels->rotated_mask, maskgc,
-		       0, ry, src->width, 1, 0, src->height-ry-1);
+		       0, ry, sw, 1, 0, sh-ry-1);
 	  XFreePixmap(display, temp);
 	}
 
       which = src->pixels->rotated_pixmap;
       mask = src->pixels->rotated_mask;
-      nx = src->width - x - w;
-      ny = src->height - y - h;
+      nx = sw - x - w;
+      ny = sh - y - h;
       dx += x-nx;
       dy += y-ny;
       x = nx;
@@ -833,13 +982,13 @@ put_image (image *src, int x, int y, int w, int h,
       if (!src->pixels->inverted_pixmap)
 	{
 	  src->pixels->inverted_pixmap
-	    = XCreatePixmap(display, window, src->width, src->height,
+	    = XCreatePixmap(display, window, sw, sh,
 			    DefaultDepth(display, screen));
 	  XSetClipMask(display, pgc, None);
 	  img = XGetImage (display, src->pixels->image_pixmap,
-			   0, 0, src->width, src->height, ~0, ZPixmap);
-	  for (x=0; x<src->width; x++)
-	    for (y=0; y<src->height; y++)
+			   0, 0, sw, sh, ~0, ZPixmap);
+	  for (x=0; x<sw; x++)
+	    for (y=0; y<sh; y++)
 	      {
 		int p = XGetPixel(img, x, y);
 		if (vip->class != PseudoColor)
@@ -856,7 +1005,7 @@ put_image (image *src, int x, int y, int w, int h,
 		XPutPixel(img, x, y, p);
 	      }
 	  XPutImage (display, src->pixels->inverted_pixmap, pgc, img,
-		     0, 0, 0, 0, src->width, src->height);
+		     0, 0, 0, 0, sw, sh);
 	  xwin_restore_clip();
 	}
 
@@ -904,6 +1053,19 @@ put_mask (image *src, int x, int y, int w, int h,
   if (!src->pixels->image_mask)
     return;
 
+  if (xrotate)
+    {
+      int t = x;
+      x = y;
+      y = src->width - t - w;
+      t = w;
+      w = h;
+      h = t;
+      t = dy;
+      dy = table_height - dx - src->width;
+      dx = t;
+    }
+
   if (!dest->pixels->image_mask)
     {
       dest->pixels->image_mask = XCreatePixmap(display, window, dest->width, dest->height, 1);
@@ -933,6 +1095,16 @@ void fill_image (image *dest, int x, int y, int w, int h,
     build_image (dest);
   if (!dest->pixels->image_pixmap)
     return;
+
+  if (xrotate)
+    {
+      int t = x;
+      x = dest->height - y - h;
+      y = t;
+      t = w;
+      w = h;
+      h = t;
+    }
 
   XSetForeground (display, pgc, pixel_for (r, g, b));
   XFillRectangle (display, dest->pixels->image_pixmap, pgc, x, y, w, h);

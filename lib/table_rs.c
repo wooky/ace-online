@@ -1,5 +1,5 @@
-/* The Ace of Penguins - test6.c
-   Copyright (C) 1998, 2001 DJ Delorie
+/* The Ace of Penguins - table_rs.c
+   Copyright (C) 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,30 +17,8 @@
 
 #include "cards.h"
 
-Picture *card, *test6;
-
-#define W CARD_WIDTH
-#define H CARD_HEIGHT
-#define M CARD_MARGIN
-
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(3*M+2*W, 2*M+H);
-  table_loop();
-}
-
 void
-init()
+resize(int w, int h)
 {
-  card = get_picture("as");
-  test6 = get_picture("test6");
-}
-
-void
-redraw()
-{
-  put_picture(card, M, M, 0, 0, W, H);
-  put_picture(test6, 2*M+W, M, 0, 0, W, H);
+  table_no_resize();
 }

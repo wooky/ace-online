@@ -28,6 +28,7 @@
 #define WIN_H H + M + 23*F
 #define WIN_W 8*W + 9*M
 
+extern int stack_fan_down;
 
 Picture *xlogo, *splash, *youwin, *youlose, *arrow, *no_arrow;
 Stack *deck, *outcells[4], *maincells[8];
@@ -35,11 +36,9 @@ int hint_mode = 0;
 static char values[] = " A23456789TJQK";
 static char suits[] = "HDCS";
 
-extern int table_width, table_height;
-
 static int auto_move();
 static void check_for_end_of_game();
-
+static void set_arrows();
 
 int
 main(int argc, char **argv)
@@ -51,32 +50,74 @@ main(int argc, char **argv)
   arrow = get_picture("thornq-arrow");
   no_arrow = get_picture("thornq-noarrow");
 
-  init_table(argc, argv, WIN_W, WIN_H);
+  init_ace(argc, argv);
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = WIN_W;
+      table_height = WIN_H;
+    }
+  init_table(table_width, table_height);
   table_loop();
 
   return 0;
 }
 
+static int ax, adx, ay, ady;
+
+void
+resize(int w, int h)
+{
+  int margin, offset, cw, ch, s, fd, fr, tfd, tfr;
+  Picture *empty;
+
+  stack_set_card_size (w/9, w/9*4/3);
+  stack_get_card_size (&cw, &ch);
+
+  empty = (Picture *)get_image("empty", cw, ch, 0);
+
+  margin = (w - 8*cw) / 9;
+  offset = (w - margin*9 - cw*8) / 2 + margin;
+
+  for (s=0; s<4; s++)
+    {
+      stack_move(outcells[s], w - (4-s)*cw, 0);
+      stack_set_empty_picture(outcells[s], empty);
+    }
+  for (s=0; s<8; s++)
+    stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset));
+
+  stack_get_fans(&fd, &fr, &tfd, &tfr);
+
+  ax = offset + cw/2;
+  adx = margin + cw;
+  ay = offset + ch*2 + 2;
+  ady = fd;
+
+  set_arrows();
+}
+
 static int supress_arrows = 0;
-static int arrows[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int arrowsx[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int arrowsy[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static void
 set_arrow(int column, int on)
 {
-  int x = (M+W)*column+M+W/2;
+  int x = ax + adx*column;
   if (supress_arrows)
     return;
-  if (arrows[column])
-    put_picture(no_arrow, x-no_arrow->w/2, arrows[column],
+  if (arrowsy[column])
+    put_picture(no_arrow, arrowsx[column]-no_arrow->w/2, arrowsy[column],
 		0, 0, no_arrow->w, no_arrow->h);
   if (on)
   {
-    arrows[column] = M+2*H+(stack_count_cards(maincells[column])-1)*CARD_FAN_DOWN + 2;
-    put_picture(arrow, x-arrow->w/2, arrows[column],
+    arrowsx[column] = x;
+    arrowsy[column] = ay+ady*(stack_count_cards(maincells[column])-1);
+    put_picture(arrow, arrowsx[column]-arrow->w/2, arrowsy[column],
 		0, 0, arrow->w, arrow->h);
   }
   else
-    arrows[column] = 0;
+    arrowsy[column] = 0;
 }
 
 static void
@@ -85,9 +126,8 @@ redraw_arrows()
   int i;
   for (i=0; i<8; i++)
   {
-    int x = (M+W)*i+M+W/2;
-    if (arrows[i])
-      put_picture(arrow, x-arrow->w/2, arrows[i],
+    if (arrowsy[i])
+      put_picture(arrow, arrowsx[i]-arrow->w/2, arrowsy[i],
 		  0, 0, arrow->w, arrow->h);
   }
 }
@@ -189,8 +229,11 @@ init()
 void
 redraw()
 {
-  put_picture(xlogo, table_width - W*4 - M - xlogo->w, H/2 - xlogo->h/2,
-	      0, 0, xlogo->h, xlogo->w);
+  int cw, ch;
+  stack_get_card_size (&cw, &ch);
+  if (xlogo->w < table_width - 8*cw && xlogo->h < ch)
+      put_picture(xlogo, table_width/2-xlogo->w/2, ch/2-xlogo->h/2,
+		  0, 0, xlogo->h, xlogo->w);
   stack_redraw();
   redraw_arrows();
 }
@@ -461,7 +504,6 @@ check_for_end_of_game()
   if (!available_moves)
     set_centered_pic(youlose);
 }
-
 
 void
 click(int x, int y, int b)

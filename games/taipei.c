@@ -141,8 +141,8 @@ static int selected_tile = 0;
 int
 main(int argc, char **argv)
 {
-  init_table(argc, argv,
-	     GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+2*MARGIN,
+  init_ace(argc, argv);
+  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+2*MARGIN,
 	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
   filename = argv[1];
   if (filename)

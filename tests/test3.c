@@ -38,7 +38,8 @@ Stack *st;
 int
 main(int argc, char **argv)
 {
-  init_table(argc, argv, W+2*M+51*CARD_FAN_RIGHT, 2*M+H);
+  init_ace(argc, argv);
+  init_table(W+2*M+51*CARD_FAN_RIGHT, 2*M+H);
   table_loop();
 }
 

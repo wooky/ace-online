@@ -16,7 +16,7 @@ libcards_la_LDFLAGS = -version-info 1:0:0 $(LDFLAGS)
 
 libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c \
 	images.c table_ai.c table_ck.c table_dc.c table_dg.c \
-	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c
+	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c table_rs.c
 
 images.c : make-imglib Makefile images.in
 	./make-imglib -n cards -i $(srcdir)/png -d images.d $(srcdir)/images.in images.c

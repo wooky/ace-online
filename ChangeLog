@@ -1,10 +1,60 @@
-2001-04-08  DJ Delorie  <dj@redhat.com>
+2001-05-06  DJ Delorie  <dj@delorie.com>
+
+	* lib/Makefile.am: Add table_rs.c.
+	* lib/Makefile.in: Regenerate.
+	* lib/cards.h: Split init_table into init_ace and init_table,
+	so we can check the display size before selecting a table
+	size.  Add command line option support.  Add resize support.
+	* lib/help.c: Scroll menus as needed.  Support click on screen
+	to scroll.  Support key scrolling.  Support resizing.
+	* lib/images.in: Replace back with back-tile.
+	* lib/table.c: Split init_table into init_ace and init_table.
+	Add command-line option support.  Add width/height options.
+	Limit table to display size.  Support resizing.
+	(card_synth2): Tweak kqj display.
+	(card_synth): Make sure cards are big enough to show suits.
+	(back_synth): New.
+	* lib/xwin.c: Support -rotate (experimental).  Split init_xwin
+	into xwin_init and xwin_create.  Support resizing.
+	* lib/xwin.h: Split init/create.
+	* lib/stack.c: Support resizing.
+	(stack_set_card_size): New.
+	(stack_get_card_size): New.
+	(stack_get_fans): New.
+	* lib/table_rs.c: New, catch resize if not supported.
+	* lib/png/a-k.2.png: New, larger.
+	* lib/png/back-tile.png: New, for building face-down cards.
+	* lib/png/suits.26.png: New, larger.
+
+	* games/canfield.c: Support new init API.
+	* games/freecell.c: Support new init API.  Support resizing.
+	Add more keys.
+	* games/golf.c: Support new init API.
+	* games/mastermind.c: Support new init API.
+	* games/merlin.c: Support new init API.
+	* games/minesweeper.c: Support new init API.
+	* games/pegged.c: Support new init API.
+	* games/solitaire.c: Support new init API.  Support resizing.
+	Add more keys.  Support spacebar as double click.  Enhance
+	auto-play.
+	* games/taipedit.c: Support new init API.
+	* games/taipei.c: Support new init API.
+	* games/thornq.c: Support new init API.  Support resizing.
+
+	* tests/penguins.c: Support new init API.
+	* tests/test1.c: Support new init API.
+	* tests/test3.c: Support new init API.
+	* tests/test4.c: Support new init API.
+	* tests/test5.c: Support new init API.
+	* tests/test6.c: Support new init API.
+
+2001-04-08  DJ Delorie  <dj@delorie.com>
 
 	* games/solitaire.c (double_click): Allow moves to one of multiple
 	possible places; choose to move more cards, else to a shorter
 	stack.
 
-2001-04-07  DJ Delorie  <dj@redhat.com>
+2001-04-07  DJ Delorie  <dj@delorie.com>
 
 	* lib/xwin.c (imggc): new, use separate GC for building synthetic
 	images (else the clipping gets in the way).
@@ -22,7 +72,7 @@
 	* games/taipei.html: Ditto.
 	* games/thornq.html: Ditto.
 
-1999-02-05  DJ Delorie  <dj@envy.delorie.com>
+1999-02-05  DJ Delorie  <dj@delorie.com>
 
 	* games/taipedit.html: fix img references
 

@@ -30,16 +30,21 @@ typedef struct Stack {
   int num_cards;
   int max_cards;
   int *cards;
+  int fan_type;
   int dx, dy;
   struct Picture *empty_picture;
 } Stack;
 
 #define STACK_DEF
 #include "cards.h"
+#include "imagelib.h"
 
 static Picture **fronts=0;
 static Picture *back=0;
 static Picture *nodrop=0;
+static int card_width = CARD_WIDTH, card_height = CARD_HEIGHT;
+int stack_fan_down=CARD_FAN_DOWN, stack_fan_right=CARD_FAN_RIGHT;
+int stack_fan_tbdown=CARD_FAN_TBDOWN, stack_fan_tbright=CARD_FAN_TBRIGHT;
 
 #define INIT_NUM	10
 #define STEP_NUM	10
@@ -113,10 +118,10 @@ stack_show_change(Stack *s, int a, int b)
   if (a > b)
     w = a, a = b, b = w;
   if (s->dx == 0 && s->dy == 0 && num_cards>0)
-    invalidate_nc(s->x, s->y, CARD_WIDTH, CARD_HEIGHT);
+    invalidate_nc(s->x, s->y, card_width, card_height);
   else
     invalidate(s->x+a*s->dx, s->y+a*s->dy,
-	       (b-a)*s->dx+CARD_WIDTH, (b-a)*s->dy+CARD_HEIGHT);
+	       (b-a)*s->dx+card_width, (b-a)*s->dy+card_height);
 }
 
 static void
@@ -141,23 +146,7 @@ stack_set_pictures(Picture **f, Picture *b)
 void
 stack_load_standard_deck()
 {
-  static char *suits = "hdcs";
-  static char *values = " a234567890jqk";
-  int s, v, t;
-  char name[30];
-  Picture **cards;
-  Picture *back;
-
-  cards = (Picture **)malloc(56 * sizeof(Picture *));
-  for (s=0; s<4; s++)
-    for (v=1; v<=13; v++)
-    {
-      sprintf(name, "%c%c", values[v], suits[s]);
-      cards[v*4+s] = get_picture(name);
-    }
-  back = get_picture("back");
-  nodrop = get_picture("no-drop");
-  stack_set_pictures(cards, back);
+  stack_set_card_size (73, 97);
 }
 
 void
@@ -165,6 +154,8 @@ stack_move(Stack *s, int x, int y)
 {
   int ox = x;
   int oy = y;
+  if (s->x == x && s->y == y)
+    return;
   s->x = x;
   s->y = y;
   invalidate_exposure(ox, oy, s->w, s->h, x, y, s->w, s->h);
@@ -176,13 +167,13 @@ stack_recalculate_size(Stack *s)
 {
   if (s->num_cards > 0)
   {
-    s->w = (s->num_cards-1) * s->dx + CARD_WIDTH;
-    s->h = (s->num_cards-1) * s->dy + CARD_HEIGHT;
+    s->w = (s->num_cards-1) * s->dx + card_width;
+    s->h = (s->num_cards-1) * s->dy + card_height;
   }
   else
   {
-    s->w = CARD_WIDTH;
-    s->h = CARD_HEIGHT;
+    s->w = card_width;
+    s->h = card_height;
   }
 }
 
@@ -191,23 +182,24 @@ stack_set_offset(Stack *s, int which_offset)
 {
   int ow = s->w;
   int oh = s->h;
+  s->fan_type = which_offset;
   switch (which_offset)
   {
   case STACK_OFFSET_RIGHT:
-    s->dx = CARD_FAN_RIGHT;
+    s->dx = stack_fan_right;
     s->dy = 0;
     break;
   case STACK_OFFSET_DOWN:
     s->dx = 0;
-    s->dy = CARD_FAN_DOWN;
+    s->dy = stack_fan_down;
     break;
   case STACK_OFFSET_TBRIGHT:
-    s->dx = CARD_FAN_TBRIGHT;
+    s->dx = stack_fan_tbright;
     s->dy = 0;
     break;
   case STACK_OFFSET_TBDOWN:
     s->dx = 0;
-    s->dy = CARD_FAN_TBDOWN;
+    s->dy = stack_fan_tbdown;
     break;
   default:
     s->dx = 0;
@@ -217,6 +209,70 @@ stack_set_offset(Stack *s, int which_offset)
   stack_recalculate_size(s);
   invalidate_exposure(s->x, s->y, ow, oh, s->x, s->y, s->w, s->h);
   invalidate(s->x, s->y, s->w, s->h);
+}
+
+extern int get_picture_default_width, get_picture_default_height;
+
+void
+stack_set_card_size(int width, int height)
+{
+  static char *suits = "hdcs";
+  static char *values = " a234567890jqk";
+  int s, v, t;
+  char name[30];
+  Stack *st;
+  image *ak;
+
+  if (!fronts)
+    fronts = (Picture **)calloc(56, sizeof(Picture *));
+  for (s=0; s<4; s++)
+    for (v=1; v<=13; v++)
+    {
+      sprintf(name, "%c%c", values[v], suits[s]);
+      fronts[v*4+s] = (Picture *)get_image(name, width, height, 0);
+    }
+  get_picture_default_width = card_width = fronts[1*4+0]->w;
+  get_picture_default_height = card_height = fronts[1*4+0]->h;
+  back = (Picture *)get_image("back", card_width, card_height, 0);
+  nodrop = (Picture *)get_image("no-drop", width, height, 0);
+
+  ak = get_image ("a-k", width*4/11, width*26/11, 0);
+
+  stack_fan_right = ak->width/ak->list->across + 4;
+  if (stack_fan_right > card_width/3)
+    stack_fan_right = card_width/3;
+  stack_fan_down = ak->height/ak->list->down + 7;
+  if (stack_fan_down > card_height*2/5)
+    stack_fan_down = card_height*2/5;
+  stack_fan_tbright = 6;
+  stack_fan_tbdown = 6;
+
+  for (st=stacks; st; st=st->next)
+    stack_set_offset(st, st->fan_type);
+}
+
+void
+stack_get_card_size(int *width, int *height)
+{
+  if (fronts)
+    {
+      *width = fronts[MAKE_CARD(SUIT_SPADES, 1, FACEUP)]->w;
+      *height = fronts[MAKE_CARD(SUIT_SPADES, 1, FACEUP)]->h;
+    }
+  else
+    {
+      *width = 0;
+      *height = 0;
+    }
+}
+
+void
+stack_get_fans (int *down, int *right, int *tbdown, int *tbright)
+{
+  if (down) *down = stack_fan_down;
+  if (right) *right = stack_fan_right;
+  if (tbdown) *tbdown = stack_fan_tbdown;
+  if (tbright) *tbright = stack_fan_tbright;
 }
 
 
@@ -240,7 +296,7 @@ stack_add_card(Stack *s, int c)
   stack_expand(s, s->num_cards+1);
   put_picture(FACEDOWNP(c) ? back : fronts[c],
 	      s->x+s->dx*s->num_cards, s->y+s->dy*s->num_cards,
-	      0, 0, CARD_WIDTH, CARD_HEIGHT);
+	      0, 0, card_width, card_height);
   s->cards[s->num_cards] = c;
   s->num_cards++;
   stack_recalculate_size(s);
@@ -265,7 +321,7 @@ stack_change_card(Stack *s, int n, int c)
     return;
   put_picture(FACEDOWNP(c) ? back : fronts[c],
 	      s->x+s->dx*n, s->y+s->dy*n,
-	      0, 0, CARD_WIDTH, CARD_HEIGHT);
+	      0, 0, card_width, card_height);
   s->cards[n] = c;
 }
 
@@ -294,7 +350,7 @@ stack_set_empty_picture(Stack *s, Picture *p)
 {
   s->empty_picture = p;
   if (s->num_cards == 0)
-    put_picture(p, s->x, s->y, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+    put_picture(p, s->x, s->y, 0, 0, card_width, card_height);
 }
 
 #define P(n) (FACEDOWNP(s->cards[n]) ? back : fronts[s->cards[n] & 63])
@@ -311,22 +367,22 @@ stack_redraw_stack(Stack *s)
   {
     if (s->empty_picture)
       put_picture(s->empty_picture,
-		  s->x, s->y, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+		  s->x, s->y, 0, 0, card_width, card_height);
   }
   else
   {
     if (s->dx)
       for (n=0; n<num_cards-1; n++)
 	put_picture(P(n), s->x+s->dx*n, s->y,
-		    0, 0, s->dx, CARD_HEIGHT);
+		    0, 0, s->dx, card_height);
     if (s->dy)
       for (n=0; n<num_cards-1; n++)
 	put_picture(P(n), s->x, s->y+s->dy*n,
-		    0, 0, CARD_WIDTH, s->dy);
+		    0, 0, card_width, s->dy);
 
     n = num_cards-1;
     put_picture(P(n), s->x+s->dx*n, s->y+s->dy*n,
-		0, 0, CARD_WIDTH, CARD_HEIGHT);
+		0, 0, card_width, card_height);
   }
 }
 
@@ -337,8 +393,8 @@ stack_show_nodrop(int x, int y)
 {
   int oldx = nodrop_x;
   int oldy = nodrop_y;
-  nodrop_x = x-dragging_dx+CARD_WIDTH/2-nodrop->w/2;
-  nodrop_y = y-dragging_dy+CARD_HEIGHT/2-nodrop->h/2;
+  nodrop_x = x-dragging_dx+card_width/2-nodrop->w/2;
+  nodrop_y = y-dragging_dy+card_height/2-nodrop->h/2;
   if (nodrop_showing)
   {
     nodrop_showing = 0; /* avoid loops! */
@@ -380,9 +436,9 @@ stack_peek_card(Stack *s, int n, int show)
   x = s->x + s->dx * n;
   y = s->y + s->dy * n;
   if (show)
-    put_picture(P(n), x, y, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+    put_picture(P(n), x, y, 0, 0, card_width, card_height);
   else
-    invalidate(x, y, CARD_WIDTH, CARD_HEIGHT);
+    invalidate(x, y, card_width, card_height);
 }
 
 int
@@ -398,8 +454,8 @@ stack_find(int x, int y, Stack **stack_ret, int *n_ret)
     {
       int cx = s->x + s->dx * n;
       int cy = s->y + s->dy * n;
-      if (cx <= x && x < cx+CARD_WIDTH
-	  && cy <= y && y < cy+CARD_HEIGHT)
+      if (cx <= x && x < cx+card_width
+	  && cy <= y && y < cy+card_height)
       {
 	*stack_ret = s;
 	*n_ret = n;
@@ -411,8 +467,8 @@ stack_find(int x, int y, Stack **stack_ret, int *n_ret)
   for (s=stacks; s; s=s->next)
   {
     if (s == dragging_s) continue;
-    if (s->x <= x && x < s->x+CARD_WIDTH
-	&& s->y <= y && y < s->y+CARD_HEIGHT)
+    if (s->x <= x && x < s->x+card_width
+	&& s->y <= y && y < s->y+card_height)
     {
       *stack_ret = s;
       *n_ret = -1;
@@ -424,7 +480,7 @@ stack_find(int x, int y, Stack **stack_ret, int *n_ret)
   {
     if (s == dragging_s) continue;
     if (s->dx > 0
-	&& s->y <= y && y < s->y+CARD_HEIGHT
+	&& s->y <= y && y < s->y+card_height
 	&& s->x < x)
     {
 	*stack_ret = s;
@@ -433,7 +489,7 @@ stack_find(int x, int y, Stack **stack_ret, int *n_ret)
     }
     if (s->dy > 0
 	&& s->y <= y
-	&& s->x < x && x < s->x+CARD_WIDTH)
+	&& s->x < x && x < s->x+card_width)
     {
 	*stack_ret = s;
 	*n_ret = -1;
@@ -448,7 +504,7 @@ int
 stack_drag_find(int x, int y, Stack **stack_ret)
 {
   int n_ret;
-  return stack_find(x-dragging_dx+CARD_WIDTH/2, y-dragging_dy+CARD_HEIGHT/2,
+  return stack_find(x-dragging_dx+card_width/2, y-dragging_dy+card_height/2,
 		    stack_ret, &n_ret);
 }
 
@@ -628,8 +684,8 @@ stack_continue_drag(int n, int x, int y)
   dragging_s->y = y - dragging_dy;
   dragging_s->cards = dragging_os->cards + n;
   dragging_s->num_cards = dragging_os->num_cards - n;
-  dragging_s->w = (dragging_s->num_cards-1)*dragging_s->dx + CARD_WIDTH;
-  dragging_s->h = (dragging_s->num_cards-1)*dragging_s->dy + CARD_HEIGHT;
+  dragging_s->w = (dragging_s->num_cards-1)*dragging_s->dx + card_width;
+  dragging_s->h = (dragging_s->num_cards-1)*dragging_s->dy + card_height;
 
   if (n != old_n)
   {
@@ -766,8 +822,7 @@ stack_animate(Stack *s, Stack *d)
 
   /* 1 pixel per millisecond */
   dist = isqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-  if (table_width > 500)
-    dist /= 3;
+  dist = dist * 213 / table_width;
 
   ox = y1;
   oy = x1;

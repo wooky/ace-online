@@ -55,7 +55,8 @@ int main(int argc, char **argv)
 	youwin = get_picture("youwin");
 	youlose = get_picture("youlose");
 
-	init_table(argc, argv, WIN_W, WIN_H);
+	init_ace(argc, argv);
+	init_table(WIN_W, WIN_H);
 	table_loop();
 
 	return 0;

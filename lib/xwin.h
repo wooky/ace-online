@@ -26,6 +26,10 @@ typedef struct {
   int time; /* milliseconds.  button, motion only */
 } XWin_Event;
 
+/* sets display_width, display_height, table_width/height to preferred */
+void xwin_init (int argc, char **argv);
+/* sets table_width, table_height to actual */
+void xwin_create (int width, int height);
 int xwin_nextevent (XWin_Event *event);
 
 #endif

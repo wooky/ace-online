@@ -66,7 +66,8 @@ extern int table_width, table_height;
 int
 main(int argc, char **argv)
 {
-  init_table(argc, argv, TW, TH);
+  init_ace(argc, argv);
+  init_table(TW, TH);
   table_loop();
 }
 

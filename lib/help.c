@@ -185,6 +185,8 @@ help_init()
     + 2*thin_space[MENU_FONT];
 }
 
+static int mx = 0;
+
 static void
 my_help_redraw()
 {
@@ -192,13 +194,13 @@ my_help_redraw()
   int ts = thin_space[MENU_FONT];
   int y = menu_height;
   int saw_cur_menu = 0;
-  int mx = 0;
   Word *w;
 
+  mx = 0;
   w = words + menus[cur_menu];
   i = w->x + w->width + ts;
-  if (i > table_width)
-    mx = i - table_width + ts/2;
+  if (i > table_width - 20)
+    mx = i - table_width + ts/2 + 20;
 
   XSetForeground(display, gc, help_foreground);
   XSetFont(display, gc, fonts[MENU_FONT]->fid);
@@ -266,30 +268,6 @@ my_help_redraw()
 }
 
 static void
-my_help_click(int x, int y, int b)
-{
-  int i;
-  if (y < menu_height)
-  {
-    Word *w = 0;
-    for (i=0; i<num_menus; i++)
-    {
-      w = words+menus[i];
-      if (x > w->x && x < w->x+w->width)
-      {
-	show_page(menus[i]+1, i);
-	return;
-      }
-    }
-    if (!w || ! (words[0].flags & HEADER) && x > w->x+w->width+2*thin_space[MENU_FONT])
-    {
-      show_page(0, 0);
-      return;
-    }
-  }
-}
-
-static void
 my_help_key(int c, int x, int y)
 {
   int m, vs, old_vscroll = vscroll;
@@ -342,6 +320,54 @@ my_help_key(int c, int x, int y)
       if (vscroll != old_vscroll)
 	invalidate(0, menu_height+3, table_width, table_height);
     }
+}
+
+static void
+my_help_click(int x, int y, int b)
+{
+  int i, old_vscroll = vscroll;
+  if (y < menu_height)
+  {
+    Word *w = 0;
+    for (i=0; i<num_menus; i++)
+    {
+      w = words+menus[i];
+      if (x+mx > w->x && x+mx < w->x+w->width)
+      {
+	show_page(menus[i]+1, i);
+	return;
+      }
+    }
+    if (!w || ! (words[0].flags & HEADER) && x+mx > w->x+w->width+2*thin_space[MENU_FONT])
+    {
+      show_page(0, 0);
+      return;
+    }
+  }
+
+  /* rescale y to whole screen */
+  y = (y-menu_height) * table_height / (table_height - menu_height);
+
+  if (y > table_height/3 && y < table_height*2/3)
+    {
+      if (x < table_width/6)
+	{
+	  my_help_key (KEY_LEFT, x, y);
+	  return;
+	}
+      else if (x > table_width*5/6)
+	{
+	  my_help_key (KEY_RIGHT, x, y);
+	  return;
+	}
+    }
+  vscroll += (y - table_height/2);
+  if (vscroll > max_vscroll)
+    vscroll = max_vscroll;
+  if (vscroll < 0)
+    vscroll = 0;
+  if (vscroll != old_vscroll)
+    invalidate(0, menu_height+3, table_width, table_height);
 }
 
 #define MARGIN 10

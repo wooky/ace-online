@@ -35,7 +35,8 @@ Picture *empty;
 int
 main(int argc, char **argv)
 {
-  init_table(argc, argv, 13*W+14*M, 5*H+6*M);
+  init_ace(argc, argv);
+  init_table(13*W+14*M, 5*H+6*M);
   table_loop();
 }
 

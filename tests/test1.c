@@ -28,7 +28,8 @@ char *values = "a234567890jqk";
 int
 main(int argc, char **argv)
 {
-  init_table(argc, argv, 300+4*(W+M), 4*H+5*M);
+  init_ace(argc, argv);
+  init_table(300+4*(W+M), 4*H+5*M);
   table_loop();
 }
 

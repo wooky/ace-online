@@ -40,6 +40,8 @@ main(int argc, char **argv)
   char tmp[20];
   memset(grid, 0, sizeof(grid));
 
+  init_ace(argc, argv);
+
   layer = 0;
 
   for (x=1; x<9; x++)
@@ -54,8 +56,7 @@ main(int argc, char **argv)
   splash = get_picture("taipedit");
   set_centered_pic(splash);
 
-  init_table(argc, argv,
-	     GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+3*MARGIN + tpe_bs->w,
+  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+3*MARGIN + tpe_bs->w,
 	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
 
   filename = argv[1];

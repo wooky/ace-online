@@ -33,7 +33,6 @@
 #include "imagelib.h"
 #include "xwin.h"
 
-#define TRACE_UNCOMPRESS	0
 #define TRACE_EVENTS		0
 #define TRACE_PICTURES		0
 #define TRACE_INVALIDATE	0
@@ -42,7 +41,10 @@
 #define DBLCLICK_MOVE		5
 
 
-int table_width, table_height, table_type;
+int table_width=0, table_height=0, table_type;
+int display_width, display_height;
+
+extern int stack_fan_down, stack_fan_right, stack_fan_tbdown, stack_fan_tbright;
 
 static Picture *centered_pic = 0;
 
@@ -50,17 +52,92 @@ static int ex=0, ey=0, ew=0, eh=0;
 
 static int graphics_disabled = 1;
 
+OptionDesc *app_options;
+OptionDesc *xwin_options;
+static OptionDesc *options[5];
+
+static OptionDesc ace_options[] = {
+  { "-width", OPTION_INTEGER, &table_width },
+  { "-height", OPTION_INTEGER, &table_height },
+  { 0, 0, 0 }
+};
+
 void
-init_table(int argc, char **argv, int width, int height)
+init_ace(int argc, char **argv)
+{
+  int i = 0, o, a, errors=0;
+  if (app_options)
+    options[i++] = app_options;
+  if (xwin_options)
+    options[i++] = xwin_options;
+  options[i++] = ace_options;
+  options[i++] = 0;
+
+  for (a=1; a<argc; a++)
+    {
+      int found = 0;
+      if (argv[a][0] != '-')
+	break;
+      for (i=0; options[i]; i++)
+	for (o=0; options[i][o].option; o++)
+	  if (strcmp (options[i][o].option, argv[a]) == 0)
+	    {
+	      found = 1;
+	      if (options[i][o].type != OPTION_BOOLEAN && a == argc-1)
+		{
+		  fprintf(stderr, "Option `%s' takes an argument\n", argv[a]);
+		  errors++;
+		  continue;
+		}
+	      switch (options[i][o].type)
+		{
+		case OPTION_BOOLEAN:
+		  *(int *)(options[i][o].ptr) = 1;
+		  break;
+		case OPTION_STRING:
+		  *(char **)(options[i][o].ptr) = argv[a+1];
+		  a++;
+		  break;
+		case OPTION_INTEGER:
+		  *(int *)(options[i][o].ptr) = atoi(argv[a+1]);
+		  a++;
+		  break;
+		}
+	    }
+      if (!found)
+	{
+	  fprintf(stderr, "Unrecognized option `%s'\n", argv[a]);
+	  errors++;
+	}
+    }
+  if (errors)
+    exit(errors);
+
+  i = 1;
+  while (a < argc)
+    argv[i++] = argv[a++];
+  argv[i] = 0;
+
+  xwin_init(argc, argv);
+}
+
+void
+init_table(int width, int height)
 {
   need_imglib_cards();
+
+  if (width > display_width)
+    width = display_width;
+  if (height > display_height)
+    height = display_height;
+
   ew = width;
   eh = height;
 
   table_width = width;
   table_height = height;
 
-  init_xwin (argc, argv, width, height);
+  xwin_create (width, height);
 }
 
 typedef struct PicRec {
@@ -70,11 +147,14 @@ typedef struct PicRec {
   int image_table_index;
 } PicRec;
 
+int get_picture_default_width  = CARD_WIDTH;
+int get_picture_default_height = CARD_HEIGHT;
+
 Picture *
 get_picture(char *name)
 {
   image *img;
-  img = get_image(name, CARD_WIDTH, CARD_HEIGHT, 0);
+  img = get_image(name, get_picture_default_width, get_picture_default_height, 0);
   return (Picture *)img;
 }
 
@@ -194,23 +274,79 @@ void (*help_redraw)(void) = help_nothing;
 void (*help_click)(int x, int y, int b) = help_nothing;
 void (*help_key)(int c, int x, int y) = help_nothing;
 
+static int no_resize = 0;
+void
+table_no_resize()
+{
+  no_resize = 1;
+}
+
+static int initted = 0;
+
+static void
+maybe_init()
+{
+  if (! initted)
+    {
+      initted = 1;
+      flush();
+      graphics_disabled = 1;
+      init();
+      graphics_disabled = 0;
+#if TRACE_EVENTS
+      printf(" - done init\n");
+#endif
+    }
+}
+
 void
 table_loop()
 {
+  int first_expose = 0;
   int click_button;
-  int initted = 0;
 
   while (1)
   {
     XWin_Event event;
     xwin_nextevent(&event);
 
-    if (!initted && event.type != ev_expose)
+    if (!initted && (event.type != ev_expose && event.type != ev_resize))
       continue;
 
     switch (event.type)
       {
+      case ev_resize:
+#if TRACE_EVENTS
+	printf("resize: x=%3d y=%3d w=%3d h=%3d, no=%d\n",
+	       event.x, event.y, event.w, event.h, no_resize);
+#endif
+
+	maybe_init();
+
+	if (no_resize)
+	  xwin_fixed_size(table_width, table_height);
+	else
+	  {
+	    graphics_disabled = 1;
+	    resize(event.w, event.h);
+	    graphics_disabled = 0;
+	    if (no_resize)
+	      xwin_fixed_size(table_width, table_height);
+	    else
+	      {
+		table_width = event.w;
+		table_height = event.h;
+		if (first_expose)
+		  {
+		    clear (0, 0, table_width, table_height);
+		    redraw();
+		  }
+	      }
+	  }
+	break;
+
       case ev_expose:
+	first_expose = 1;
 	ex = event.x;
 	ey = event.y;
 	ew = event.w;
@@ -223,17 +359,8 @@ table_loop()
 	xwin_clip (ex, ey, ew, eh);
 	clear(ex, ey, ew, eh);
 
-	if (! initted)
-	  {
-	    initted = 1;
-	    flush();
-	    graphics_disabled = 1;
-	    init();
-	    graphics_disabled = 0;
-#if TRACE_EVENTS
-	    printf(" - done init\n");
-#endif
-	  }
+	maybe_init();
+
 	ex = event.x;
 	ey = event.y;
 	ew = event.w;
@@ -693,8 +820,13 @@ card_synth2(image *rv)
 
       if (kqj && kqj->height <= h2/2)
 	{
-	  put_subimage (kqj, 0, 0, rv, width-wm-kqj->width, (height+1)/2-kqj->height, 0);
+	  put_subimage (kqj, 0, 0, rv, width-wm-kqj->width, height/2-kqj->height, 0);
 	  put_subimage (kqj, 0, 0, rv, wm+1, (height+1)/2, PUT_ROTATED);
+	}
+      else if (kqj && kqj->height <= h2/2+3)
+	{
+	  put_subimage (kqj, 0, 0, rv, width-wm-kqj->width, hm+1, 0);
+	  put_subimage (kqj, 0, 0, rv, wm+1, height-hm-kqj->height, PUT_ROTATED);
 	}
       else if (kqj)
 	{
@@ -710,14 +842,14 @@ card_synth2(image *rv)
   put_subimage (face_img, color, face, rv, 1, 2, 0);
   subw = face_img->width / face_img->list->across;
   subh = face_img->height / face_img->list->down;
-  if (width > subw * 3)
+  if (width > subw*2+4)
     put_subimage (face_img, color, face, rv, width-1-subw, height-2-subh, PUT_ROTATED);
 
-  img = get_image("suits", 9, 9*4, 0);
-  put_subimage (img, 0, suit, rv, 3, 4+subh, 0);
-  if (width > subw * 3)
+  img = get_image("suits", subw-2, (subw-2)*4, GI_NOT_BIGGER);
+  put_subimage (img, 0, suit, rv, 1+subw/2-img->width/2, 4+subh, 0);
+  if (width > subw*2+4)
     put_subimage (img, 0, suit, rv,
-		  width-3-img->width/img->list->across, height-4-subh-img->height/img->list->down,
+		  width-1-subw/2-img->width/2, height-4-subh-img->height/img->list->down,
 		  PUT_ROTATED);
 }
 
@@ -725,10 +857,26 @@ static image *
 card_synth(image_list *list, int type, int width, int height)
 {
   image *rv;
+  static int minw=0, minh=0;
 
   for (rv = list->subimage[type]; rv; rv=rv->next)
     if (rv->width == width && rv->height == height)
       return rv;
+
+  if (minw == 0)
+    {
+      image *val, *suit;
+      int face_w = width*2/11;
+      val = get_image("a-k", face_w*2, face_w*13, 0);
+      suit = get_image("suits", 9, 9*4, 0);
+      minw = val->width / val->list->across + 2;
+      minh = val->height / val->list->down + suit->height / suit->list->down + 6;
+    }
+
+  if (width < minw)
+    width = minw;
+  if (height < minh)
+    height = minh;
 
   rv = alloc_synth_image(list, width, height, type);
   rv->synth_func = card_synth2;
@@ -756,6 +904,72 @@ empty_synth(image_list *list, int type, int width, int height)
 
   rv = alloc_synth_image(list, width, height, type);
   rv->synth_func = empty_synth2;
+  return rv;
+}
+
+static void
+back_synth2(image *img)
+{
+  image *tile = get_image ("back-tile", 1, 1, 0);
+  int xo, yo, size;
+  int x, y, l, r;
+  int xs[6];
+  int x01, x23, x24, x25;
+
+  for (x=0; x<img->width; x += tile->width)
+    for (y=0; y<img->height; y += tile->height)
+      put_image (tile, 0, 0, tile->width, tile->height, img, x, y, 0);
+  fill_image (img, 0, img->height-1, img->width, 1, 0, 0, 0);
+  fill_image (img, img->width-1, 0, 1, img->height, 0, 0, 0);
+  fill_image (img, 0, 0, img->width, 1, 0, 0, 0);
+  fill_image (img, 0, 0, 1, img->height, 0, 0, 0);
+
+  if (img->width < img->height)
+    size = img->width * 2/3;
+  else
+    size = img->height * 2/3;
+  xo = (img->width - size) / 2;
+  yo = (img->height - size) / 2;
+
+  x = (size-1) * 203 / 256;
+  x25 = size - 1 - x;
+  x23 = x25 * 105 / 256;
+  x24 = x25 - x23;
+
+  x = (size-1) * 200 / 256;
+  x01 = size - 1 - x;
+
+  for (y=0; y<size; y++)
+    {
+      xs[0] = y * 192/256;
+      xs[1] = xs[0] + x01;
+      xs[2] = (size-1-y) * 203/256;
+      xs[3] = xs[2] + x23;
+      xs[4] = xs[2] + x24;
+      xs[5] = xs[2] + x25;
+
+      l = (xs[0] < xs[2]) ? xs[0] : xs[2];
+      r = (xs[1] < xs[3]) ? xs[1] : xs[3];
+      fill_image (img, l+xo, y+yo, r-l+1, 1, 0, 0, 0);
+
+      l = (xs[0] > xs[4]) ? xs[0] : xs[4];
+      r = (xs[1] > xs[5]) ? xs[1] : xs[5];
+      fill_image (img, l+xo, y+yo, r-l+1, 1, 0, 0, 0);
+    }
+
+}
+
+static image *
+back_synth(image_list *list, int type, int width, int height)
+{
+  image *rv, *img;
+
+  for (rv = list->subimage[type]; rv; rv=rv->next)
+    if (rv->width == width && rv->height == height)
+      return rv;
+
+  rv = alloc_synth_image(list, width, height, type);
+  rv->synth_func = back_synth2;
   return rv;
 }
 
@@ -813,6 +1027,7 @@ image_list card_images[] = {
   { "ks", 1, 1, {0,0,0}, 0, card_synth, 0 },
   { "kh", 1, 1, {0,0,0}, 0, card_synth, 0 },
   { "empty", 1, 1, {0,0,0}, 0, empty_synth, 0 },
+  { "back", 1, 1, {0,0,0}, 0, back_synth, 0 },
   { 0 }
 };
 

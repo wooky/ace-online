@@ -93,7 +93,7 @@ STRIP = @STRIP@
 
 libcards_la_LDFLAGS = -version-info 1:0:0 $(LDFLAGS)
 
-libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c 	images.c table_ai.c table_ck.c table_dc.c table_dg.c 	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c
+libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c 	images.c table_ai.c table_ck.c table_dc.c table_dg.c 	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c table_rs.c
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -110,7 +110,7 @@ X_PRE_LIBS = @X_PRE_LIBS@
 libcards_la_LIBADD = 
 libcards_la_OBJECTS =  table.lo help.lo stack.lo imagelib.lo xwin.lo \
 images.lo table_ai.lo table_ck.lo table_dc.lo table_dg.lo table_dp.lo \
-table_in.lo table_ky.lo table_rd.lo table_rn.lo
+table_in.lo table_ky.lo table_rd.lo table_rn.lo table_rs.lo
 PROGRAMS =  $(noinst_PROGRAMS)
 
 text2c_SOURCES = text2c.c
@@ -141,7 +141,7 @@ DEP_FILES =  .deps/help.P .deps/imagelib.P .deps/images.P \
 .deps/make-imglib.P .deps/stack.P .deps/table.P .deps/table_ai.P \
 .deps/table_ck.P .deps/table_dc.P .deps/table_dg.P .deps/table_dp.P \
 .deps/table_in.P .deps/table_ky.P .deps/table_rd.P .deps/table_rn.P \
-.deps/text2c.P .deps/xwin.P
+.deps/table_rs.P .deps/text2c.P .deps/xwin.P
 SOURCES = $(libcards_la_SOURCES) text2c.c make-imglib.c
 OBJECTS = $(libcards_la_OBJECTS) text2c.o make-imglib.o
 
