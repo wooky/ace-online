@@ -99,7 +99,7 @@ init_ace(int argc, char **argv)
 		  a++;
 		  break;
 		case OPTION_INTEGER:
-		  *(int *)(options[i][o].ptr) = atoi(argv[a+1]);
+		  *(int *)(options[i][o].ptr) = strtol(argv[a+1], 0, 0);
 		  a++;
 		  break;
 		}

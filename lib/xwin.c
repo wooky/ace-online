@@ -38,7 +38,7 @@ typedef struct {
 
 #define ROT(a,b) if (xrotate) { int t = a; a = b; b = t; }
 
-static int pixel_for (int r, int g, int b);
+int pixel_for (int r, int g, int b);
 
 #include "cards.h"
 #include "imagelib.h"
@@ -48,8 +48,10 @@ static char AOP[] = "The Ace of Penguins - ";
 static char *type_names[] = {"mono", "grey", "color"};
 
 int xrotate = 0;
+int visual_id = 0;
 OptionDesc xwin_options_list[] = {
   { "-rotate", OPTION_BOOLEAN, &xrotate },
+  { "-visual", OPTION_INTEGER, &visual_id },
   { 0, 0, 0 }
 };
 OptionDesc *xwin_options = xwin_options_list;
@@ -64,6 +66,8 @@ GC gc=0, imggc=0, maskgc=0;
 XFontStruct *font;
 int font_width, font_height;
 XVisualInfo vi, *vip;
+
+static int broken_xserver = 0;
 
 static image_list static_display_image_list;
 static image static_display_image;
@@ -137,9 +141,29 @@ xwin_init(int argc, char **argv)
 
   display = XOpenDisplay(0);
   screen = XDefaultScreen(display);
-  cmap = XDefaultColormap(display, screen);
-  visual = XDefaultVisual(display, screen);
   rootwin = XDefaultRootWindow(display);
+
+  /* The Agenda's X server can't use a bitmap for a mask.  If/when it
+     gets fixed, find out the version and update the test below. */
+  if (strcmp(XServerVendor(display), "Keith Packard") == 0)
+    broken_xserver = 1;
+
+  visual = XDefaultVisual(display, screen);
+  vi.visualid = XVisualIDFromVisual(visual);
+  if (visual_id)
+    vi.visualid = visual_id;
+  vip = XGetVisualInfo (display, VisualIDMask, &vi, &i);
+  if (i != 1)
+    abort();
+  visual = vip->visual;
+
+  if (visual_id)
+    {
+      cmap = XCreateColormap(display, rootwin, visual, AllocNone);
+    }
+  else
+    cmap = XDefaultColormap(display, screen);
+
   gc = XCreateGC(display, rootwin, 0, 0);
   imggc = XCreateGC(display, rootwin, 0, 0);
 
@@ -149,10 +173,6 @@ xwin_init(int argc, char **argv)
   display_height = DisplayHeight(display, screen);
   ROT(display_width, display_height);
   
-  vi.visualid = XVisualIDFromVisual(visual);
-  vip = XGetVisualInfo (display, VisualIDMask, &vi, &i);
-  if (i != 1)
-    abort();
   switch (vip->class)
     {
     case StaticGray:
@@ -168,6 +188,19 @@ xwin_init(int argc, char **argv)
     case DirectColor:
       table_type = TABLE_COLOR;
       break;
+    }
+
+  if (vip->class == DirectColor)
+    {
+      int i, scale = 0xffff / ((1<<vip->depth)-1);
+      int step = 1 << (vip->depth - vip->bits_per_rgb);
+      XColor c;
+      for (i=0; i < (1<<vip->depth); i += step)
+	{
+	  c.red = c.blue = c.green = i * scale;
+	  c.pixel = i;
+	  XStoreColor(display, cmap, &c);
+	}
     }
 
   wm_protocols_atom = XInternAtom(display, "WM_PROTOCOLS", 0);
@@ -206,15 +239,16 @@ xwin_create(int width, int height)
   size_hints.max_height = height;
 #endif
 
+  attributes.colormap = cmap;
   window = XCreateWindow(display,
 			 rootwin,
 			 size_hints.x, size_hints.y,
 			 size_hints.width, size_hints.height,
 			 0,
-			 CopyFromParent, /* depth */
+			 vip->depth,
 			 InputOutput,
-			 CopyFromParent, /* visual */
-			 0, 0);
+			 visual,
+			 CWColormap, &attributes);
 
   XSetWMNormalHints(display, window, &size_hints);
 
@@ -511,7 +545,7 @@ text(char *t, int x, int y)
 {
   PROT2(x, y);
   XSetBackground(display, gc, table_background);
-  XSetForeground(display, gc, WhitePixel(display, screen));
+  XSetForeground(display, gc, pixel_for(255, 255, 255));
   if (font) XSetFont(display, gc, font->fid);
   XDrawImageString(display, window, gc, x, y-font->descent, t, strlen(t));
 }
@@ -577,11 +611,15 @@ do_gamma(int p)
   return gamma_table[p];
 }
 
-static int
+static int ppixels[6][6][6];
+#define NO_PIXEL -2
+static int ppixels_initted = 0;
+
+int
 pixel_for (int r, int g, int b)
 {
   static int rs=0, gs=0, bs=0;
-  int p;
+  int p, i;
 
   if (table_type != TABLE_COLOR)
     {
@@ -593,6 +631,7 @@ pixel_for (int r, int g, int b)
   switch (vip->class)
     {
     case TrueColor:
+    case DirectColor:
       if (rs == 0)
 	{
 	  rs = shift_for (8, vip->red_mask);
@@ -604,8 +643,35 @@ pixel_for (int r, int g, int b)
       p |= do_shift_mask (g, gs, vip->green_mask);
       p |= do_shift_mask (b, bs, vip->blue_mask);
       return p;
+
     case StaticGray:
-	return (r*77+g*150+b*29) >> (16 - vip->depth);
+      return (r*77+g*150+b*29) >> (16 - vip->depth);
+
+    case GrayScale:
+    case StaticColor:
+    case PseudoColor:
+      if (!ppixels_initted)
+	{
+	  for (i=0; i<6*6*6; i++)
+	    ((int *)ppixels)[i] = NO_PIXEL;
+	  ppixels_initted = 1;
+	}
+      rs = (r+25) / 51;
+      gs = (g+25) / 51;
+      bs = (b+25) / 51;
+      if (ppixels[rs][gs][bs] == NO_PIXEL)
+	{
+	  XColor c;
+	  c.red = rs * 13107;
+	  c.green = gs * 13107;
+	  c.blue = bs * 13107;
+	  if (XAllocColor (display, cmap, &c))
+	    {
+	      ppixels[rs][gs][bs] = c.pixel;
+	      return c.pixel;
+	    }
+	}
+      return ppixels[rs][gs][bs];
     }
   fprintf(stderr, "Don't know how to make a pixel!\n");
   abort();
@@ -709,18 +775,13 @@ cvt_gt (image *img)
 }
 
 struct {
-  int visual_class;
   int png_image_type;
   void (*converter)(image *);
 } image_converters[] = {
-  { TrueColor, PNG_COLOR_TYPE_RGB, cvt_rgbt },
-  { TrueColor, PNG_COLOR_TYPE_RGB_ALPHA, cvt_rgbt },
-  { TrueColor, PNG_COLOR_TYPE_PALETTE, cvt_cpt },
-  { TrueColor, PNG_COLOR_TYPE_GRAY, cvt_gt },
-  { StaticGray, PNG_COLOR_TYPE_RGB, cvt_rgbt },
-  { StaticGray, PNG_COLOR_TYPE_RGB_ALPHA, cvt_rgbt },
-  { StaticGray, PNG_COLOR_TYPE_PALETTE, cvt_cpt },
-  { StaticGray, PNG_COLOR_TYPE_GRAY, cvt_gt }
+  { PNG_COLOR_TYPE_RGB, cvt_rgbt },
+  { PNG_COLOR_TYPE_RGB_ALPHA, cvt_rgbt },
+  { PNG_COLOR_TYPE_PALETTE, cvt_cpt },
+  { PNG_COLOR_TYPE_GRAY, cvt_gt },
 };
 #define NUM_CONVERTERS (sizeof(image_converters)/sizeof(image_converters[0]))
 
@@ -848,8 +909,7 @@ build_image (image *src)
 
   for (i=0; i<NUM_CONVERTERS; i++)
     {
-      if (vip->class == image_converters[i].visual_class
-	  && color_type == image_converters[i].png_image_type)
+      if (color_type == image_converters[i].png_image_type)
 	{
 	  image_converters[i].converter(src);
 	  break;
@@ -978,7 +1038,7 @@ put_image (image *src, int x, int y, int w, int h,
   if (flags & PUT_INVERTED)
     {
       XImage *img;
-      int x, y;
+      int x, y, b = pixel_for(0, 0, 0), w = pixel_for(255, 255, 255);
       if (!src->pixels->inverted_pixmap)
 	{
 	  src->pixels->inverted_pixmap
@@ -997,10 +1057,10 @@ put_image (image *src, int x, int y, int w, int h,
 		  }
 		else
 		  {
-		    if (p == WhitePixel(display, screen))
-		      p = BlackPixel(display, screen);
-		    else if (p == BlackPixel(display, screen))
-		      p = WhitePixel(display, screen);
+		    if (p == w)
+		      p = b;
+		    else if (p == b)
+		      p = w;
 		  }
 		XPutPixel(img, x, y, p);
 	      }
@@ -1013,7 +1073,7 @@ put_image (image *src, int x, int y, int w, int h,
       mask = src->pixels->image_mask;
     }
 
-  if (mask && vip->class != StaticGray)
+  if (mask && !broken_xserver)
     {
       XSetClipMask(display, pgc, mask);
       XSetClipOrigin(display, pgc, dx, dy);
@@ -1021,7 +1081,7 @@ put_image (image *src, int x, int y, int w, int h,
   XCopyArea(display, which, dest->pixels->image_pixmap, pgc,
 	    x, y, w, h, dx+x, dy+y);
   XSync(display, 0);
-  if (mask && vip->class != StaticGray)
+  if (mask && !broken_xserver)
     {
       if (pgc == gc)
 	xwin_restore_clip();

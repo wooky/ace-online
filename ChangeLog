@@ -1,5 +1,13 @@
 2001-05-06  DJ Delorie  <dj@delorie.com>
 
+	* lib/table.c (init_ace): use strtol instead of atoi.
+	* lib/help.c (help_init): Use pixel_for instead of
+	{White,Black}Pixel
+	* lib/xwin.h: Support alternate visuals.  Detect Agenda X server
+	vs other StaticGray servers.
+	(pixel_for): Make global for help_init().  Support PseudoColor,
+	GrayScale, and StaticColor.
+
 	* lib/Makefile.am: Add table_rs.c.
 	* lib/Makefile.in: Regenerate.
 	* lib/cards.h: Split init_table into init_ace and init_table,

@@ -138,15 +138,15 @@ help_init()
 
   if (table_type != TABLE_COLOR)
     {
-      help_background = WhitePixel(display, screen);
-      help_foreground = BlackPixel(display, screen);
-      help_beyondcolor = WhitePixel(display, screen);
+      help_background = pixel_for(255, 255, 255);
+      help_foreground = pixel_for(0, 0, 0);
+      help_beyondcolor = pixel_for(255, 255, 255);
     }
   else
     {
       help_background = table_background;
-      help_foreground = WhitePixel(display, screen);
-      help_beyondcolor = BlackPixel(display, screen);
+      help_foreground = pixel_for(255, 255, 255);
+      help_beyondcolor = pixel_for(0, 0, 0);
     }
   if (table_width < 300)
     {
