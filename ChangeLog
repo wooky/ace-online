@@ -1,3 +1,9 @@
+2004-06-13  Thimo Neubauer  <thimo@riff.netz>
+
+	* games/thornq.c: Applied patch from Seneca Cunningham so that
+	double clicking on facedown cards doesn't move them like faceup
+	cards
+
 2003-02-11  Thimo Neubauer  <thimo@debian.org>
 
 	* games/mastermind.c (key): Don't use 'r' for restart,

@@ -549,7 +549,7 @@ try_moving_to(int i)
 	int f = stack_get_card(maincells[i], j);
 	if (SUIT(f) == SUIT(c)
 	    && VALUE(c) == VALUE(f) - 1
-	    && ! FACEDOWNP(f)) {
+	    && ! FACEDOWNP(c)) {
 	  clear_arrows();
 	  stack_move_cards(src_stack, src_n, maincells[i]);
 	  while (auto_move()) ;
