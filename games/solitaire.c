@@ -1,5 +1,5 @@
 /* The Ace of Penguins - solitaire.c
-   Copyright (C) 1998, 2001 DJ Delorie
+   Copyright (C) 1998, 2001, 2002 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -548,6 +548,8 @@ double_click(int x, int y, int b)
   {
     /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
     stack_move_cards(src_stack, dest_n, dest_stack);
+    check_for_end_of_game();
+    return;
   }
 
   /*printf("- checking stacks, sc=%d\n", sc);*/

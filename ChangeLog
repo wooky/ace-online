@@ -1,3 +1,8 @@
+2002-04-19  DJ Delorie  <dj@delorie.com>
+
+	* games/solitaire.c (double_click): Don't move cards twice
+	from the same stack.
+
 2001-12-07  DJ Delorie  <dj@redhat.com>
 
 	* games/solitaire.c (double_click): Prefer moving to a maincell
