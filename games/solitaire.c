@@ -37,6 +37,7 @@ static void check_for_end_of_game();
 
 static int no_auto = 0;        /* boolean */
 static int use_auto_moves = 1; /* boolean */
+static int drag_active = 0;    /* boolean - set if card is being dragged */
 static int flip_3s = 0;        /* boolean - zero means flip 1 at a time */
                                /*           non-zero means flip 3 at a time */
 static int vegas = 0;          /* boolean - in vegas style, you pay $52 to play */
@@ -410,6 +411,13 @@ click(int x, int y, int b)
   Picture *cp = get_centered_pic();
   src_stack = 0;
 
+  // abort drag on click of other mousebutton
+  if (drag_active) {
+    stack_drop(dest_stack, last_n);
+    drag_active = 0;
+    return;
+  };
+  
   if ((cp == youlose || cp == youwin)
       && (x > table_width/2-cp->w/2
 	  && x < table_width/2+cp->w/2
@@ -582,6 +590,7 @@ static void
 drag(int x, int y, int b)
 {
   if (b > 1) return;
+  drag_active = 1;
   last_n = n_droppable(x, y);
   stack_continue_drag(last_n, x, y);
 }
@@ -610,6 +619,8 @@ drop(int x, int y, int b)
 
   stack_drop(dest_stack, last_n);
 
+  drag_active = 0;
+  
   check_for_end_of_game();
 }
 
