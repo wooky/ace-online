@@ -45,7 +45,8 @@ extern "C" {
 #endif
 #endif
 
-int _register_imagelib(image_list *);
+extern image_list appimglib_imagelib[];
+int register_imagelib(image_list *);
 
 image *alloc_synth_image (image_list *list, int width, int height, int type);
 
@@ -74,10 +75,6 @@ void fill_image (image *dest, int x, int y, int w, int h,
 
 #ifdef __cplusplus
 }
-#define REGISTER_IMAGE_LIBRARY(x) static int __register = _register_imagelib(x);
-#else
-#define REGISTER_IMAGE_LIBRARY(x) static void __register() __attribute__((constructor)); \
-	static void __register() { _register_imagelib(x); }
 #endif
 
 #endif

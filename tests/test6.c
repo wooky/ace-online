@@ -46,6 +46,7 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
   init_ace(argc, argv, fmap);
   init_table(3*M+2*W, 2*M+H);
   table_loop();

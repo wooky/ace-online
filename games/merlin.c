@@ -138,13 +138,15 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
+  init_ace(argc, argv, fmap);
+
   cell = get_picture("merlin-c");
   blank = get_picture("merlin-b");
   splash = get_picture("merlin");
   youwin = get_picture("youwin");
   xlogo = get_picture("xemboss");
 
-  init_ace(argc, argv, fmap);
   init_table(300, 300);
   table_loop();
 }

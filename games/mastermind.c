@@ -316,6 +316,9 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
+  init_ace(argc, argv, fmap);
+
   splash = get_picture("mastermind");
   youwin = get_picture("youwin");
   youlose = get_picture("youlose");
@@ -350,8 +353,6 @@ main(int argc, char **argv)
   ry = gy + (BSZ-SSZ)/2;
   rdx = SSZ+3;
   rdy = gdy;
-
-  init_ace(argc, argv, fmap);
 
   table_width = rx + 3*rdx + SSZ + WGAP;
   table_height = gy + BSZ + CARD_MARGIN;

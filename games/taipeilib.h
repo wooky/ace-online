@@ -12,3 +12,5 @@ void invalidate_tile(int x, int y, int z);
 #define gy2y(y,z) ((y)*GRID_DY+(GRID_SZ-(z))*GRID_DZ+MARGIN)
 #define x2gx(x,z) (((x)-(z)*GRID_DZ-MARGIN)/GRID_DX)
 #define y2gy(y,z) (((y)-(GRID_SZ-(z))*GRID_DZ-MARGIN)/GRID_DY)
+
+extern struct image_list tile_images[];

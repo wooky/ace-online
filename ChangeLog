@@ -1,5 +1,14 @@
 2001-09-21  DJ Delorie  <dj@delorie.com>
 
+	* lib/cards.h (register_imagelib): Declare.
+	(appimglib_imagelib): Declare.
+	* lib/imagelib.h: Likewise.
+	* lib/imagelib.c (register_iamgelib): Make public.
+	* lib/make-imglib.c (dump_images): Remove auto-register feature.
+	* lib/table.c: Manually register image libs.
+	* games/*.c: Likewise.
+	* test/test6.c: Likewise.
+
 	* lib/funcs.h: New, define callback pointers.
 	* lib/funcs.c: New, provide default callbacks.
 	* lib/table.c: Accept list of callbacks in init_ace, and use

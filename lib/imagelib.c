@@ -4,11 +4,13 @@
 image_list *image_root = 0;
 
 int
-_register_imagelib (image_list *images)
+register_imagelib (image_list *images)
 {
   int i, j, k;
   for (i=0; images[i].name; i++)
     {
+      if (images[i].next)
+	continue;
       images[i].next = image_root;
       image_root = images+i;
       for (j=0; j<3; j++)

@@ -364,6 +364,8 @@ main(int argc, char **argv)
   char tmp[20];
   memset(grid, 0, sizeof(grid));
 
+  register_imagelib(appimglib_imagelib);
+  register_imagelib(tile_images);
   init_ace(argc, argv, fmap);
 
   layer = 0;

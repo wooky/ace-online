@@ -173,7 +173,7 @@ dump_images(FILE *o)
 	  fprintf(o, "  { 0, 0, 0 }\n};\n\n");
 	}
 
-  fprintf(o, "static image_list %s[] = {\n", basename);
+  fprintf(o, "image_list %s_imagelib[] = {\n", basename);
   for (img=image_list; img; img=img->next)
     {
       char *c = "";
@@ -189,9 +189,6 @@ dump_images(FILE *o)
       fprintf(o, " } },\n");
     }
   fprintf(o, "  { 0, 0, 0, { 0, 0, 0 } }\n};\n\n");
-
-  fprintf(o, "REGISTER_IMAGE_LIBRARY(%s)\n", basename);
-  fprintf(o, "void need_imglib_%s(){}\n", basename);
 }
 
 /*****************************************************************************/

@@ -53,8 +53,11 @@ typedef struct {
 void init_ace(int argc, char **argv, FunctionMapping *funcs);
 /* This creates the initial window */
 void init_table(int table_width, int table_height);
-/* Call this to begin processing events;
+/* Call this to begin processing events; */
 void table_loop();
+
+extern struct image_list appimglib_imagelib[];
+int register_imagelib(struct image_list *);
 
 /* Really, see image in imagelib.h */
 typedef struct Picture {

@@ -317,6 +317,7 @@ main(int argc, char **argv)
 {
   int alt_width = 3*M+2*W+51*R;
   init_ace(argc, argv, fmap);
+  register_imagelib(appimglib_imagelib);
   table_width = 8*M+7*W;
   if (table_width < alt_width) table_width = alt_width;
   table_height = 3*M+5*CARD_FAN_DOWN+2*H;

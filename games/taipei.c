@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include "cards.h"
+#include "imagelib.h"
 #include "taipeilib.h"
 
 static char *tile_names[] = {
@@ -684,6 +685,8 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(tile_images);
+  register_imagelib(appimglib_imagelib);
   init_ace(argc, argv, fmap);
   init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+2*MARGIN,
 	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);

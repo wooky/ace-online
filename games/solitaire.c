@@ -641,6 +641,7 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
   init_ace(argc, argv, fmap);
 
   use_auto_moves = !no_auto;

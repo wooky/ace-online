@@ -539,12 +539,14 @@ static FunctionMapping fmap[] = {
 
 int main(int argc, char **argv)
 {
+	register_imagelib(appimglib_imagelib);
+	init_ace(argc, argv, fmap);
+
 	xlogo = get_picture("xemboss");
 	splash = get_picture("canfield");
 	youwin = get_picture("youwin");
 	youlose = get_picture("youlose");
 
-	init_ace(argc, argv, fmap);
 	init_table(WIN_W, WIN_H);
 	table_loop();
 

@@ -693,6 +693,9 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
+  init_ace(argc, argv, fmap);
+
   xlogo = get_picture("xemboss");
   splash = get_picture("thornq");
   youwin = get_picture("youwin");
@@ -700,7 +703,6 @@ main(int argc, char **argv)
   arrow = get_picture("thornq-arrow");
   no_arrow = get_picture("thornq-noarrow");
 
-  init_ace(argc, argv, fmap);
   if (table_width == 0 || table_height == 0)
     {
       table_width = WIN_W;

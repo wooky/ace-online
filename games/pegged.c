@@ -503,6 +503,8 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
+  init_ace(argc, argv, fmap);
   hole = get_picture("pegged-h");
   peg = get_picture("pegged-p");
   splash = get_picture("pegged");
@@ -510,7 +512,6 @@ main(int argc, char **argv)
   youlose = get_picture("youlose");
   xlogo = get_picture("xemboss");
 
-  init_ace(argc, argv, fmap);
   init_table(320, 320);
   table_loop();
 }

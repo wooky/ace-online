@@ -75,10 +75,17 @@ static FunctionMapping flist[] = {
   { 0, 0 }
 };
 
+extern image_list cards_imagelib[];
+static image_list card_images[];
+
 void
 init_ace(int argc, char **argv, FunctionMapping *funcs)
 {
   int i = 0, o, a, errors=0;
+
+  register_imagelib(cards_imagelib);
+  register_imagelib(card_images);
+
   if (app_options)
     options[i++] = app_options;
   if (xwin_options)
@@ -142,7 +149,6 @@ init_ace(int argc, char **argv, FunctionMapping *funcs)
 void
 init_table(int width, int height)
 {
-  need_imglib_cards();
 
   if (width > display_width)
     width = display_width;
@@ -991,7 +997,7 @@ back_synth(image_list *list, int type, int width, int height)
   return rv;
 }
 
-image_list card_images[] = {
+static image_list card_images[] = {
   { "ac", 1, 1, {0,0,0}, 0, card_synth, 0 },
   { "ad", 1, 1, {0,0,0}, 0, card_synth, 0 },
   { "as", 1, 1, {0,0,0}, 0, card_synth, 0 },
@@ -1048,6 +1054,4 @@ image_list card_images[] = {
   { "back", 1, 1, {0,0,0}, 0, back_synth, 0 },
   { 0 }
 };
-
-REGISTER_IMAGE_LIBRARY(card_images)
 

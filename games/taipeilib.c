@@ -177,4 +177,3 @@ image_list tile_images[] = {
   { 0 }
 };
 
-REGISTER_IMAGE_LIBRARY(tile_images)

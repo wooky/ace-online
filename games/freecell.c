@@ -638,11 +638,12 @@ static FunctionMapping fmap[] = {
 int
 main(int argc, char **argv)
 {
+  register_imagelib(appimglib_imagelib);
+  init_ace(argc, argv, fmap);
   xlogo = get_picture("xemboss");
   splash = get_picture("freecell");
   youwin = get_picture("youwin");
   youlose = get_picture("youlose");
-  init_ace(argc, argv, fmap);
   if (table_width == 0 || table_height == 0)
     {
       table_width = 640;
