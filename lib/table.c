@@ -143,7 +143,8 @@ init_ace(int argc, char **argv, FunctionMapping *funcs)
     argv[i++] = argv[a++];
   argv[i] = 0;
 
-  xwin_init(argc, argv);
+  if (xwin_init(argc, argv))
+    exit(1);
 }
 
 void

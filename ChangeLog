@@ -1,3 +1,9 @@
+2002-04-19  Thimo Neubauer  <thimo@debian.org>
+
+	* lib/xwin.c (xwin_init): Check for no DISPLAY.
+	* lib/xwin.h (xwin_init): Return int.
+	* lib/table.c (init_ace): Return if no DISPLAY.
+
 2002-04-19  DJ Delorie  <dj@delorie.com>
 
 	* games/solitaire.c (double_click): Don't move cards twice

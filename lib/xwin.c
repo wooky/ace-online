@@ -125,7 +125,7 @@ void break_here(){}
 
 static char *name;
 
-void
+int
 xwin_init(int argc, char **argv)
 {
   char *sl;
@@ -140,6 +140,10 @@ xwin_init(int argc, char **argv)
   if (sl) name = sl+1;
 
   display = XOpenDisplay(0);
+  if (display == NULL) {
+    fprintf(stderr, "Error: Can't open display!\n");
+    return 1;
+  };
   screen = XDefaultScreen(display);
   rootwin = XDefaultRootWindow(display);
 
@@ -215,6 +219,8 @@ xwin_init(int argc, char **argv)
   if (!font) font = XLoadQueryFont(display, "fixed");
   font_width = font->max_bounds.width;
   font_height = font->ascent + font->descent;
+
+  return 0;
 }
 
 void
