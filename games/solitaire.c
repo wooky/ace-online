@@ -249,7 +249,8 @@ auto_move_stack(Stack *s)
   if (pile_for[SUIT(c)] == -1)
     return 0;
   if (VALUE(c) == VALUE(top_card[pile_for[SUIT(c)]])+1
-      && VALUE(c) <= lowest[COLOR(c)?0:1] + 2)
+      && VALUE(c) <= lowest[COLOR(c)?0:1] + 2
+      && VALUE(c) <= lowest[COLOR(c)?1:0] + 3)
   {
     stack_animate(s, outcells[pile_for[SUIT(c)]]);
     return 1;

@@ -497,7 +497,7 @@ put_picture_inverted(Picture *picture, int dx, int dy,
       for (y=0; y<picture->h; y++)
       {
 	int p = XGetPixel(img, x, y);
-	if (img->depth >= 24)
+	if (img->depth >= 15)
 	{
 	  p = ~p & 0xffffff;
 	}

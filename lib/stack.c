@@ -17,6 +17,9 @@
 
 #include <stdio.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <math.h>
 
 typedef struct Stack {
   struct Stack *prev, *next;
@@ -673,22 +676,139 @@ stack_drop(Stack *onto, int n)
   }
 }
 
+static int
+isqrt(unsigned int i)
+{
+  unsigned int min = 0;
+  unsigned int max ;
+  for (max=1; max*max<i; max<<=1);
+  while (min < max-1)
+    {
+      unsigned int try = (min+max)/2;
+      unsigned int prod = try*try;
+#if 0
+      printf("isqrt(%u): %u < %u (=%u) < %u\n", i, min, try, prod, max);
+#endif
+      if (prod < i)
+	min = try;
+      else
+	max = try;
+    }
+#if 0
+  printf("isqrt(%u) = %u (%d,%d,%d)\n", i, min, (min-1)*(min-1)-i, min*min-i,
+	 (min+1)*(min+1)-i);
+#endif
+  return min;
+}
+
 static inline int
 iabs(int a)
 {
   return a<0 ? -a : a;
 }
 
-static double
-utime()
+static int
+ms_time()
 {
   struct timeval tp;
   gettimeofday(&tp, 0);
-  return tp.tv_sec + (tp.tv_usec/1000000.0);
+  return tp.tv_sec * 1000 + tp.tv_usec / 1000;
+  /* return tp.tv_sec + (tp.tv_usec/1000000.0); */
+}
+
+static int ms_pause_amount = 0;
+
+static void
+ms_pause()
+{
+  struct timeval tv;
+  if (ms_pause_amount == 0)
+    {
+      /* calibrate */
+      int t1, t2, t3;
+      t1 = ms_time();
+      do { t2 = ms_time(); } while (t1 == t2);
+      do { t3 = ms_time(); } while (t2 == t3);
+      ms_pause_amount = t3 - t2;
+      /* printf("ms_pause: %d\n", ms_pause_amount); */
+    }
+  tv.tv_sec = 0;
+  tv.tv_usec = ms_pause_amount; /* 1/1000 sec */
+  select(0, 0, 0, 0, &tv);
 }
 
 void
 stack_animate(Stack *s, Stack *d)
+{
+  int x1, y1, x2, y2, x, y, ox, oy;
+  double dx, dist;
+  int start, last, now;
+#if 0
+  int frames=0;
+#endif
+  int sn, dn;
+
+  last = start = ms_time();
+
+  sn = stack_count_cards(s);
+  dn = stack_count_cards(d);
+  stack_card_posn(s, sn-1, &x1, &y1);
+  stack_card_posn(d, dn-1, &x2, &y2);
+  if (d->num_cards)
+  {
+    x2 += d->dx;
+    y2 += d->dy;
+  }
+  stack_begin_drag(s, sn-1, x1, y1);
+  flush();
+
+  /* 1 pixel per millisecond */
+  dist = isqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+  dist /= 3;
+
+  ox = y1;
+  oy = x1;
+  while (1)
+  {
+    now = ms_time();
+    if (now == last)
+      {
+	ms_pause();
+	continue;
+      }
+
+    dx = (now - start) / dist;
+    if (dx >= 1)
+      break;
+    x = (int)(x1+dx*(x2-x1));
+    y = (int)(y1+dx*(y2-y1));
+    if (x != ox || y != oy)
+    {
+      stack_continue_drag(sn-1, x, y);
+      ox = x;
+      oy = y;
+      flush();
+#if 0
+      frames++;
+#endif
+    }
+    else
+      ms_pause();
+  }
+  stack_drop(d, sn-1);
+  flush();
+  now = ms_time();
+  last = now - start;
+  if (last < 1) last = 1;
+#if 0
+  printf("%d frames in %d milliseconds = %g ms/f\n",
+	 frames, last, (double)last/frames);
+#endif
+}
+
+#if 0
+void
+old_stack_animate(Stack *s, Stack *d)
 {
   int x1, y1, x2, y2, x, y, ox, oy;
   double dx, ddx;
@@ -702,13 +822,18 @@ stack_animate(Stack *s, Stack *d)
   dn = stack_count_cards(d);
   stack_card_posn(s, sn-1, &x1, &y1);
   stack_card_posn(d, dn-1, &x2, &y2);
+  if (d->num_cards)
+  {
+    x2 += d->dx;
+    y2 += d->dy;
+  }
   stack_begin_drag(s, sn-1, x1, y1);
   flush();
   ddx = fps_factor/(iabs(x1-x2) + iabs(y1-y2));
   if (ddx > 0.25) ddx = 0.25;
   ox = y1;
   oy = x1;
-  start = utime();
+  start = ms_time();
   for (dx=0; dx<1; dx+=ddx)
   {
     x = (int)(x1+dx*(x2-x1));
@@ -727,7 +852,7 @@ stack_animate(Stack *s, Stack *d)
 
   /* Figure out the new speed; we want the visual rate to be
      independent of the CPU/video performance */
-  end = utime();
+  end = ms_time();
   if (end > start)
   {
 #if 0
@@ -746,3 +871,4 @@ stack_animate(Stack *s, Stack *d)
   }
 	 
 }
+#endif

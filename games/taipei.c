@@ -476,7 +476,6 @@ void
 init()
 {
   int i;
-  srand(time(0));
   memset(grid, 0, sizeof(grid));
   for (i=4; i<NUM_TILES; i++)
   {

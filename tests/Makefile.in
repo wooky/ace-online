@@ -1,0 +1,337 @@
+# Makefile.in generated automatically by automake 1.3b from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+AWK = @AWK@
+CC = @CC@
+GD_CFLAGS = @GD_CFLAGS@
+GD_LIBS = @GD_LIBS@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+XPM_CFLAGS = @XPM_CFLAGS@
+XPM_LIBS = @XPM_LIBS@
+
+noinst_PROGRAMS = test1 test3 test4 test5 test6
+bin_PROGRAMS = penguins
+test6_SOURCES = test6.c test6c.c
+
+INCLUDES = -I../lib $(X_CFLAGS)
+LDFLAGS = $(X_LIBS) $(XPM_LIBS)
+
+LDADD = ../lib/libcards.a -lXpm -lX11
+
+EXTRA_DIST = test6.gif
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+penguins_SOURCES = penguins.c
+penguins_OBJECTS =  penguins.o
+penguins_LDADD = $(LDADD)
+penguins_DEPENDENCIES =  ../lib/libcards.a
+penguins_LDFLAGS = 
+test1_SOURCES = test1.c
+test1_OBJECTS =  test1.o
+test1_LDADD = $(LDADD)
+test1_DEPENDENCIES =  ../lib/libcards.a
+test1_LDFLAGS = 
+test3_SOURCES = test3.c
+test3_OBJECTS =  test3.o
+test3_LDADD = $(LDADD)
+test3_DEPENDENCIES =  ../lib/libcards.a
+test3_LDFLAGS = 
+test4_SOURCES = test4.c
+test4_OBJECTS =  test4.o
+test4_LDADD = $(LDADD)
+test4_DEPENDENCIES =  ../lib/libcards.a
+test4_LDFLAGS = 
+test5_SOURCES = test5.c
+test5_OBJECTS =  test5.o
+test5_LDADD = $(LDADD)
+test5_DEPENDENCIES =  ../lib/libcards.a
+test5_LDFLAGS = 
+test6_OBJECTS =  test6.o test6c.o
+test6_LDADD = $(LDADD)
+test6_DEPENDENCIES =  ../lib/libcards.a
+test6_LDFLAGS = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LINK = $(CC) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP = --best
+SOURCES = penguins.c test1.c test3.c test4.c test5.c $(test6_SOURCES)
+OBJECTS = penguins.o test1.o test3.o test4.o test5.o $(test6_OBJECTS)
+
+all: Makefile $(PROGRAMS)
+
+.SUFFIXES:
+.SUFFIXES: .S .c .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps tests/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+mostlyclean-noinstPROGRAMS:
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+
+distclean-noinstPROGRAMS:
+
+maintainer-clean-noinstPROGRAMS:
+
+.c.o:
+	$(COMPILE) -c $<
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+penguins: $(penguins_OBJECTS) $(penguins_DEPENDENCIES)
+	@rm -f penguins
+	$(LINK) $(penguins_LDFLAGS) $(penguins_OBJECTS) $(penguins_LDADD) $(LIBS)
+
+test1: $(test1_OBJECTS) $(test1_DEPENDENCIES)
+	@rm -f test1
+	$(LINK) $(test1_LDFLAGS) $(test1_OBJECTS) $(test1_LDADD) $(LIBS)
+
+test3: $(test3_OBJECTS) $(test3_DEPENDENCIES)
+	@rm -f test3
+	$(LINK) $(test3_LDFLAGS) $(test3_OBJECTS) $(test3_LDADD) $(LIBS)
+
+test4: $(test4_OBJECTS) $(test4_DEPENDENCIES)
+	@rm -f test4
+	$(LINK) $(test4_LDFLAGS) $(test4_OBJECTS) $(test4_LDADD) $(LIBS)
+
+test5: $(test5_OBJECTS) $(test5_DEPENDENCIES)
+	@rm -f test5
+	$(LINK) $(test5_LDFLAGS) $(test5_OBJECTS) $(test5_LDADD) $(LIBS)
+
+test6: $(test6_OBJECTS) $(test6_DEPENDENCIES)
+	@rm -f test6
+	$(LINK) $(test6_LDFLAGS) $(test6_OBJECTS) $(test6_LDADD) $(LIBS)
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $(SOURCES) $(HEADERS) $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = tests
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+penguins.o: penguins.c ../lib/cards.h
+test1.o: test1.c ../lib/cards.h
+test2.o: test2.c ../lib/cards.h
+test3.o: test3.c ../lib/cards.h
+test4.o: test4.c ../lib/cards.h
+test5.o: test5.c ../lib/cards.h
+test6.o: test6.c ../lib/cards.h
+test6c.o: test6c.c
+
+info:
+dvi:
+check: all
+installcheck:
+install-exec: install-binPROGRAMS
+	@$(NORMAL_INSTALL)
+
+install-data: 
+	@$(NORMAL_INSTALL)
+
+install: install-exec install-data all
+	@:
+
+uninstall: uninstall-binPROGRAMS
+
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean:  mostlyclean-binPROGRAMS mostlyclean-noinstPROGRAMS \
+		mostlyclean-compile mostlyclean-tags \
+		mostlyclean-generic
+
+clean:  clean-binPROGRAMS clean-noinstPROGRAMS clean-compile clean-tags \
+		clean-generic mostlyclean
+
+distclean:  distclean-binPROGRAMS distclean-noinstPROGRAMS \
+		distclean-compile distclean-tags distclean-generic \
+		clean
+	-rm -f config.status
+
+maintainer-clean:  maintainer-clean-binPROGRAMS \
+		maintainer-clean-noinstPROGRAMS \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-generic distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
+mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
+clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info dvi installcheck \
+install-exec install-data install uninstall all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+test6c.c : test6.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ test6.gif
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

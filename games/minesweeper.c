@@ -139,7 +139,6 @@ start_again()
 void
 init()
 {
-  srand(time(0));
   splash = get_picture("minesweeper.gif");
   title = get_picture("minesweeper-t.gif");
   xlogo = get_picture("minesweeper-x.gif");

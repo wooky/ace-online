@@ -1,4 +1,56 @@
-Fri Jun 12 19:57:37 1998  DJ Delorie  <dj@delorie.com>
+1998-12-18  DJ Delorie  <dj@delorie.com>
+
+	* games/thornq.c: new game from Margin Thornquist, previously
+	"unnamed"
+	* lib/stack.c (stack_animate): switched to time-based algorithm,
+	so now the animation speed is constant and requires much less CPU.
+	* Makefile.am: All new.  Converted to GNU build style.
+	* configure.in: ditto
+
+Sat Aug  1 00:29:10 1998  DJ Delorie  <dj@delorie.com>
+
+	* games/freecell.c (double_click_1): add double-click options,
+	tie in with space bar also.
+
+Fri Jul 31 23:59:35 1998  DJ Delorie  <dj@delorie.com>
+
+	* lib/stack.c (stack_animate): bug in target x,y
+
+Sun Jul 26 21:54:25 1998  DJ Delorie  <dj@delorie.com>
+
+	* games/solitaire.c (auto_move_stack): check other same-colored
+	stack also
+	* games/freecell.c (auto_move_stack): ditto
+
+Wed Jul  1 15:11:53 1998  DJ Delorie  <dj@delorie.com>
+
+	* games/Makefile (merlin): new game "merlin"
+
+	* Makefile (tar): new perl script to build distributions; tar
+ 	files now include ace-$ver subdirectory.
+
+Mon Jun 29 22:12:18 1998  DJ Delorie  <dj@delorie.com>
+
+	* lib/table_rn.c: new, since some platforms have lousy rand().
+  	This one auto-initializes also.
+
+Tue Jun 23 18:33:46 1998  DJ Delorie  <dj@delorie.com>
+
+	* games/freecell.c (check_for_end_of_game): even if a stack is
+ 	sorted, you might be able to win anyway, so take that logic out.
+
+Fri Jun 12 19:48:50 1998  DJ Delorie  <dj@delorie.com>
+
+	* games/freecell.c (check_for_end_of_game): check for manually
+ 	moving a card to the outcells
+
+	* games/pegged.c (click): When clicking for the first time in the
+ 	triangle versions, don't "create" a hole - you can only click on a
+ 	peg.
+
+	* games/minesweeper.c (drop): don't allow clicking on a flag
+
+Sat Jun  6 10:15:11 1998  DJ Delorie  <dj@delorie.com>
 
 	* Initial version released.
 

@@ -116,25 +116,33 @@ extern char freecell_help[];
 void
 key(int k, int x, int y)
 {
+  Picture *p = get_centered_pic();
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == XK_F1 || k == 'h')
-  {
-    set_centered_pic(0);
-    help("freecell.html", freecell_help);
-    return;
-  }
-  if (k == XK_F2)
-  {
-    set_centered_pic(0);
-    start_again();
-    while (auto_move());
-  }
+  set_centered_pic(0);
   if ((k == 8 || k == 127
        || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
   {
-    set_centered_pic(0);
     stack_undo();
+    return;
+  }
+  if (p == splash)
+    return;
+  if (k == XK_F1 || k == 'h')
+  {
+    help("freecell.html", freecell_help);
+    return;
+  }
+  if (k == XK_F2 || p)
+  {
+    start_again();
+    while (auto_move());
+    return;
+  }
+
+  if (k == ' ')
+  {
+    double_click(x, y, 1);
   }
 }
 
@@ -287,7 +295,8 @@ auto_move_stack(Stack *s)
   if (pile_for[SUIT(c)] == -1)
     return 0;
   if (VALUE(c) == VALUE(top_card[pile_for[SUIT(c)]])+1
-      && VALUE(c) <= lowest[COLOR(c)?0:1] + 2)
+      && VALUE(c) <= lowest[COLOR(c)?0:1] + 2
+      && VALUE(c) <= lowest[COLOR(c)?1:0] + 3)
   {
     stack_animate(s, outcells[pile_for[SUIT(c)]]);
     return 1;
@@ -346,6 +355,9 @@ check_for_end_of_game()
   {
     int in = stack_count_cards(maincells[i]);
     int ic = stack_get_card(maincells[i], in-1);
+#if 0
+    /* There ARE situations where you can unpeel a sorted stack onto
+       other stacks, one card at a time, and go on to win.  Sigh. */
     if (in > 1)
     {
       /* If this stack is already partially sorted, skip it */
@@ -353,6 +365,7 @@ check_for_end_of_game()
       if (COLOR(inc) != COLOR(ic) && VALUE(inc) == VALUE(ic)+1)
 	continue;
     }
+#endif
     for (j=0; j<8; j++)
     {
       /* Can we move a card to another stack? */
@@ -396,20 +409,16 @@ click(int x, int y, int b)
   int c, f;
   Picture *cp = get_centered_pic();
 
-  if ((cp == youlose || cp == youwin)
-      && (x > table_width/2-cp->w/2
-	  && x < table_width/2+cp->w/2
-	  && y > table_height/2-cp->h/2
-	  && y < table_height/2+cp->h/2))
-  {
-    set_centered_pic(0);
-    start_again();
-    return;
-  }
-
   if (cp == splash)
   {
     set_centered_pic(0);
+    return;
+  }
+
+  if (cp)
+  {
+    set_centered_pic(0);
+    start_again();
     return;
   }
 
@@ -434,31 +443,148 @@ click(int x, int y, int b)
     src_stack = 0;
 }
 
-void
-double_click(int x, int y, int b)
+int
+stack_complete(Stack *s)
 {
-  int f, i;
+  int i;
+  for (i=stack_count_cards(s)-1; i>0; i--)
+  {
+    int c1 = stack_get_card(s, i);
+    int c2 = stack_get_card(s, i-1);
+    if (COLOR(c1) == COLOR(c2) || VALUE(c1) != VALUE(c2)-1)
+      return 0;
+  }
+  return 1;
+}
+
+void
+double_click_1(int x, int y, int b)
+{
+  int f, i, n, cnt;
   src_stack = 0;
   f = stack_find(x, y, &src_stack, &src_n);
   if (!f) return;
 
   if (b > 1) return;
 
-  for (f=0; f<4; f++)
-    if (stack_count_cards(freecells[f]) == 0)
+  /* double-click-move choices:
+     1. main stack
+     2. empty main
+     3. empty free
+     4. outcell
+  */
+
+#define TOPIF(s) int c, n = stack_count_cards(s); \
+		 if (n==0) return; \
+		 c = stack_get_card(s, n-1)
+#define TOPOF(s) stack_get_card(s, stack_count_cards(s)-1)
+
+  for (i=0; i<8; i++)
+    if (src_stack == maincells[i])
     {
-      for (i=0; i<8; i++)
-	if (src_stack == maincells[i])
+      TOPIF(maincells[i]);
+      src_stack = maincells[i];
+      src_n = 1;
+      cnt = stack_count_cards(maincells[i]);
+      for (f=0; f<8; f++)
+      {
+	if (!stack_complete(maincells[f]))
+	  continue;
+	n = n_droppable_s(maincells[f]);
+	if (f != i && n < cnt && stack_count_cards(maincells[f]))
 	{
-	  int n = stack_count_cards(maincells[i]);
-	  if (n > 0)
+	  if (n == cnt-1)
+	    stack_animate(maincells[i], maincells[f]);
+	  else
+	    stack_move_cards(maincells[i], n, maincells[f]);
+	  return;
+	}
+      }
+      for (f=0; f<8; f++)
+      {
+	n = n_droppable_s(maincells[f]);
+	if (f != i && n < cnt &&
+	    (stack_count_cards(maincells[f]) || n))
+	{
+	  if (n == cnt-1)
+	    stack_animate(maincells[i], maincells[f]);
+	  else
+	    stack_move_cards(maincells[i], n, maincells[f]);
+	  return;
+	}
+      }
+      if (src_n > 1)
+      {
+	for (f=0; f<8; f++)
+	{
+	  int c2 = TOPOF(maincells[f]);
+	  if (f != i && stack_count_cards(maincells[f]) == 0)
 	  {
-	    stack_flip_card(maincells[i], freecells[f]);
+	    stack_animate(maincells[i], maincells[f]);
 	    return;
 	  }
 	}
-      return;
+      }
+      for (f=0; f<4; f++)
+      {
+	int c2 = TOPOF(freecells[f]);
+	if (stack_count_cards(freecells[f]) == 0)
+	{
+	  stack_animate(maincells[i], freecells[f]);
+	  return;
+	}
+      }
+      for (f=0; f<4; f++)
+      {
+	int c2 = TOPOF(outcells[f]);
+	if (SUIT(c2) == SUIT(c) && VALUE(c2) == VALUE(c)-1)
+	{
+	  stack_animate(maincells[i], outcells[f]);
+	  return;
+	}
+      }
     }
+
+  for (i=0; i<4; i++)
+    if (src_stack == freecells[i])
+    {
+      TOPIF(freecells[i]);
+      for (f=0; f<8; f++)
+      {
+	int c2 = TOPOF(maincells[f]);
+	if (COLOR(c2) != COLOR(c) && VALUE(c2) == VALUE(c)+1)
+	{
+	  stack_animate(freecells[i], maincells[f]);
+	  return;
+	}
+      }
+      for (f=0; f<8; f++)
+      {
+	int c2 = TOPOF(maincells[f]);
+	if (stack_count_cards(maincells[f]) == 0)
+	{
+	  stack_animate(freecells[i], maincells[f]);
+	  return;
+	}
+      }
+      for (f=0; f<4; f++)
+      {
+	int c2 = TOPOF(outcells[f]);
+	if (SUIT(c2) == SUIT(c) && VALUE(c2) == VALUE(c)-1)
+	{
+	  stack_animate(freecells[i], outcells[f]);
+	  return;
+	}
+      }
+    }
+}
+
+void
+double_click(int x, int y, int b)
+{
+  double_click_1(x, y, b);
+  while (auto_move());
+  check_for_end_of_game();
 }
 
 void

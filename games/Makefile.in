@@ -1,0 +1,465 @@
+# Makefile.in generated automatically by automake 1.3b from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+AWK = @AWK@
+CC = @CC@
+GD_CFLAGS = @GD_CFLAGS@
+GD_LIBS = @GD_LIBS@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+XPM_CFLAGS = @XPM_CFLAGS@
+XPM_LIBS = @XPM_LIBS@
+
+bin_PROGRAMS = \
+	freecell \
+	golf \
+	mastermind \
+	merlin \
+	minesweeper \
+	pegged \
+	solitaire \
+	taipedit \
+	taipei \
+	thornq
+
+noinst_HEADERS = taipeilib.h taipei.h
+
+INCLUDES = -I../lib $(X_CFLAGS)
+LDFLAGS = $(X_LIBS) $(XPM_LIBS)
+
+freecell_SOURCES = freecell.c freecell-help.c freecell-img.c
+golf_SOURCES = golf.c golf-help.c golf-img.c
+mastermind_SOURCES = mastermind.c mastermind-help.c mastermind-img.c
+merlin_SOURCES = merlin.c merlin-help.c merlin-img.c
+minesweeper_SOURCES = minesweeper.c minesweeper-help.c minesweeper-img.c
+pegged_SOURCES = pegged.c pegged-help.c pegged-img.c
+solitaire_SOURCES = solitaire.c solitaire-help.c solitaire-img.c
+taipedit_SOURCES = taipedit.c taipeilib.c taipedit-help.c taipedit-img.c
+taipei_SOURCES = taipei.c taipeilib.c taipei-help.c taipei-img.c
+thornq_SOURCES = thornq.c thornq-help.c thornq-img.c
+
+BUILT_SOURCES = freecell-help.c freecell-img.c golf-help.c golf-img.c \
+	mastermind-help.c mastermind-img.c merlin-help.c merlin-img.c \
+	minesweeper-help.c minesweeper-img.c pegged-help.c pegged-img.c \
+	solitaire-help.c solitaire-img.c taipedit-help.c taipedit-img.c \
+	taipei-help.c taipei-img.c
+
+LDADD = ../lib/libcards.a -lXpm -lX11
+freecell_LDADD = $(LDADD)
+golf_LDADD = $(LDADD)
+mastermind_LDADD = ../lib/nocards.o $(LDADD)
+merlin_LDADD = ../lib/nocards.o $(LDADD)
+minesweeper_LDADD = ../lib/nocards.o $(LDADD)
+pegged_LDADD = ../lib/nocards.o $(LDADD)
+solitaire_LDADD = $(LDADD)
+taipedit_LDADD = ../lib/nocards.o $(LDADD)
+taipei_LDADD = ../lib/nocards.o $(LDADD)
+thornq_LDADD = $(LDADD)
+
+EXTRA_DIST = $(wildcard *.gif) $(wildcard *.tp)
+
+MINESWEEPER_GIFS = minesweeper.gif minesweeper-x.gif minesweeper-t.gif \
+	minesweeper-c12.gif minesweeper-c24.gif minesweeper-c36.gif \
+	minesweeper-c48.gif
+
+TAIPEDITGIF = t/xa.gif taipedit.gif taipedit-bu.gif taipedit-bs.gif \
+	taipedit-bt.gif
+
+THORNQ_GIF = thornq.gif thornq-arrow.gif thornq-noarrow.gif
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(bin_PROGRAMS)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+freecell_OBJECTS =  freecell.o freecell-help.o freecell-img.o
+freecell_DEPENDENCIES =  ../lib/libcards.a
+freecell_LDFLAGS = 
+golf_OBJECTS =  golf.o golf-help.o golf-img.o
+golf_DEPENDENCIES =  ../lib/libcards.a
+golf_LDFLAGS = 
+mastermind_OBJECTS =  mastermind.o mastermind-help.o mastermind-img.o
+mastermind_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+mastermind_LDFLAGS = 
+merlin_OBJECTS =  merlin.o merlin-help.o merlin-img.o
+merlin_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+merlin_LDFLAGS = 
+minesweeper_OBJECTS =  minesweeper.o minesweeper-help.o \
+minesweeper-img.o
+minesweeper_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+minesweeper_LDFLAGS = 
+pegged_OBJECTS =  pegged.o pegged-help.o pegged-img.o
+pegged_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+pegged_LDFLAGS = 
+solitaire_OBJECTS =  solitaire.o solitaire-help.o solitaire-img.o
+solitaire_DEPENDENCIES =  ../lib/libcards.a
+solitaire_LDFLAGS = 
+taipedit_OBJECTS =  taipedit.o taipeilib.o taipedit-help.o \
+taipedit-img.o
+taipedit_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+taipedit_LDFLAGS = 
+taipei_OBJECTS =  taipei.o taipeilib.o taipei-help.o taipei-img.o
+taipei_DEPENDENCIES =  ../lib/nocards.o ../lib/libcards.a
+taipei_LDFLAGS = 
+thornq_OBJECTS =  thornq.o thornq-help.o thornq-img.o
+thornq_DEPENDENCIES =  ../lib/libcards.a
+thornq_LDFLAGS = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LINK = $(CC) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(noinst_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP = --best
+SOURCES = $(freecell_SOURCES) $(golf_SOURCES) $(mastermind_SOURCES) $(merlin_SOURCES) $(minesweeper_SOURCES) $(pegged_SOURCES) $(solitaire_SOURCES) $(taipedit_SOURCES) $(taipei_SOURCES) $(thornq_SOURCES)
+OBJECTS = $(freecell_OBJECTS) $(golf_OBJECTS) $(mastermind_OBJECTS) $(merlin_OBJECTS) $(minesweeper_OBJECTS) $(pegged_OBJECTS) $(solitaire_OBJECTS) $(taipedit_OBJECTS) $(taipei_OBJECTS) $(thornq_OBJECTS)
+
+all: Makefile $(PROGRAMS) $(HEADERS)
+
+.SUFFIXES:
+.SUFFIXES: .S .c .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps games/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+.c.o:
+	$(COMPILE) -c $<
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+freecell: $(freecell_OBJECTS) $(freecell_DEPENDENCIES)
+	@rm -f freecell
+	$(LINK) $(freecell_LDFLAGS) $(freecell_OBJECTS) $(freecell_LDADD) $(LIBS)
+
+golf: $(golf_OBJECTS) $(golf_DEPENDENCIES)
+	@rm -f golf
+	$(LINK) $(golf_LDFLAGS) $(golf_OBJECTS) $(golf_LDADD) $(LIBS)
+
+mastermind: $(mastermind_OBJECTS) $(mastermind_DEPENDENCIES)
+	@rm -f mastermind
+	$(LINK) $(mastermind_LDFLAGS) $(mastermind_OBJECTS) $(mastermind_LDADD) $(LIBS)
+
+merlin: $(merlin_OBJECTS) $(merlin_DEPENDENCIES)
+	@rm -f merlin
+	$(LINK) $(merlin_LDFLAGS) $(merlin_OBJECTS) $(merlin_LDADD) $(LIBS)
+
+minesweeper: $(minesweeper_OBJECTS) $(minesweeper_DEPENDENCIES)
+	@rm -f minesweeper
+	$(LINK) $(minesweeper_LDFLAGS) $(minesweeper_OBJECTS) $(minesweeper_LDADD) $(LIBS)
+
+pegged: $(pegged_OBJECTS) $(pegged_DEPENDENCIES)
+	@rm -f pegged
+	$(LINK) $(pegged_LDFLAGS) $(pegged_OBJECTS) $(pegged_LDADD) $(LIBS)
+
+solitaire: $(solitaire_OBJECTS) $(solitaire_DEPENDENCIES)
+	@rm -f solitaire
+	$(LINK) $(solitaire_LDFLAGS) $(solitaire_OBJECTS) $(solitaire_LDADD) $(LIBS)
+
+taipedit: $(taipedit_OBJECTS) $(taipedit_DEPENDENCIES)
+	@rm -f taipedit
+	$(LINK) $(taipedit_LDFLAGS) $(taipedit_OBJECTS) $(taipedit_LDADD) $(LIBS)
+
+taipei: $(taipei_OBJECTS) $(taipei_DEPENDENCIES)
+	@rm -f taipei
+	$(LINK) $(taipei_LDFLAGS) $(taipei_OBJECTS) $(taipei_LDADD) $(LIBS)
+
+thornq: $(thornq_OBJECTS) $(thornq_DEPENDENCIES)
+	@rm -f thornq
+	$(LINK) $(thornq_LDFLAGS) $(thornq_OBJECTS) $(thornq_LDADD) $(LIBS)
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $(SOURCES) $(HEADERS) $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = games
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-hook
+freecell-help.o: freecell-help.c
+freecell-img.o: freecell-img.c
+freecell.o: freecell.c ../lib/cards.h
+golf-help.o: golf-help.c
+golf-img.o: golf-img.c
+golf.o: golf.c ../lib/cards.h
+mastermind-help.o: mastermind-help.c
+mastermind-img.o: mastermind-img.c
+mastermind.o: mastermind.c ../lib/cards.h
+merlin-help.o: merlin-help.c
+merlin-img.o: merlin-img.c
+merlin.o: merlin.c ../lib/cards.h
+minesweeper-help.o: minesweeper-help.c
+minesweeper-img.o: minesweeper-img.c
+minesweeper.o: minesweeper.c ../lib/cards.h
+nocards.o: ../lib/nocards.c
+pegged-help.o: pegged-help.c
+pegged-img.o: pegged-img.c
+pegged.o: pegged.c ../lib/cards.h
+solitaire-help.o: solitaire-help.c
+solitaire-img.o: solitaire-img.c
+solitaire.o: solitaire.c ../lib/cards.h
+taipedit-help.o: taipedit-help.c
+taipedit-img.o: taipedit-img.c
+taipedit.o: taipedit.c ../lib/cards.h taipeilib.h taipei.h
+taipei-help.o: taipei-help.c
+taipei-img.o: taipei-img.c
+taipei.o: taipei.c ../lib/cards.h taipeilib.h taipei.h \
+	taipei-standard.tp taipei-bridge.tp taipei-castle.tp \
+	taipei-cube.tp taipei-glyph.tp taipei-pyramid.tp \
+	taipei-spiral.tp taipei-simple.tp taipei-smiley.tp \
+	taipei-jason.tp taipei-rebecca.tp
+taipeilib.o: taipeilib.c taipeilib.h taipei.h
+thornq-help.o: thornq-help.c
+thornq.o: thornq.c ../lib/cards.h
+
+info:
+dvi:
+check: all
+installcheck:
+install-exec: install-binPROGRAMS
+	@$(NORMAL_INSTALL)
+
+install-data: 
+	@$(NORMAL_INSTALL)
+
+install: install-exec install-data all
+	@:
+
+uninstall: uninstall-binPROGRAMS
+
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean:  mostlyclean-binPROGRAMS mostlyclean-compile \
+		mostlyclean-tags mostlyclean-generic
+
+clean:  clean-binPROGRAMS clean-compile clean-tags clean-generic \
+		mostlyclean
+
+distclean:  distclean-binPROGRAMS distclean-compile distclean-tags \
+		distclean-generic clean
+	-rm -f config.status
+
+maintainer-clean:  maintainer-clean-binPROGRAMS maintainer-clean-compile \
+		maintainer-clean-tags maintainer-clean-generic \
+		distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info dvi installcheck \
+install-exec install-data install uninstall all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+freecell-img.c : freecell.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ freecell.gif
+
+golf-img.c : golf.gif golf-arrow.gif golf-noarrow.gif ../lib/gif2pack.c
+	../lib/gif2pack -b appimglib -o $@ golf.gif golf-arrow.gif golf-noarrow.gif
+
+minesweeper-img.c : $(MINESWEEPER_GIFS) ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ $(MINESWEEPER_GIFS)
+
+merlin-img.c : merlin.gif merlin-c.gif merlin-b.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ merlin.gif merlin-c.gif merlin-b.gif
+
+mastermind-img.c : $(wildcard mastermind*.gif) ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ mastermind*.gif
+
+pegged-img.c : pegged.gif pegged-h.gif pegged-p.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ pegged.gif pegged-h.gif pegged-p.gif
+
+solitaire-img.c : solitaire.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ solitaire.gif
+
+taipei-img.c : taipei.gif t/n1.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ taipei.gif t/*.gif
+
+taipedit-img.c : $(TAIPEDITGIF) t/n1.gif ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ $(TAIPEDITGIF) t/n*.gif
+thornq-img.c : $(THORNQ_GIF) ../lib/gif2pack.c
+	cd ../lib ; $(MAKE) gif2pack
+	../lib/gif2pack -b appimglib -o $@ $(THORNQ_GIF)
+
+%-help.c : %.html ../lib/text2c.c
+	cd ../lib ; $(MAKE) text2c
+	../lib/text2c $*_help < $< > $@
+
+dist-hook :
+	mkdir $(distdir)/t
+	ln $(srcdir)/t/* $(distdir)/t
+
+bin-tar :
+	strip $(bin_PROGRAMS)
+	tar cvf - $(bin_PROGRAMS) | gzip -9 > ../ace-bin.tar.gz
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
