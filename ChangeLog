@@ -5,6 +5,17 @@
 	(put_image): Use imggc if the dest isn't the screen.
 	(fill_image): Ditto.
 
+	* games/freecell.html: Remove reduntand copyright notice.
+	* games/golf.html: Ditto.
+	* games/mastermind.html: Ditto.
+	* games/merlin.html: Ditto.
+	* games/minesweeper.html: Ditto.
+	* games/pegged.html: Ditto.
+	* games/solitaire.html: Ditto.
+	* games/taipedit.html: Ditto.
+	* games/taipei.html: Ditto.
+	* games/thornq.html: Ditto.
+
 1999-02-05  DJ Delorie  <dj@envy.delorie.com>
 
 	* games/taipedit.html: fix img references
