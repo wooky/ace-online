@@ -210,7 +210,7 @@ key(int k, int x, int y)
   }
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == KEY_F(2) || k == 'r')
+  if (k == KEY_F(2))
   {
     start_again();
     invalidate(0, 0, table_width, table_height);

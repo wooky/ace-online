@@ -1,3 +1,8 @@
+2003-02-11  Thimo Neubauer  <thimo@debian.org>
+
+	* games/mastermind.c (key): Don't use 'r' for restart,
+	as it's needed for "red".
+
 2002-08-30  Thimo Neubauer  <thimo@debian.org>
 
         * games/solitaire.c: abort dragging if another button is clicked
