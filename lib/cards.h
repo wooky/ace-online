@@ -18,8 +18,6 @@
 #ifndef _cards_h_
 #define _cards_h_
 
-/* Change these if you replace the card images */
-#ifndef PDA
 #define CARD_WIDTH	73
 #define CARD_HEIGHT	97
 #define CARD_MARGIN	6
@@ -27,34 +25,6 @@
 #define CARD_FAN_RIGHT	16
 #define CARD_FAN_TBDOWN	6
 #define CARD_FAN_TBRIGHT 6
-#endif
-#if 0
-#define CARD_WIDTH	65
-#define CARD_HEIGHT	86
-#define CARD_MARGIN	4
-#define CARD_FAN_DOWN	13
-#define CARD_FAN_RIGHT	12
-#define CARD_FAN_TBDOWN	4
-#define CARD_FAN_TBRIGHT 4
-#endif
-#if 0
-#define CARD_WIDTH	110
-#define CARD_HEIGHT	145
-#define CARD_MARGIN	9
-#define CARD_FAN_DOWN	30
-#define CARD_FAN_RIGHT	24
-#define CARD_FAN_TBDOWN	9
-#define CARD_FAN_TBRIGHT 9
-#endif
-#ifdef PDA
-#define CARD_WIDTH	17
-#define CARD_HEIGHT	31
-#define CARD_MARGIN	1
-#define CARD_FAN_DOWN	11
-#define CARD_FAN_RIGHT	5
-#define CARD_FAN_TBDOWN	3
-#define CARD_FAN_TBRIGHT 3
-#endif
 
 #define TABLE_MONO	0
 #define TABLE_GRAY	1
