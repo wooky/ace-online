@@ -393,8 +393,6 @@ double_click(int x, int y, int b)
     /*printf("- outcell %d = %d\n", c, n);*/
     if (n < sc)
     {
-      if (dest_stack)
-	return;
       dest_stack = outcells[c];
       dest_n = n;
       break; /* we don't care which outcell it is */
@@ -413,6 +411,7 @@ double_click(int x, int y, int b)
     for (c=0; c<7; c++)
     {
       if (src_stack == maincells[c]) continue;
+      if (stack_count_cards(maincells[c]) == 0)	continue;
       n = n_droppable_s(maincells[c]);
       /*printf("- maincell %d = %d\n", c, n);*/
       if (stack_count_cards(maincells[c]) == 0)
@@ -428,8 +427,8 @@ double_click(int x, int y, int b)
       stack_card_posn(maincells[c], 0, &x, &y);
       if (n < sc)
       {
-	if (dest_stack)
-	  return;
+	if (dest_stack && dest_n < n || (dest_n == n && stack_count_cards(dest_stack)<stack_count_cards(maincells[c])))
+	  break;
 	dest_stack = maincells[c];
 	dest_n = n;
       }

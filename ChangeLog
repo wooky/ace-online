@@ -1,3 +1,9 @@
+2001-04-08  DJ Delorie  <dj@redhat.com>
+
+	* games/solitaire.c (double_click): Allow moves to one of multiple
+	possible places; choose to move more cards, else to a shorter
+	stack.
+
 2001-04-07  DJ Delorie  <dj@redhat.com>
 
 	* lib/xwin.c (imggc): new, use separate GC for building synthetic
