@@ -1,5 +1,5 @@
 /* The Ace of Penguins - test1.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ init()
   for (s=0; s<4; s++)
     for (v=0; v<13; v++)
     {
-      sprintf(name, "card/%c%c.gif", values[v], suits[s]);
+      sprintf(name, "%c%c", values[v], suits[s]);
       cards[s][v] = get_picture(name);
     }
 }

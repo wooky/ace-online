@@ -1,5 +1,5 @@
 /* The Ace of Penguins - help.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/keysym.h>
 
 #include "cards.h"
@@ -28,8 +29,10 @@ extern Display *display;
 extern int screen;
 extern Window window;
 extern GC gc;
-extern int help_background;
+extern int help_background, table_background;
 extern int table_width, table_height;
+
+int help_foreground, help_beyondcolor;
 
 extern int help_is_showing;
 extern void (*help_redraw)(void);
@@ -100,18 +103,71 @@ static int num_menus;
 static int cur_page = 0;
 static int menu_height;
 
+static int vscroll = 0;
+static int max_vscroll = 0;
+static int cur_menu = 0;
+
+static void
+show_page (int n, int m)
+{
+  int i, y;
+  cur_page = n;
+  cur_menu = m;
+  vscroll = 0;
+  for (i=cur_page; i<nwords; i++)
+  {
+    Word *w = words+i;
+    if (w->flags & HEADER)
+      break;
+    y = w->y+w->d;
+    if (max_vscroll < y)
+      max_vscroll = y;
+  }
+  max_vscroll -= (table_height - menu_height);
+  if (max_vscroll < 0)
+    max_vscroll = 0;
+  invalidate(0, 0, table_width, table_height);
+}
+
 static void
 help_init()
 {
   int i;
+  int bigpoints, smallpoints;
+  int use_helvetica;
+
+  if (table_type != TABLE_COLOR)
+    {
+      help_background = WhitePixel(display, screen);
+      help_foreground = BlackPixel(display, screen);
+      help_beyondcolor = WhitePixel(display, screen);
+    }
+  else
+    {
+      help_background = table_background;
+      help_foreground = WhitePixel(display, screen);
+      help_beyondcolor = BlackPixel(display, screen);
+    }
+  if (table_width < 300)
+    {
+      bigpoints = 120;
+      smallpoints = 80;
+      use_helvetica = 1;
+    }
+  else
+    {
+      bigpoints = 180;
+      smallpoints = 100;
+      use_helvetica = 0;
+    }
   for (i=0; i<16; i++)
   {
     char name[100];
     sprintf(name, "*-%s-%s-%s-*--*-%d-*-*-*-*-*-*",
-	    i & STYLE_TT ? "courier" : "times",
+	    i & STYLE_TT ? "courier" : use_helvetica ? "helvetica" : "times",
 	    i & STYLE_B ? "bold" : "medium",
-	    i & STYLE_I ? (i & STYLE_TT ? "o" : "i") : "r",
-	    i & STYLE_BIG ? 180 : 100);
+	    i & STYLE_I ? ((i & STYLE_TT || use_helvetica) ? "o" : "i") : "r",
+	    i & STYLE_BIG ? bigpoints : smallpoints);
     fonts[i] = XLoadQueryFont(display, name);
   }
   fonts[MENU_FONT] =
@@ -136,30 +192,22 @@ my_help_redraw()
   int ts = thin_space[MENU_FONT];
   int y = menu_height;
   int saw_cur_menu = 0;
+  int mx = 0;
+  Word *w;
 
-  XSetForeground(display, gc, WhitePixel(display, screen));
+  w = words + menus[cur_menu];
+  i = w->x + w->width + ts;
+  if (i > table_width)
+    mx = i - table_width + ts/2;
 
-  for (i=cur_page; i<nwords; i++)
-  {
-    Word *w = words+i;
-    if (w->flags & HEADER)
-      break;
-    if (w->flags & PTR_IMG)
-      put_picture((Picture *)w->ptr, w->x, w->y-w->a, 0, 0, w->width, w->a+w->d);
-    else
-    {
-      XSetFont(display, gc, fonts[w->flags & STYLE_BITS]->fid);
-      XDrawString(display, window, gc, w->x, w->y, w->ptr, strlen(w->ptr));
-    }
-  }
-
+  XSetForeground(display, gc, help_foreground);
   XSetFont(display, gc, fonts[MENU_FONT]->fid);
   for (i=0; i<num_menus; i++)
   {
-    Word *w = words+menus[i];
-    l = w->x-ts;
-    r = w->x+w->width+ts;
-    XDrawString(display, window, gc, w->x, w->y, w->ptr, strlen(w->ptr));
+    w = words+menus[i];
+    l = w->x-ts-mx;
+    r = w->x+w->width+ts-mx;
+    XDrawString(display, window, gc, w->x-mx, w->y, w->ptr, strlen(w->ptr));
     XDrawLine(display, window, gc, l, y-2, l, 5);
     XDrawLine(display, window, gc, r, y-2, r, 5);
     XDrawLine(display, window, gc, l+4, 1, r-4, 1);
@@ -179,7 +227,7 @@ my_help_redraw()
   if (!saw_cur_menu)
     XDrawLine(display, window, gc, 0, y, table_width, y);
 
-  XSetForeground(display, gc, BlackPixel(display, screen));
+  XSetForeground(display, gc, help_beyondcolor);
   XFillRectangle(display, window, gc, r+2, 0, table_width-r-2, y);
   XDrawLine(display, window, gc, 0, 0, table_width, 0);
   XDrawLine(display, window, gc, 0, 0, 0, y-1);
@@ -190,14 +238,31 @@ my_help_redraw()
   XDrawPoint(display, window, gc, 3, 0);
   for (i=0; i<num_menus; i++)
   {
-    Word *w = words+menus[i];
-    r = w->x+w->width+ts+1;
+    w = words+menus[i];
+    r = w->x+w->width+ts+1-mx;
     XDrawLine(display, window, gc, r, 5, r, y-2);
     XDrawLine(display, window, gc, r-1, 4, r+1, 4);
     XDrawLine(display, window, gc, r-1, 3, r+1, 3);
     XDrawLine(display, window, gc, r-2, 2, r+2, 2);
     XDrawLine(display, window, gc, r-4, 1, r+4, 1);
   }
+
+  clip_more (0, menu_height+3, table_width, table_height-menu_height-3);
+  for (i=cur_page; i<nwords; i++)
+  {
+    w = words+i;
+    if (w->flags & HEADER)
+      break;
+    if (w->flags & PTR_IMG)
+      put_picture((Picture *)w->ptr, w->x, w->y-w->a-vscroll, 0, 0, w->width, w->a+w->d);
+    else
+    {
+      XSetForeground(display, gc, help_foreground);
+      XSetFont(display, gc, fonts[w->flags & STYLE_BITS]->fid);
+      XDrawString(display, window, gc, w->x, w->y-vscroll, w->ptr, strlen(w->ptr));
+    }
+  }
+  unclip();
 }
 
 static void
@@ -212,15 +277,13 @@ my_help_click(int x, int y, int b)
       w = words+menus[i];
       if (x > w->x && x < w->x+w->width)
       {
-	cur_page = menus[i]+1;
-	invalidate(0, 0, table_width, table_height);
+	show_page(menus[i]+1, i);
 	return;
       }
     }
     if (!w || ! (words[0].flags & HEADER) && x > w->x+w->width+2*thin_space[MENU_FONT])
     {
-      cur_page = 0;
-      invalidate(0, 0, table_width, table_height);
+      show_page(0, 0);
       return;
     }
   }
@@ -229,8 +292,10 @@ my_help_click(int x, int y, int b)
 static void
 my_help_key(int c, int x, int y)
 {
-  int m;
-  if (c == 27 || c == ' ' || c == XK_F1)
+  int m, vs, old_vscroll = vscroll;
+  if (c == 'q')
+    exit(1);
+  if (c == 27 || c == ' ' || c == KEY_F(1) || c == 8 || c == 127 || c == KEY_DELETE)
   {
     free(file);
     file = 0;
@@ -242,18 +307,40 @@ my_help_key(int c, int x, int y)
   {
     m = c-'1';
     if (m == -1 && !(words[0].flags & HEADER))
-	cur_page = 0;
-    if (m >= 0 && m < num_menus)
-      cur_page = menus[m]+1;
-    invalidate(0, 0, table_width, table_height);
+	show_page(0, 0);
+    else if (m >= 0 && m < num_menus)
+      show_page(menus[m]+1, m);
     return;
   }
   for (m=0; m<num_menus; m++)
     if (tolower(words[menus[m]].ptr[0]) == tolower(c))
     {
-      cur_page = menus[m]+1;
-      invalidate(0, 0, table_width, table_height);
+      show_page(menus[m]+1, m);
       return;
+    }
+
+  if (c == KEY_LEFT && cur_menu > 0)
+    show_page (menus[cur_menu-1]+1, cur_menu-1);
+  if (c == KEY_RIGHT && cur_menu < num_menus-1)
+    show_page (menus[cur_menu+1]+1, cur_menu+1);
+
+  vs = 0;
+  switch (c)
+    {
+    case KEY_DOWN: vs = 10; break;
+    case KEY_PGDN: vs = (table_height-menu_height)*9/10; break;
+    case KEY_UP: vs = -10; break;
+    case KEY_PGUP: vs = -(table_height-menu_height)*9/10; break;
+    }
+  if (vs)
+    {
+      vscroll += vs;
+      if (vscroll > max_vscroll)
+	vscroll = max_vscroll;
+      if (vscroll < 0)
+	vscroll = 0;
+      if (vscroll != old_vscroll)
+	invalidate(0, menu_height+3, table_width, table_height);
     }
 }
 
@@ -275,6 +362,8 @@ help(char *filename, char *text)
   int float_margin = 0, float_left_margin = 0;
 
   if (!initted) help_init();
+
+  max_vscroll = 0;
 
   f = fopen(filename, "r");
   if (!f)
@@ -519,5 +608,5 @@ help(char *filename, char *text)
   help_redraw = my_help_redraw;
   help_click = my_help_click;
   help_key = my_help_key;
-  invalidate(0, 0, table_width, table_height);
+  show_page (cur_page, 0);
 }

@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.3b from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -46,7 +46,7 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
@@ -57,95 +57,77 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
 AWK = @AWK@
 CC = @CC@
-GD_CFLAGS = @GD_CFLAGS@
-GD_LIBS = @GD_LIBS@
+DLLTOOL = @DLLTOOL@
+LD = @LD@
+LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
+PDA = @PDA@
+PNG_CFLAGS = @PNG_CFLAGS@
+PNG_LIBS = @PNG_LIBS@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-XPM_CFLAGS = @XPM_CFLAGS@
-XPM_LIBS = @XPM_LIBS@
+Z_CFLAGS = @Z_CFLAGS@
+Z_LIBS = @Z_LIBS@
 
-noinst_PROGRAMS = make-cards text2c gif2pack
-noinst_LIBRARIES = libcards.a
-noinst_DATA = nocards.o
+lib_LTLIBRARIES = libcards.la
+
+noinst_PROGRAMS = text2c make-imglib
 noinst_HEADERS = cards.h
 
-INCLUDES = $(GD_CFLAGS) $(X_CFLAGS) $(XPM_CFLAGS)
+CLEANFILES = images.c images.d
 
-make_cards_LDADD = $(GD_LIBS) -lm
-gif2pack_LDADD = $(GD_LIBS) -lm
+INCLUDES = $(X_CFLAGS) @PDA@
+LDFLAGS = $(X_LIBS)
 
-BUILT_SOURCES = cards.c nocards.c
+BUILD_CC = @BUILD_CC@
+AR = @AR@
+STRIP = @STRIP@
 
-libcards_a_SOURCES = table.c cards.c help.c stack.c \
-	table_ai.c table_ck.c table_dc.c table_dg.c \
-	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c
+libcards_la_LDFLAGS = -version-info 1:0:0 $(LDFLAGS)
 
-SRCGIFS = \
-	blank.gif \
-	pjack.gif \
-	pqueen.gif \
-	pking.gif \
-	a-k.gif \
-	suits.gif \
-	smsuits.gif \
-	bigsuits.gif \
-	penguin.gif
+libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c 	images.c table_ai.c table_ck.c table_dc.c table_dg.c 	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c
 
-GIFS = \
-	xemboss.gif \
-	no-drop.gif \
-	splash.gif \
-	youwin.gif \
-	youlose.gif
-
-CARDGIFS = \
-	empty.gif \
-	back.gif
-
-EXTRA_DIST = $(SRCGIFS) $(GIFS) $(CARDGIFS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
-LIBRARIES =  $(noinst_LIBRARIES)
+LTLIBRARIES =  $(lib_LTLIBRARIES)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) 
 CPPFLAGS = @CPPFLAGS@
-LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-libcards_a_LIBADD = 
-libcards_a_OBJECTS =  table.o cards.o help.o stack.o table_ai.o \
-table_ck.o table_dc.o table_dg.o table_dp.o table_in.o table_ky.o \
-table_rd.o table_rn.o
-AR = ar
+libcards_la_LIBADD = 
+libcards_la_OBJECTS =  table.lo help.lo stack.lo imagelib.lo xwin.lo \
+images.lo table_ai.lo table_ck.lo table_dc.lo table_dg.lo table_dp.lo \
+table_in.lo table_ky.lo table_rd.lo table_rn.lo
 PROGRAMS =  $(noinst_PROGRAMS)
 
-make_cards_SOURCES = make-cards.c
-make_cards_OBJECTS =  make-cards.o
-make_cards_DEPENDENCIES = 
-make_cards_LDFLAGS = 
 text2c_SOURCES = text2c.c
 text2c_OBJECTS =  text2c.o
 text2c_LDADD = $(LDADD)
 text2c_DEPENDENCIES = 
 text2c_LDFLAGS = 
-gif2pack_SOURCES = gif2pack.c
-gif2pack_OBJECTS =  gif2pack.o
-gif2pack_DEPENDENCIES = 
-gif2pack_LDFLAGS = 
+make_imglib_SOURCES = make-imglib.c
+make_imglib_OBJECTS =  make-imglib.o
+make_imglib_LDADD = $(LDADD)
+make_imglib_DEPENDENCIES = 
+make_imglib_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LINK = $(CC) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DATA =  $(noinst_DATA)
-
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 HEADERS =  $(noinst_HEADERS)
 
 DIST_COMMON =  Makefile.am Makefile.in
@@ -153,34 +135,51 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
-GZIP = --best
-SOURCES = $(libcards_a_SOURCES) make-cards.c text2c.c gif2pack.c
-OBJECTS = $(libcards_a_OBJECTS) make-cards.o text2c.o gif2pack.o
+TAR = gtar
+GZIP_ENV = --best
+DEP_FILES =  .deps/help.P .deps/imagelib.P .deps/images.P \
+.deps/make-imglib.P .deps/stack.P .deps/table.P .deps/table_ai.P \
+.deps/table_ck.P .deps/table_dc.P .deps/table_dg.P .deps/table_dp.P \
+.deps/table_in.P .deps/table_ky.P .deps/table_rd.P .deps/table_rn.P \
+.deps/text2c.P .deps/xwin.P
+SOURCES = $(libcards_la_SOURCES) text2c.c make-imglib.c
+OBJECTS = $(libcards_la_OBJECTS) text2c.o make-imglib.o
 
-all: Makefile $(LIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
-
+all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps lib/Makefile
+.SUFFIXES: .S .c .lo .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu lib/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-mostlyclean-noinstLIBRARIES:
+mostlyclean-libLTLIBRARIES:
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
 
-distclean-noinstLIBRARIES:
+distclean-libLTLIBRARIES:
 
-maintainer-clean-noinstLIBRARIES:
+maintainer-clean-libLTLIBRARIES:
 
-.c.o:
-	$(COMPILE) -c $<
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
 
 .s.o:
 	$(COMPILE) -c $<
@@ -198,10 +197,24 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-libcards.a: $(libcards_a_OBJECTS) $(libcards_a_DEPENDENCIES)
-	-rm -f libcards.a
-	$(AR) cru libcards.a $(libcards_a_OBJECTS) $(libcards_a_LIBADD)
-	$(RANLIB) libcards.a
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libcards.la: $(libcards_la_OBJECTS) $(libcards_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libcards_la_LDFLAGS) $(libcards_la_OBJECTS) $(libcards_la_LIBADD) $(LIBS)
 
 mostlyclean-noinstPROGRAMS:
 
@@ -212,23 +225,15 @@ distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
 
-make-cards: $(make_cards_OBJECTS) $(make_cards_DEPENDENCIES)
-	@rm -f make-cards
-	$(LINK) $(make_cards_LDFLAGS) $(make_cards_OBJECTS) $(make_cards_LDADD) $(LIBS)
-
-text2c: $(text2c_OBJECTS) $(text2c_DEPENDENCIES)
-	@rm -f text2c
-	$(LINK) $(text2c_LDFLAGS) $(text2c_OBJECTS) $(text2c_LDADD) $(LIBS)
-
-gif2pack: $(gif2pack_OBJECTS) $(gif2pack_DEPENDENCIES)
-	@rm -f gif2pack
-	$(LINK) $(gif2pack_LDFLAGS) $(gif2pack_OBJECTS) $(gif2pack_LDADD) $(LIBS)
-
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
 	here=`pwd` && cd $(srcdir) \
-	  && mkid -f$$here/ID $(SOURCES) $(HEADERS) $(LISP)
+	  && mkid -f$$here/ID $$unique $(LISP)
 
 TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
 	tags=; \
@@ -254,108 +259,145 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = lib
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu lib/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
-	  test -f $(distdir)/$$file \
-	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
-	  || cp -p $$d/$$file $(distdir)/$$file; \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-hook
-cards.o: cards.c
-gif2pack.o: gif2pack.c
-help.o: help.c cards.h
-make-cards.o: make-cards.c
-nocards.o: nocards.c
-stack.o: stack.c cards.h
-table.o: table.c cards.h
-table_ai.o: table_ai.c cards.h
-table_ck.o: table_ck.c cards.h
-table_dc.o: table_dc.c cards.h
-table_dg.o: table_dg.c cards.h
-table_dp.o: table_dp.c cards.h
-table_in.o: table_in.c cards.h
-table_ky.o: table_ky.c cards.h
-table_rd.o: table_rd.c cards.h
-table_rn.o: table_rn.c
-text2c.o: text2c.c
 
-info:
-dvi:
-check: all
-installcheck:
-install-exec: 
-	@$(NORMAL_INSTALL)
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
-install-data: 
-	@$(NORMAL_INSTALL)
+-include $(DEP_FILES)
 
-install: install-exec install-data all
-	@:
+mostlyclean-depend:
 
-uninstall: 
+clean-depend:
 
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir)
 
 
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
-		mostlyclean-noinstPROGRAMS mostlyclean-tags \
-		mostlyclean-generic
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-noinstPROGRAMS \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
-clean:  clean-noinstLIBRARIES clean-compile clean-noinstPROGRAMS \
-		clean-tags clean-generic mostlyclean
+mostlyclean: mostlyclean-am
 
-distclean:  distclean-noinstLIBRARIES distclean-compile \
-		distclean-noinstPROGRAMS distclean-tags \
-		distclean-generic clean
-	-rm -f config.status
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool \
+		clean-noinstPROGRAMS clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
-maintainer-clean:  maintainer-clean-noinstLIBRARIES \
-		maintainer-clean-compile \
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-noinstPROGRAMS \
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
 		maintainer-clean-noinstPROGRAMS maintainer-clean-tags \
-		maintainer-clean-generic distclean
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
-.PHONY: mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
-clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
-mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile mostlyclean-noinstPROGRAMS \
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool mostlyclean-noinstPROGRAMS \
 distclean-noinstPROGRAMS clean-noinstPROGRAMS \
 maintainer-clean-noinstPROGRAMS tags mostlyclean-tags distclean-tags \
-clean-tags maintainer-clean-tags distdir info dvi installcheck \
-install-exec install-data install uninstall all installdirs \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-card/as.gif : make-cards.c $(SRCGIFS)
-	$(MAKE) make-cards
-	./make-cards
+images.c : make-imglib Makefile images.in
+	./make-imglib -n cards -i $(srcdir)/png -d images.d $(srcdir)/images.in images.c
 
-cards.c : gif2pack.c card/as.gif $(CARDGIFS) $(GIFS)
-	$(MAKE) gif2pack
-	@echo Warning - compressing takes a long time.
-	./gif2pack -b imglib -o cards.c card/*.gif $(CARDGIFS) $(GIFS)
+make-imglib : make-imglib.c
+	$(BUILD_CC) $(srcdir)/make-imglib.c -o make-imglib -lpng -lz
 
-nocards.c : gif2pack.c card/as.gif $(GIFS)
-	$(MAKE) gif2pack
-	./gif2pack -b imglib -o nocards.c card/as.gif $(GIFS)
-
-dist-hook :
-	mkdir $(distdir)/card
-	ln $(srcdir)/card/* $(distdir)/card
+text2c : text2c.c
+	$(BUILD_CC) $(srcdir)/text2c.c -o text2c -lpng -lz
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

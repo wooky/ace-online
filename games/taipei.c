@@ -1,5 +1,5 @@
 /* The Ace of Penguins - taipei.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 #include <stdio.h>
 #include "cards.h"
 #include "taipeilib.h"
-
-#include <X11/keysym.h>
 
 char *tile_names[] = {
   0, 0, 0, 0,
@@ -419,9 +417,9 @@ start_again()
   if (layout_number > 9)
   {
     /* special case for "learning" sets */
-    for (x=0; x<NUM_TILES; x+=2)
+    for (x=0; x<NUM_TILES-4; x+=2)
     {
-      y = (rand() % NUM_TILES) & ~1;
+      y = (rand() % (NUM_TILES-4)) & ~1;
       z = shuffle[x];
       shuffle[x] = shuffle[y];
       shuffle[y] = z;
@@ -480,13 +478,13 @@ init()
   for (i=4; i<NUM_TILES; i++)
   {
     char n[20];
-    sprintf(n, "t/%s.gif", tile_names[i]);
+    sprintf(n, "%s", tile_names[i]);
     tiles[i] = get_picture(n);
   }
-  blank_tile = get_picture("t/bl.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
-  splash = get_picture("taipei.gif");
+  blank_tile = get_picture("bl");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  splash = get_picture("taipei");
   set_centered_pic(splash);
   start_again();
 }
@@ -530,18 +528,17 @@ key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("taipei.html", taipei_help);
   }
-  if (k == XK_F2)
+  if (k == KEY_F(2))
   {
     set_centered_pic(0);
     start_again();
   }
-  if ((k == 8 || k == 127
-       || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
+  if (k == 8 || k == 127 || k == KEY_DELETE)
   {
     int nx = selected_x;
     selected_tile = 0;

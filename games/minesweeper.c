@@ -1,5 +1,5 @@
 /* The Ace of Penguins - minesweeper.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 #include <stdio.h>
 #include "cards.h"
-
-#include <X11/keysym.h>
 
 #define C_EMPTY	 0
 #define C_BOMB	 9
@@ -139,13 +137,13 @@ start_again()
 void
 init()
 {
-  splash = get_picture("minesweeper.gif");
-  title = get_picture("minesweeper-t.gif");
-  xlogo = get_picture("minesweeper-x.gif");
-  cells[0] = get_picture("minesweeper-c48.gif");
-  cells[1] = get_picture("minesweeper-c36.gif");
-  cells[2] = get_picture("minesweeper-c24.gif");
-  cells[3] = get_picture("minesweeper-c12.gif");
+  splash = get_picture("minesweeper");
+  title = get_picture("minesweeper-t");
+  xlogo = get_picture("minesweeper-x");
+  cells[0] = get_picture("minesweeper-c48");
+  cells[1] = get_picture("minesweeper-c36");
+  cells[2] = get_picture("minesweeper-c24");
+  cells[3] = get_picture("minesweeper-c12");
   level = 3;
   start_again();
 }
@@ -321,7 +319,7 @@ key(int k, int x, int y)
 
   set_centered_pic(0);
 
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     help("minesweeper.html", minesweeper_help);
   }
@@ -334,7 +332,7 @@ key(int k, int x, int y)
     autoplay();
   }
 
-  if (k == XK_F2)
+  if (k == KEY_F(2) || k == 'r')
     start_again();
 
   if (k >= '1' && k <= '4')

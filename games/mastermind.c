@@ -1,5 +1,5 @@
 /* The Ace of Penguins - mastermind.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 #include <time.h>
 #include <math.h>
 #include "cards.h"
-
-#include <X11/keysym.h>
 
 Picture *splash, *youwin, *youlose;
 
@@ -54,22 +52,22 @@ int active_row, solution_shown;
 int
 main(int argc, char **argv)
 {
-  splash = get_picture("mastermind.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
+  splash = get_picture("mastermind");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
 
-  colors[0] = get_picture("mastermind-r.gif");
-  colors[1] = get_picture("mastermind-o.gif");
-  colors[2] = get_picture("mastermind-y.gif");
-  colors[3] = get_picture("mastermind-g.gif");
-  colors[4] = get_picture("mastermind-b.gif");
-  colors[5] = get_picture("mastermind-p.gif");
-  bighole = get_picture("mastermind-eb.gif");
-  cover = get_picture("mastermind-c.gif");
+  colors[0] = get_picture("mastermind-r");
+  colors[1] = get_picture("mastermind-o");
+  colors[2] = get_picture("mastermind-y");
+  colors[3] = get_picture("mastermind-g");
+  colors[4] = get_picture("mastermind-b");
+  colors[5] = get_picture("mastermind-p");
+  bighole = get_picture("mastermind-eb");
+  cover = get_picture("mastermind-c");
 
-  black = get_picture("mastermind-k.gif");
-  white = get_picture("mastermind-w.gif");
-  smallhole = get_picture("mastermind-e.gif");
+  black = get_picture("mastermind-k");
+  white = get_picture("mastermind-w");
+  smallhole = get_picture("mastermind-e");
 
   px = WGAP;
   py = CARD_MARGIN;
@@ -257,13 +255,13 @@ key(int k, int x, int y)
   }
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == XK_F2)
+  if (k == KEY_F(2) || k == 'r')
   {
     start_again();
     invalidate(0, 0, table_width, table_height);
     return;
   }
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("mastermind.html", mastermind_help);

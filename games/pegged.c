@@ -1,5 +1,5 @@
 /* The Ace of Penguins - pegged.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -164,12 +164,12 @@ int next_undo = 0;
 int
 main(int argc, char **argv)
 {
-  hole = get_picture("pegged-h.gif");
-  peg = get_picture("pegged-p.gif");
-  splash = get_picture("pegged.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
-  xlogo = get_picture("xemboss.gif");
+  hole = get_picture("pegged-h");
+  peg = get_picture("pegged-p");
+  splash = get_picture("pegged");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  xlogo = get_picture("xemboss");
 
   init_table(argc, argv, 320, 320);
   table_loop();
@@ -467,19 +467,18 @@ key(int k, int x, int y)
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
   set_centered_pic(0);
-  if (k == XK_F2)
+  if (k == KEY_F(2) || k == 'r')
   {
     start_again();
     return;
   }
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("pegged.html", pegged_help);
     return;
   }
-  if ((k == 8 || k == 127
-       || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
+  if (k == 8 || k == 127 || k == KEY_DELETE)
   {
     if (next_undo > 0)
     {

@@ -1,5 +1,5 @@
 /* The Ace of Penguins - table.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,338 +25,42 @@
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
 
-static char AOP[] = "The Ace of Penguins - ";
-
 #define CD printf("%d: %d %d %d %d\n", __LINE__, ex, ey, ew, eh)
 #undef CD
 #define CD
 
 #include "cards.h"
+#include "imagelib.h"
+#include "xwin.h"
 
 #define TRACE_UNCOMPRESS	0
 #define TRACE_EVENTS		0
 #define TRACE_PICTURES		0
 #define TRACE_INVALIDATE	0
 
-#define DBLCLICK_TIME		500
+#define DBLCLICK_TIME		800
 #define DBLCLICK_MOVE		5
 
-Display *display=0;
-int screen=0;
-Visual *visual=0;
-Colormap cmap=0;
-Window window=0;
-Window rootwin=0;
-GC gc=0;
-XFontStruct *font;
-int font_width, font_height;
 
-static Atom wm_protocols_atom=0;
-static Atom delete_atom=0;
-static Atom paste_atom=0;
-static Atom mwm_atom=0;
-static XEvent event;
-static XRectangle clip_rect;
+int table_width, table_height, table_type;
 
 static Picture *centered_pic = 0;
-
-/* Motif window hints */
-typedef struct
-{
-  unsigned flags;
-  unsigned functions;
-  unsigned decorations;
-  int inputMode;
-} PropMotifWmHints;
-
-typedef PropMotifWmHints        PropMwmHints;
-
-/* Motif window hints */
-#define MWM_HINTS_FUNCTIONS           (1L << 0)
-#define MWM_HINTS_DECORATIONS         (1L << 1)
-
-/* bit definitions for MwmHints.functions */
-#define MWM_FUNC_ALL            (1L << 0)
-#define MWM_FUNC_RESIZE         (1L << 1)
-#define MWM_FUNC_MOVE           (1L << 2)
-#define MWM_FUNC_MINIMIZE       (1L << 3)
-#define MWM_FUNC_MAXIMIZE       (1L << 4)
-#define MWM_FUNC_CLOSE          (1L << 5)       
-
-/* bit definitions for MwmHints.decorations */
-#define MWM_DECOR_ALL                 (1L << 0)
-#define MWM_DECOR_BORDER              (1L << 1)
-#define MWM_DECOR_RESIZEH             (1L << 2)
-#define MWM_DECOR_TITLE               (1L << 3)
-#define MWM_DECOR_MENU                (1L << 4)
-#define MWM_DECOR_MINIMIZE            (1L << 5)
-#define MWM_DECOR_MAXIMIZE            (1L << 6)
-
-#define PROP_MOTIF_WM_HINTS_ELEMENTS  4
-#define PROP_MWM_HINTS_ELEMENTS       PROP_MOTIF_WM_HINTS_ELEMENTS
-
-
-int table_background;
-int help_background;
-
-int table_width, table_height;
 
 static int ex=0, ey=0, ew=0, eh=0;
 
 static int graphics_disabled = 1;
 
-typedef struct ImageTable {
-  char *name;
-  char **xpm;
-  Pixmap pixmap;
-  Pixmap mask;
-} ImageTable;
-ImageTable *image_table=0;
-
-static char **string_table;
-
-extern int imglib_num_images;
-extern int imglib_data_size;
-extern int imglib_num_strings;
-extern unsigned char imglib_compressed[];
-extern int imglib_compressed_size;
-
-extern int appimglib_num_images;
-extern int appimglib_data_size;
-extern int appimglib_num_strings;
-extern unsigned char appimglib_compressed[];
-extern int appimglib_compressed_size;
-
-static void
-uncompress_data(unsigned char *cdata, int clen, char *udata, int ulen)
-{
-  int bpv=1, mo=3, cutoff=0x100;
-  int i, t, l, p;
-  char *dp;
-
-  dp = udata;
-  for (i=0, dp=udata; i<clen;)
-  {
-    if (dp-udata>=cutoff)
-    {
-      bpv ++;
-      mo = 1+2*bpv;
-      cutoff <<= 8;
-    }
-
-    assert(dp < udata+ulen);
-    if (cdata[i] == 0x80)
-    {
-      int mult = 0;
-      i++;
-#if TRACE_UNCOMPRESS
-      printf("match i=%d: p = ", i);
-#endif
-      p = 0;
-      for (t=0; t<bpv; t++)
-      {
-#if TRACE_UNCOMPRESS
-	printf("%02x", cdata[i]);
-#endif
-	p |= cdata[i++] << mult;
-	mult += 8;
-      }
-      mult = 0;
-#if TRACE_UNCOMPRESS
-      printf("  l = ");
-#endif
-      l = 0;
-      for (t=0; t<bpv; t++)
-      {
-#if TRACE_UNCOMPRESS
-	printf("%02x", cdata[i]);
-#endif
-	l |= cdata[i++] << mult;
-	mult += 8;
-      }
-#if TRACE_UNCOMPRESS
-      printf("\n");
-#endif
-      assert(p<(dp-udata) && p>=0);
-      assert(l<=ulen-(dp-udata));
-      memcpy(dp, udata+p, l);
-      dp += l;
-    }
-    else if (cdata[i] & 0x80)
-    {
-      l = cdata[i++] & 0x7f;
-      t = cdata[i++] & 0x7f;
-#if TRACE_UNCOMPRESS
-      printf("run %d %02x\n", l, t);
-#endif
-      assert(dp+l < udata+ulen);
-      while (l--)
-	*dp++ = t;
-    }
-    else
-    {
-#if TRACE_UNCOMPRESS
-      printf("char %02x\n", cdata[i]);
-#endif
-      *dp++ = cdata[i++];
-    }
-  }
-  *dp++ = 0;
-#if 0
-  printf("%s\n", udata);
-  assert(1==2);
-#endif
-}
-
-static void
-uncompress_images()
-{
-  int i, t;
-  char *data = (char *)malloc(imglib_data_size+appimglib_data_size+1), *dp;
-
-  uncompress_data(imglib_compressed, imglib_compressed_size,
-		  data, imglib_data_size);
-  if (appimglib_data_size)
-    uncompress_data(appimglib_compressed, appimglib_compressed_size,
-		    data+imglib_data_size, appimglib_data_size);
-
-  string_table = (char **)malloc((imglib_num_strings+appimglib_num_strings)
-				 *sizeof(char *));
-  string_table[0] = data;
-  for (dp=data, i=1; *dp && i<imglib_num_strings+appimglib_num_strings; dp++)
-    if (*dp == '\n')
-    {
-      *dp++ = 0;
-      string_table[i++] = dp;
-    }
-
-  image_table = (ImageTable *)malloc((imglib_num_images+appimglib_num_images+1)
-				     *sizeof(ImageTable));
-  for (t=0, i=0; i<imglib_num_strings+appimglib_num_strings;)
-  {
-    int w, h, nc;
-    image_table[t].name = string_table[i++];
-    image_table[t].xpm = string_table+i;
-    image_table[t].pixmap = 0;
-    image_table[t].mask = 0;
-    sscanf(string_table[i], "%d %d %d", &w, &h, &nc);
-    i += 1 + nc + h;
-    t++;
-  }
-  image_table[t].name = 0;
-}
-
 void
 init_table(int argc, char **argv, int width, int height)
 {
-  char *name = argv[0];
-  char *sl;
-  XSizeHints size_hints;
-  XTextProperty xtp;
-  XSetWindowAttributes attributes;
-  XColor color;
-  PropMwmHints mwm_hints;
-  
-  sl = strrchr(name, '/');
-  if (sl) name = sl+1;
+  need_imglib_cards();
+  ew = width;
+  eh = height;
 
-  ew = table_width = width;
-  eh = table_height = height;
-  CD;
+  table_width = width;
+  table_height = height;
 
-  display = XOpenDisplay(0);
-  screen = XDefaultScreen(display);
-  cmap = XDefaultColormap(display, screen);
-  visual = XDefaultVisual(display, screen);
-  rootwin = XDefaultRootWindow(display);
-  gc = XCreateGC(display, rootwin, 0, 0);
-
-  wm_protocols_atom = XInternAtom(display, "WM_PROTOCOLS", 0);
-  delete_atom = XInternAtom(display, "WM_DELETE_WINDOW", 0);
-  paste_atom = XInternAtom(display, "PASTE_DATA", 0);
-  mwm_atom = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
-
-  size_hints.flags = PSize|PMinSize|PMaxSize;
-  size_hints.width = width;
-  size_hints.height = height;
-  size_hints.x = 0;
-  size_hints.y = 0;
-  size_hints.min_width = width;
-  size_hints.min_height = height;
-  size_hints.max_width = width;
-  size_hints.max_height = height;
-
-  window = XCreateWindow(display,
-			 rootwin,
-			 size_hints.x, size_hints.y,
-			 size_hints.width, size_hints.height,
-			 0,
-			 CopyFromParent, /* depth */
-			 InputOutput,
-			 CopyFromParent, /* visual */
-			 0, 0);
-
-  XSetWMNormalHints(display, window, &size_hints);
-
-  sl = (char *)malloc(strlen(name) + strlen(AOP)+1);
-  sprintf(sl, "%s%s", AOP, name);
-  XStringListToTextProperty(&sl, 1, &xtp);
-  XSetWMName(display, window, &xtp);
-  XFree(xtp.value);
-
-  XSetWMProtocols(display, window, &delete_atom, 1);
-
-  attributes.event_mask = (  ExposureMask
-			   | ButtonPressMask
-			   | ButtonReleaseMask
-			   | ButtonMotionMask
-			   | KeyPressMask
-			   | PointerMotionHintMask );
-  XChangeWindowAttributes(display, window, CWEventMask, &attributes);
-
-  mwm_hints.flags = MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS;
-  mwm_hints.functions = MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE | MWM_FUNC_CLOSE;
-  mwm_hints.decorations = MWM_DECOR_BORDER | MWM_DECOR_TITLE | MWM_DECOR_MENU | MWM_DECOR_MINIMIZE;
-  XChangeProperty(display, window, mwm_atom, mwm_atom, 32, PropModeReplace,
-		  (char *)&mwm_hints, PROP_MWM_HINTS_ELEMENTS);
-
-  XMapWindow(display, window);
-  XFlush(display);
-
-  color.red   = 0x0000;
-  color.green = 0x6666;
-  color.blue  = 0x0000;
-  color.flags = DoRed | DoGreen | DoBlue;
-  if (!XAllocColor(display, cmap, &color))
-  {
-    color.red   = 0x0000;
-    color.green = 0x8000;
-    color.blue  = 0x0000;
-    color.flags = DoRed | DoGreen | DoBlue;
-    if (!XAllocColor(display, cmap, &color))
-    {
-      color.pixel = BlackPixel(display, screen);
-    }
-  }
-  table_background = color.pixel;
-
-  font = XLoadQueryFont(display, "6x13bold");
-  if (!font) font = XLoadQueryFont(display, "6x10");
-  if (!font) font = XLoadQueryFont(display, "fixed");
-  font_width = font->max_bounds.width;
-  font_height = font->ascent + font->descent;
-}
-
-void
-flush()
-{
-  XFlush(display);
-}
-
-void
-beep()
-{
-  XBell(display, 0);
+  init_xwin (argc, argv, width, height);
 }
 
 typedef struct PicRec {
@@ -369,57 +73,18 @@ typedef struct PicRec {
 Picture *
 get_picture(char *name)
 {
-  int i;
-  if (image_table == 0)
-    uncompress_images();
-  for (i=0; image_table[i].name; i++)
-    if (strcmp(image_table[i].name, name) == 0)
-    {
-      Picture *p;
-      p = (Picture *)malloc(sizeof(Picture));
-      p->pixmap = (void *)malloc(sizeof(PicRec));
-      ((PicRec *)(p->pixmap))->pixmap = 0;
-      ((PicRec *)(p->pixmap))->mask = 0;
-      ((PicRec *)(p->pixmap))->xpm_data = image_table[i].xpm;
-      sscanf(image_table[i].xpm[0], "%d %d", &(p->w), &(p->h));
-      if (image_table[i].pixmap)
-      {
-	((PicRec *)(p->pixmap))->pixmap = image_table[i].pixmap;
-	((PicRec *)(p->pixmap))->mask = image_table[i].mask;
-      }
-      ((PicRec *)(p->pixmap))->image_table_index = i;
-      return p;
-    }
-  printf("can't find image `%s'\n", name);
-  return 0;
+  image *img;
+  img = get_image(name, CARD_WIDTH, CARD_HEIGHT, 0);
+  return (Picture *)img;
 }
 
-static void
-get_pixmap(PicRec *pr)
-{
-  if (image_table[pr->image_table_index].pixmap)
-  {
-    pr->pixmap = image_table[pr->image_table_index].pixmap;
-    pr->mask = image_table[pr->image_table_index].mask;
-  }
-  else
-  {
-    XpmAttributes attr;
-    attr.valuemask = XpmSize | XpmExactColors | XpmCloseness;
-    attr.exactColors = 0;
-    attr.closeness = 32769;
-    XpmCreatePixmapFromData(display, window, pr->xpm_data,
-			    &(pr->pixmap), &(pr->mask), &attr);
-    image_table[pr->image_table_index].pixmap = pr->pixmap;
-    image_table[pr->image_table_index].mask = pr->mask;
-  }
-}
+static int put_picture_flags = 0;
 
 void
 put_picture(Picture *picture, int dx, int dy,
 	    int x, int y, int w, int h)
 {
-  PicRec *pr = (PicRec *)(picture->pixmap);
+  if (!picture) return;
   if (graphics_disabled) return;
 #if TRACE_PICTURES
   /*printf("copy bef: x=%3d y=%3d w=%3d h=%3d\n", dx+x, dy+y, w, h);*/
@@ -448,17 +113,7 @@ put_picture(Picture *picture, int dx, int dy,
 #if TRACE_PICTURES
     printf("copy aft: x=%3d y=%3d w=%3d h=%3d\n", dx+x, dy+y, w, h);
 #endif
-    if (pr->pixmap == 0)
-      get_pixmap(pr);
-    if (pr->mask)
-    {
-      XSetClipMask(display, gc, pr->mask);
-      XSetClipOrigin(display, gc, dx, dy);
-    }
-    if (pr->pixmap) /* safety! */
-      XCopyArea(display, pr->pixmap, window, gc, x, y, w, h, dx+x, dy+y);
-    if (pr->mask)
-      XSetClipRectangles(display, gc, 0, 0, &clip_rect, 1, YXBanded);
+    put_image ((image *)picture, x, y, w, h, display_image, dx, dy, put_picture_flags);
   }
 }
 
@@ -466,59 +121,9 @@ void
 put_picture_inverted(Picture *picture, int dx, int dy,
 		     int x, int y, int w, int h)
 {
-  static Picture *inverted_picture = 0;
-  static Pixmap inverted_pixmap=0;
-  static ipw=0, iph=0;
-  Pixmap save_pixmap;
-  PicRec *pr = (PicRec *)(picture->pixmap);
-  if (graphics_disabled) return;
-
-  if (!pr->pixmap)
-    get_pixmap(pr);
-
-  if (picture != inverted_picture)
-  {
-    int x, y;
-    XImage *img;
-    if (inverted_pixmap == 0 || ipw < picture->w || iph < picture->h)
-    {
-      if (inverted_pixmap)
-	XFreePixmap(display, inverted_pixmap);
-      if (ipw < picture->w) ipw = picture->w;
-      if (iph < picture->h) iph = picture->h;
-      inverted_pixmap = XCreatePixmap(display, pr->pixmap, ipw, iph,
-				      DefaultDepth(display, screen));
-    }
-    if (pr->mask)
-      XSetClipMask(display, gc, None);
-    img = XGetImage(display, pr->pixmap,
-		    0, 0, picture->w, picture->h, -1, ZPixmap);
-    for (x=0; x<picture->w; x++)
-      for (y=0; y<picture->h; y++)
-      {
-	int p = XGetPixel(img, x, y);
-	if (img->depth >= 15)
-	{
-	  p = ~p & 0xffffff;
-	}
-	else
-	{
-	  if (p == WhitePixel(display, screen))
-	    p = BlackPixel(display, screen);
-	  else if (p == BlackPixel(display, screen))
-	    p = WhitePixel(display, screen);
-	}
-	XPutPixel(img, x, y, p);
-      }
-    XPutImage(display, inverted_pixmap, gc, img,
-	      0, 0, 0, 0, picture->w, picture->h);
-    XDestroyImage(img);
-    inverted_picture = picture;
-  }
-  save_pixmap = pr->pixmap;
-  pr->pixmap = inverted_pixmap;
-  put_picture(picture, dx, dy, x, y, w, h);
-  pr->pixmap = save_pixmap;
+  put_picture_flags = PUT_INVERTED;
+  put_picture (picture, dx, dy, x, y, w, h);
+  put_picture_flags = 0;
 }
 
 void
@@ -565,9 +170,7 @@ redraw_centered_pic()
                 0, 0, centered_pic->w, centered_pic->h);
 }
 
-#define CLEAR_CLIP	clip_rect.x = ex = 0; clip_rect.y = ey = 0; clip_rect.width = ew = table_width; clip_rect.height = eh = table_height;
-
-#define ButtonMask (Button1Mask | Button2Mask | Button3Mask)
+#define CLEAR_CLIP	ex = 0; ey = 0; ew = table_width; eh = table_height; xwin_noclip();
 
 static int dcx, dcy, dct=0; /* double click memory */
 static int drag_enabled=0;
@@ -594,149 +197,130 @@ void (*help_key)(int c, int x, int y) = help_nothing;
 void
 table_loop()
 {
-  int root_x, root_y, pos_x, pos_y;
-  unsigned int keys_buttons;
-  int i;
-  Window root, child;
-  KeySym keysym;
-  char c;
   int click_button;
   int initted = 0;
 
   while (1)
   {
-    XNextEvent(display, &event);
-    if (event.xany.window == window)
-    {
-      if (!initted && event.type != Expose)
-	continue;
+    XWin_Event event;
+    xwin_nextevent(&event);
 
-      switch (event.type)
+    if (!initted && event.type != ev_expose)
+      continue;
+
+    switch (event.type)
       {
-      case Expose:
+      case ev_expose:
+	ex = event.x;
+	ey = event.y;
+	ew = event.w;
+	eh = event.h;
 #if TRACE_EVENTS
-	printf("expose: x=%3d y=%3d w=%3d h=%3d c=%d\n",
-	       ex, ey, ew, eh, event.xexpose.count);
+	printf("expose: x=%3d y=%3d w=%3d h=%3d\n",
+	       ex, ey, ew, eh);
 #endif
-	clip_rect.x = ex = event.xexpose.x;
-	clip_rect.y = ey = event.xexpose.y;
-	clip_rect.width = ew = event.xexpose.width;
-	clip_rect.height = eh = event.xexpose.height;
 	CD;
-	XSetClipRectangles(display, gc, 0, 0, &clip_rect, 1, YXBanded);
+	xwin_clip (ex, ey, ew, eh);
 	clear(ex, ey, ew, eh);
 
 	if (! initted)
-	{
-	  initted = 1;
-	  XFlush(display);
-	  graphics_disabled = 1;
-	  init();
-	  graphics_disabled = 0;
+	  {
+	    initted = 1;
+	    flush();
+	    graphics_disabled = 1;
+	    init();
+	    graphics_disabled = 0;
 #if TRACE_EVENTS
-	  printf(" - done init\n");
+	    printf(" - done init\n");
 #endif
-	}
-	ex = event.xexpose.x;
-	ey = event.xexpose.y;
-	ew = event.xexpose.width;
-	eh = event.xexpose.height;
+	  }
+	ex = event.x;
+	ey = event.y;
+	ew = event.w;
+	eh = event.h;
 	CD;
 	if (help_is_showing)
 	  help_redraw();
 	else
 	  redraw();
 	redraw_centered_pic();
-	XSetClipMask(display, gc, None);
-	clip_rect.x = 0;
-	clip_rect.y = 0;
-	clip_rect.width = table_width;
-	clip_rect.height = table_height;
+	xwin_noclip();
 #if TRACE_EVENTS
 	printf(" - done expose\n");
 #endif
 	break;
 
-      case ButtonPress:
+      case ev_buttondown:
 	CLEAR_CLIP;
 	CD;
 #if TRACE_EVENTS
 	printf("click: %d,%d %d\n",
-	       event.xbutton.x, event.xbutton.y, event.xbutton.button);
+	       event.x, event.y, event.button);
 #endif
-	click_button = event.xbutton.button;
-	check_dclick(event.xbutton.x, event.xbutton.y, event.xbutton.time);
+	click_button = event.button;
+	check_dclick(event.x, event.y, event.time);
 	if (help_is_showing)
-	{
-	  help_click(event.xbutton.x, event.xbutton.y, click_button);
-	}
-	else if (event.xbutton.time - dct < DBLCLICK_TIME)
-	{
-	  double_click(event.xbutton.x, event.xbutton.y, event.xbutton.button);
-	  dct -= DBLCLICK_TIME;
-	}
+	  {
+	    help_click(event.x, event.y, click_button);
+	  }
+	else if (event.time - dct < DBLCLICK_TIME)
+	  {
+	    double_click(event.x, event.y, event.button);
+	    dct -= DBLCLICK_TIME;
+	  }
 	else
-	{
-	  click(event.xbutton.x, event.xbutton.y, click_button);
-	  dcx = event.xbutton.x;
-	  dcy = event.xbutton.y;
-	  dct = event.xbutton.time;
-	}
+	  {
+	    click(event.x, event.y, click_button);
+	    dcx = event.x;
+	    dcy = event.y;
+	    dct = event.time;
+	  }
 	drag_enabled = 0;
 	break;
 
-      case MotionNotify:
+      case ev_motion:
 	CLEAR_CLIP;
 	CD;
-	check_dclick(event.xmotion.x, event.xmotion.y, event.xmotion.time);
-	while (XCheckMaskEvent(display, ButtonMotionMask, &event));
-	if (!XQueryPointer(display, event.xmotion.window,
-			   &root, &child, &root_x, &root_y,
-			   &pos_x, &pos_y, &keys_buttons))
-	  break;
-#if TRACE_EVENTS
-	printf("drag: %d,%d\n", pos_x, pos_y);
-#endif
+	check_dclick(event.x, event.y, event.time);
 	if (drag_enabled && !help_is_showing)
-	  drag(pos_x, pos_y, click_button);
-	break;
-
-      case ButtonRelease:
-	CLEAR_CLIP;
-	check_dclick(event.xbutton.x, event.xbutton.y, event.xbutton.time);
-	CD;
-	i = event.xbutton.state & ButtonMask;
-	if ((i & (i>>1)) == 0)
-	{
+	  {
 #if TRACE_EVENTS
-	  printf("drop: %d,%d\n", event.xbutton.x, event.xbutton.y);
+	    printf("drag: %d,%d %d\n", event.x, event.y, click_button);
 #endif
-	  if (!help_is_showing)
-	    drop(event.xbutton.x, event.xbutton.y, click_button);
-	}
+	    drag(event.x, event.y, click_button);
+	  }
 	break;
 
-      case KeyPress:
+      case ev_buttonup:
+	CLEAR_CLIP;
+	check_dclick(event.x, event.y, event.time);
+	CD;
+#if TRACE_EVENTS
+	printf("drop: %d,%d\n", event.x, event.y);
+#endif
+	if (!help_is_showing)
+	  drop(event.x, event.y, click_button);
+	break;
+
+      case ev_keypress:
 	CLEAR_CLIP;
 	CD;
-	if (XLookupString(&event.xkey, &c, 1, &keysym, 0) == 1)
-	  i = c;
-	else
-	  i = keysym;
 	if (help_is_showing)
-	  help_key(i, event.xkey.x, event.xkey.y);
+	  help_key(event.key, event.x, event.y);
 	else
-	  key(i, event.xkey.x, event.xkey.y);
+	  key(event.key, event.x, event.y);
 	break;
 
-      case ClientMessage:
-	if (event.xclient.message_type == wm_protocols_atom
-	    && event.xclient.data.l[0] == delete_atom)
-	    exit(0);
-	break;
+      case ev_quit:
+	exit(0);
       }
-    }
   }
+}
+
+static void
+reset_clip()
+{
+  xwin_clip (ex, ey, ew, eh);
 }
 
 void
@@ -764,25 +348,52 @@ clip(int x, int y, int w, int h)
     ew = table_width - ex;
   if (ey+eh > table_height)
     eh = table_height - ey;
-  CD;
+  reset_clip();
+}
+
+static int *clip_saves = 0;
+
+void
+clip_more(int x, int y, int w, int h)
+{
+  int *save = (int *)malloc (5*sizeof(int));
+  save[0] = (int)clip_saves;
+  save[1] = ex;
+  save[2] = ey;
+  save[3] = ew;
+  save[4] = eh;
+  clip_saves = save;
+
+  if (x+w > ex+ew)
+    w = ex+ew - x;
+  if (y+h > ey+eh)
+    h = ey+eh - y;
+  if (x < ex)
+    {
+      w -= ex-x;
+      x = ex;
+    }
+  if (y < ey)
+    {
+      h -= ey-y;
+      y = ey;
+    }
+  clip (x, y, w, h);
 }
 
 void
-clear(int x, int y, int w, int h)
+unclip()
 {
-  XSetForeground(display, gc, help_is_showing ?
-		 table_background : table_background);
-  XFillRectangle(display, window, gc, x, y, w, h);
-}
-
-static void
-reset_clip()
-{
-  clip_rect.x = ex;
-  clip_rect.y = ey;
-  clip_rect.width = ew;
-  clip_rect.height = eh;
-  XSetClipRectangles(display, gc, 0, 0, &clip_rect, 1, YXBanded);
+  int *ptr = clip_saves;
+  if (!ptr) return;
+  ex = clip_saves[1];
+  ey = clip_saves[1];
+  ew = clip_saves[1];
+  eh = clip_saves[1];
+  clip_saves = (int *)clip_saves[0];
+  free (clip_saves);
+  xwin_noclip();
+  reset_clip();
 }
 
 static void
@@ -803,7 +414,7 @@ invalidate_sub(int x, int y, int w, int h)
   else
     redraw();
   redraw_centered_pic();
-  XSetClipMask(display, gc, None);
+  xwin_noclip();
 }
 
 void
@@ -851,7 +462,6 @@ invalidate_nc(int x, int y, int w, int h)
   else
     redraw();
   redraw_centered_pic();
-  XSetClipMask(display, gc, None);
 #if TRACE_INVALIDATE
   printf(" - done invalidate\n");
 #endif
@@ -980,11 +590,231 @@ snap_to_grid(int *x, int *y,
   }
 }
 
-void
-text(char *t, int x, int y)
+char *suit_spots[] = {
+  "15",
+  "101:",
+  "10151:",
+  "00200:2:",
+  "0020150:2:",
+  "002005250:2:",
+  "00201205250:2:",
+  "0020032307270:2:",
+  "002003231507270:2:",
+  "00201104240626190:2:"
+  };
+
+int spot_xx[] = { 0, 50, 100 };
+int spot_yy[] = { 0, 16, 25, 33, 36, 50, 63, 66, 75, 83, 100 };
+
+static void
+card_synth2(image *rv)
 {
-  XSetBackground(display, gc, table_background);
-  XSetForeground(display, gc, WhitePixel(display, screen));
-  if (font) XSetFont(display, gc, font->fid);
-  XDrawImageString(display, window, gc, x, y-font->descent, t, strlen(t));
+  image *face_img, *img;
+  int face, suit, color;
+  static char face_chars[] = "a234567890jqk";
+  static char suit_chars[] = "cdsh";
+  int subw, subh, face_w, w;
+  int width = rv->width, height = rv->height;
+  image_list *list = rv->list;
+
+  fill_image (rv, 0, 0, width, height, 255, 255, 255);
+
+  face = strchr(face_chars, list->name[0]) - face_chars;
+  suit = strchr(suit_chars, list->name[1]) - suit_chars;
+  color = suit & 1;
+
+  face_w = width*2/11;
+  face_img = get_image("a-k", face_w*2, face_w*13, 0);
+  face_w = face_img->width / face_img->list->across;
+
+  if (face < 10 && width > 3*face_w)
+    {
+      char *spots = suit_spots[face];
+      int sw, sh;
+      if (face == 0)
+	{
+	  sw = width;
+	  sh = height;
+	}
+      else
+	{
+	  sw = (width - 2*face_w) / 3;
+	  sh = (height - 2*face_w) / 4;
+	}
+      if (face == 0 && suit == 2)
+	img = get_image("penguin", sw, sh, GI_NOT_BIGGER);
+      else
+	img = get_image("suits", sw, sh*4, GI_NOT_BIGGER);
+      if (img)
+	{
+	  int spw, sph, spoh, spow;
+	  sw = img->width / img->list->across;
+	  sh = img->height / img->list->down;
+	  spow = face_w + 2;
+	  spoh = face_w*3/4 + 2;
+	  spw = width - 2*spow - sw;
+	  sph = height - 2*spoh - sh;
+	  while (*spots)
+	    {
+	      int sx = spot_xx[spots[0]-'0'] * spw / 100 + spow;
+	      int sy = spot_yy[spots[1]-'0'] * sph / 100 + spoh;
+	      put_subimage (img, 0, suit, rv, sx, sy,
+			    spot_yy[spots[1]-'0'] > 51 ? PUT_ROTATED : 0);
+	      spots += 2;
+	    }
+	}
+    }
+
+  if (face >= 10 &&  width > 3*face_w)
+    {
+      int wm = face_w+2;
+      int hm = face_w*3/4+2;
+      int w2 = width-2*wm;
+      int h2 = height-2*hm;
+      image *kqj, *simg;
+      static char *portrait[] = {"jack", "queen", "king"};
+
+      fill_image (rv, wm, hm, w2, 1, 0, 0, 0);
+      fill_image (rv, wm, hm, 1, h2, 0, 0, 0);
+      fill_image (rv, wm, height-hm, w2, 1, 0, 0, 0);
+      fill_image (rv, width-wm, hm, 1, h2, 0, 0, 0);
+
+      simg = get_image("suits", w2/3, w2*4/3, 0);
+
+      kqj = get_image(portrait[face-10], w2, h2/2, GI_NOT_BIGGER);
+      if (!kqj)
+	kqj = get_image(portrait[face-10], w2, h2, GI_NOT_BIGGER);
+
+      if (simg)
+	{
+	  put_subimage (simg, 0, suit, rv, wm+2, hm+2, 0);
+	  put_subimage (simg, 0, suit, rv, width-wm-1-simg->width, height-hm-1-simg->height/4, PUT_ROTATED);
+	}
+
+      if (kqj && kqj->height <= h2/2)
+	{
+	  put_subimage (kqj, 0, 0, rv, width-wm-kqj->width, (height+1)/2-kqj->height, 0);
+	  put_subimage (kqj, 0, 0, rv, wm+1, (height+1)/2, PUT_ROTATED);
+	}
+      else if (kqj)
+	{
+	  put_subimage (kqj, 0, 0, rv, (width+1-kqj->width)/2, (height+1-kqj->height)/2, 0);
+	}
+    }
+
+  fill_image (rv, 0, 0, width, 1, 0, 0, 0);
+  fill_image (rv, 0, 0, 1, height, 0, 0, 0);
+  fill_image (rv, 0, height-1, width, 1, 0, 0, 0);
+  fill_image (rv, width-1, 0, 1, height, 0, 0, 0);
+
+  put_subimage (face_img, color, face, rv, 1, 2, 0);
+  subw = face_img->width / face_img->list->across;
+  subh = face_img->height / face_img->list->down;
+  if (width > subw * 3)
+    put_subimage (face_img, color, face, rv, width-1-subw, height-2-subh, PUT_ROTATED);
+
+  img = get_image("suits", 9, 9*4, 0);
+  put_subimage (img, 0, suit, rv, 3, 4+subh, 0);
+  if (width > subw * 3)
+    put_subimage (img, 0, suit, rv,
+		  width-3-img->width/img->list->across, height-4-subh-img->height/img->list->down,
+		  PUT_ROTATED);
 }
+
+static image *
+card_synth(image_list *list, int type, int width, int height)
+{
+  image *rv;
+
+  for (rv = list->subimage[type]; rv; rv=rv->next)
+    if (rv->width == width && rv->height == height)
+      return rv;
+
+  rv = alloc_synth_image(list, width, height, type);
+  rv->synth_func = card_synth2;
+  return rv;
+}
+
+static void
+empty_synth2(image *img)
+{
+  fill_image (img, 0, 0, img->width, img->height, 0, 102, 0);
+  fill_image (img, 0, img->height-1, img->width, 1, 0, 0, 0);
+  fill_image (img, img->width-1, 0, 1, img->height, 0, 0, 0);
+  fill_image (img, 0, 0, img->width, 1, 0, 204, 0);
+  fill_image (img, 0, 0, 1, img->height, 0, 204, 0);
+}
+
+static image *
+empty_synth(image_list *list, int type, int width, int height)
+{
+  image *rv, *img;
+
+  for (rv = list->subimage[type]; rv; rv=rv->next)
+    if (rv->width == width && rv->height == height)
+      return rv;
+
+  rv = alloc_synth_image(list, width, height, type);
+  rv->synth_func = empty_synth2;
+  return rv;
+}
+
+image_list card_images[] = {
+  { "ac", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "ad", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "as", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "ah", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "2c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "2d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "2s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "2h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "3c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "3d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "3s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "3h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "4c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "4d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "4s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "4h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "5c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "5d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "5s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "5h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "6c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "6d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "6s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "6h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "7c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "7d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "7s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "7h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "8c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "8d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "8s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "8h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "9c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "9d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "9s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "9h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "0c", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "0d", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "0s", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "0h", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "jc", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "jd", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "js", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "jh", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "qc", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "qd", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "qs", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "qh", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "kc", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "kd", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "ks", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "kh", 1, 1, {0,0,0}, 0, card_synth, 0 },
+  { "empty", 1, 1, {0,0,0}, 0, empty_synth, 0 },
+  { 0 }
+};
+
+REGISTER_IMAGE_LIBRARY(card_images)
+

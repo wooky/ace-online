@@ -1,5 +1,5 @@
 /* The Ace of Penguins - golf.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,12 +18,10 @@
 #include <X11/Xlib.h>
 #include "cards.h"
 
-#include <X11/keysym.h>
-
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
-#define R 2
+#define R CARD_FAN_TBRIGHT
 #define D CARD_FAN_DOWN
 
 Picture *splash, *youwin, *youlose;
@@ -34,6 +32,8 @@ Stack *deck, *discard, *stacks[7];
 static int table_width, table_height;
 
 int supress_arrows = 0;
+
+int arrow_offset, arrow_delta;
 
 int
 main(int argc, char **argv)
@@ -51,16 +51,16 @@ static int arrows[7] = { 0, 0, 0, 0, 0, 0, 0 };
 static void
 set_arrow(int column, int on)
 {
-  int x = (M+W)*column+M+W/2;
+  int x = column * arrow_delta + arrow_offset;
   if (supress_arrows)
     return;
   if (arrows[column])
-    put_picture(no_arrow, x-no_arrow->w/2, arrows[column],
+    put_picture(no_arrow, x, arrows[column],
 		0, 0, no_arrow->w, no_arrow->h);
   if (on)
   {
     arrows[column] = M+H+(stack_count_cards(stacks[column])-1)*D + 2;
-    put_picture(arrow, x-arrow->w/2, arrows[column],
+    put_picture(arrow, x, arrows[column],
 		0, 0, arrow->w, arrow->h);
   }
   else
@@ -73,9 +73,9 @@ redraw_arrows()
   int i;
   for (i=0; i<7; i++)
   {
-    int x = (M+W)*i+M+W/2;
+    int x = i * arrow_delta + arrow_offset;
     if (arrows[i])
-      put_picture(arrow, x-arrow->w/2, arrows[i],
+      put_picture(arrow, x, arrows[i],
 		  0, 0, arrow->w, arrow->h);
   }
 }
@@ -149,18 +149,22 @@ init()
 {
   int s, v;
 
+  arrow_offset = (table_width - 7 * W) / 8;
+  arrow_delta = arrow_offset + W;
+  arrow_offset = (table_width - 7*W - 6*arrow_offset)/2;
+
   stack_load_standard_deck();
-  splash = get_picture("golf.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
-  arrow = get_picture("golf-arrow.gif");
-  no_arrow = get_picture("golf-noarrow.gif");
+  splash = get_picture("golf");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  arrow = get_picture("golf-arrow");
+  no_arrow = get_picture("golf-noarrow");
 
   set_centered_pic(splash);
 
   for (s=0; s<7; s++)
   {
-    stacks[s] = stack_create(M+s*(M+W), M);
+    stacks[s] = stack_create(arrow_offset+s*arrow_delta, M);
     stack_set_offset(stacks[s], STACK_OFFSET_DOWN);
   }
 
@@ -171,6 +175,8 @@ init()
   for (s=0; s<4; s++)
     for (v=1; v<=13; v++)
       stack_add_card(deck, MAKE_CARD(s, v, FACEDOWN));
+
+  arrow_offset = arrow_offset + (W - arrow->w)/2;
 
   start_again();
 }
@@ -279,18 +285,17 @@ key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("golf.html", golf_help);
   }
-  if (k == XK_F2)
+  if (k == KEY_F(2) || k == 'r')
   {
     set_centered_pic(0);
     start_again();
   }
-  if ((k == 8 || k == 127
-       || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
+  if (k == 8 || k == 127 || k == KEY_DELETE)
   {
     clear_arrows();
     supress_arrows = 1;

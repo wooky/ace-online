@@ -1,5 +1,5 @@
 /* The Ace of Penguins - freecell.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "cards.h"
-
-#include <X11/keysym.h>
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
@@ -40,10 +38,12 @@ static int auto_move();
 int
 main(int argc, char **argv)
 {
-  xlogo = get_picture("xemboss.gif");
-  splash = get_picture("freecell.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
+  xlogo = get_picture("xemboss");
+  if (M*9 < xlogo->w || H < xlogo->h)
+    xlogo = 0;
+  splash = get_picture("freecell");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
   init_table(argc, argv, 8*W+9*M, H+M+19*F);
   table_loop();
 }
@@ -76,7 +76,7 @@ init()
   Picture *empty;
 
   stack_load_standard_deck();
-  empty = get_picture("empty.gif");
+  empty = get_picture("empty");
 
   set_centered_pic(splash);
 
@@ -106,9 +106,10 @@ init()
 void
 redraw()
 {
+  if (xlogo)
+    put_picture(xlogo, W*4+(M*9)/2-xlogo->w/2, H/2-xlogo->h/2,
+		0, 0, xlogo->h, xlogo->w);
   stack_redraw();
-  put_picture(xlogo, W*4+(M*9)/2-xlogo->w/2, H/2-xlogo->h/2,
-	      0, 0, xlogo->h, xlogo->w);
 }
 
 extern char freecell_help[];
@@ -120,20 +121,19 @@ key(int k, int x, int y)
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
   set_centered_pic(0);
-  if ((k == 8 || k == 127
-       || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
+  if (k == 8 || k == 127 || k == KEY_DELETE)
   {
     stack_undo();
     return;
   }
   if (p == splash)
     return;
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     help("freecell.html", freecell_help);
     return;
   }
-  if (k == XK_F2 || p)
+  if (k == KEY_F(2) || p || k == 'r')
   {
     start_again();
     while (auto_move());

@@ -1,5 +1,5 @@
 /* The Ace of Penguins - tpe.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,14 +44,14 @@ main(int argc, char **argv)
 
   for (x=1; x<9; x++)
   {
-    sprintf(tmp, "t/n%d.gif", x);
+    sprintf(tmp, "n%d", x);
     tiles[x-1] = get_picture(tmp);
   }
 
-  tpe_bs = get_picture("taipedit-bs.gif");
-  tpe_bu = get_picture("taipedit-bu.gif");
-  tpe_bt = get_picture("taipedit-bt.gif");
-  splash = get_picture("taipedit.gif");
+  tpe_bs = get_picture("taipedit-bs");
+  tpe_bu = get_picture("taipedit-bu");
+  tpe_bt = get_picture("taipedit-bt");
+  splash = get_picture("taipedit");
   set_centered_pic(splash);
 
   init_table(argc, argv,
@@ -276,7 +276,7 @@ static int
 shift(int dx, int dy, int dz)
 {
   int x, y, z, x1=0, x2=GRID_SX-1, y1=0, y2=GRID_SY-1, z1=0, z2=GRID_SZ-1;
-  int temp[GRID_SX][GRID_SY][GRID_SZ];
+  unsigned char temp[GRID_SX][GRID_SY][GRID_SZ];
   memset(temp, 0, sizeof(temp));
   if (dx > 0) x2 -= dx;
   if (dx < 0) x1 -= dx;
@@ -325,7 +325,7 @@ key(int k, int x, int y)
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
 
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     help("taipedit.html", taipedit_help);
   }
@@ -345,24 +345,34 @@ key(int k, int x, int y)
     }
   }
 
-  if (k == XK_Up || k == XK_KP_Up)
-    if (check(0, GRID_SX-1, 0, 0, 0, GRID_SZ-1))
-      shift(0, 1, 0);
-  if (k == XK_Down || k == XK_KP_Down)
-    if (check(0, GRID_SX-1, GRID_SY-2, GRID_SY-1, 0, GRID_SZ-1))
-      shift(0, -1, 0);
-  if (k == XK_Left || k == XK_KP_Left)
-    if (check(0, 0, 0, GRID_SY-1, 0, GRID_SZ-1))
-      shift(1, 0, 0);
-  if (k == XK_Right || k == XK_KP_Right)
-    if (check(GRID_SX-2, GRID_SX-1, 0, GRID_SY-1, 0, GRID_SZ-1))
-      shift(-1, 0, 0);
-  if (k == XK_Page_Up || k == XK_KP_Page_Up)
-    if (check(0, GRID_SX-1, 0, GRID_SY-1, GRID_SZ-1, GRID_SZ-1))
-      shift(0, 0, -1);
-  if (k == XK_Page_Down || k == XK_KP_Page_Down)
-    if (check(0, GRID_SX-1, 0, GRID_SY-1, 0, 0))
-      shift(0, 0, 1);
-  if (k == XK_Home || k == XK_KP_Home)
-    auto_center();
+  switch (k)
+    {
+    case KEY_UP:
+      if (check(0, GRID_SX-1, 0, 0, 0, GRID_SZ-1))
+	shift(0, 1, 0);
+      break;
+    case KEY_DOWN:
+      if (check(0, GRID_SX-1, GRID_SY-2, GRID_SY-1, 0, GRID_SZ-1))
+	shift(0, -1, 0);
+      break;
+    case KEY_LEFT:
+      if (check(0, 0, 0, GRID_SY-1, 0, GRID_SZ-1))
+	shift(1, 0, 0);
+      break;
+    case KEY_RIGHT:
+      if (check(GRID_SX-2, GRID_SX-1, 0, GRID_SY-1, 0, GRID_SZ-1))
+	shift(-1, 0, 0);
+      break;
+    case KEY_PGUP:
+      if (check(0, GRID_SX-1, 0, GRID_SY-1, GRID_SZ-1, GRID_SZ-1))
+	shift(0, 0, -1);
+      break;
+    case KEY_PGDN:
+      if (check(0, GRID_SX-1, 0, GRID_SY-1, 0, 0))
+	shift(0, 0, 1);
+      break;
+    case KEY_HOME:
+      auto_center();
+      break;
+    }
 }

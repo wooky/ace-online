@@ -1,0 +1,44 @@
+#!/bin/perl5
+# -*- perl -*-
+
+$src = '
+	Makefile
+	COPYING
+	ChangeLog
+	docs/*
+	lib/*.gif
+	lib/*.h
+	lib/Makefile
+	lib/[abd-t]*.c
+	tests/*.c
+	tests/*.gif
+	tests/Makefile
+	games/*.gif
+	games/*.html
+	games/*.c
+	games/*.h
+	games/*.tp
+	games/split-tiles
+	games/Makefile
+	games/t/*
+';
+
+$src =~ s/[\n\t\r\s]+/ /g;
+
+$pwd = `pwd`;
+$pwd =~ s/[\r\n]+$//;
+$pwd =~ s@.*/@@;
+
+open(LS, "ls -1 $src | sort |");
+chdir "..";
+open(TAR, "| tar cvf - -T - | gzip -9 > $pwd/$pwd.tar.gz");
+
+
+while (<LS>) {
+    s/[\r\n]+$//;
+    next if /-(help|img)\.c/;
+    next if /[\~\#]/;
+    print TAR "$pwd/$_\n";
+}
+close(LS);
+close(TAR);

@@ -1,5 +1,5 @@
 /* The Ace of Penguins - thornq.c
-   Copyright (C) 1998 Martin Thornquist
+   Copyright (C) 1998, 2001 Martin Thornquist
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cards.h"
-#include <X11/keysym.h>
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
@@ -45,12 +44,12 @@ static void check_for_end_of_game();
 int
 main(int argc, char **argv)
 {
-  xlogo = get_picture("xemboss.gif");
-  splash = get_picture("thornq.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
-  arrow = get_picture("thornq-arrow.gif");
-  no_arrow = get_picture("thornq-noarrow.gif");
+  xlogo = get_picture("xemboss");
+  splash = get_picture("thornq");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  arrow = get_picture("thornq-arrow");
+  no_arrow = get_picture("thornq-noarrow");
 
   init_table(argc, argv, WIN_W, WIN_H);
   table_loop();
@@ -163,7 +162,7 @@ init()
   Picture *empty;
 
   stack_load_standard_deck();
-  empty = get_picture("empty.gif");
+  empty = get_picture("empty");
 
   set_centered_pic(splash);
 
@@ -190,9 +189,9 @@ init()
 void
 redraw()
 {
-  stack_redraw();
-  put_picture(xlogo, W*4 + (M*9)/2 - xlogo->w/2, H/2 - xlogo->h/2,
+  put_picture(xlogo, table_width - W*4 - M - xlogo->w, H/2 - xlogo->h/2,
 	      0, 0, xlogo->h, xlogo->w);
+  stack_redraw();
   redraw_arrows();
 }
 
@@ -209,18 +208,18 @@ key(int k, int x, int y)
   case 3: case 27: case 'q':
     exit(0);
 
-  case XK_F1: case 'h':
+  case KEY_F(1): case 'h':
     set_centered_pic(0);
     help("thornq.html", thornq_help);
     return;
 
-  case XK_F2: case 'r':
+  case KEY_F(2): case 'r':
     set_centered_pic(0);
     start_again();
     while (auto_move());
     return;
 
-  case 8: case 127: case XK_BackSpace: case XK_Delete: case XK_KP_Delete:
+  case 8: case 127: case KEY_DELETE:
     set_centered_pic(0);
     clear_arrows();
     stack_undo();

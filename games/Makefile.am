@@ -1,4 +1,5 @@
 bin_PROGRAMS = \
+	canfield \
 	freecell \
 	golf \
 	mastermind \
@@ -12,9 +13,25 @@ bin_PROGRAMS = \
 
 noinst_HEADERS = taipeilib.h taipei.h
 
-INCLUDES = -I../lib $(X_CFLAGS)
-LDFLAGS = $(X_LIBS) $(XPM_LIBS)
+CLEANFILES = \
+	canfield-img.c canfield-help.c \
+	freecell-img.c freecell-help.c \
+	golf-img.c golf-help.c \
+	mastermind-img.c mastermind-help.c \
+	merlin-img.c merlin-help.c \
+	minesweeper-img.c minesweeper-help.c \
+	pegged-img.c pegged-help.c \
+	solitaire-img.c solitaire-help.c \
+	taipedit-img.c taipedit-help.c \
+	taipei-img.c taipei-help.c \
+	thornq-img.c thornq-help.c
 
+STRIP = @STRIP@
+
+INCLUDES = -I$(srcdir)/../lib $(X_CFLAGS) @PDA@
+LDFLAGS = $(X_LIBS)
+
+canfield_SOURCES = canfield.c canfield-img.c
 freecell_SOURCES = freecell.c freecell-help.c freecell-img.c
 golf_SOURCES = golf.c golf-help.c golf-img.c
 mastermind_SOURCES = mastermind.c mastermind-help.c mastermind-img.c
@@ -26,81 +43,87 @@ taipedit_SOURCES = taipedit.c taipeilib.c taipedit-help.c taipedit-img.c
 taipei_SOURCES = taipei.c taipeilib.c taipei-help.c taipei-img.c
 thornq_SOURCES = thornq.c thornq-help.c thornq-img.c
 
-BUILT_SOURCES = freecell-help.c freecell-img.c golf-help.c golf-img.c \
+BUILT_SOURCES = canfield-img.c freecell-help.c freecell-img.c golf-help.c golf-img.c \
 	mastermind-help.c mastermind-img.c merlin-help.c merlin-img.c \
 	minesweeper-help.c minesweeper-img.c pegged-help.c pegged-img.c \
 	solitaire-help.c solitaire-img.c taipedit-help.c taipedit-img.c \
 	taipei-help.c taipei-img.c
 
-LDADD = ../lib/libcards.a -lXpm -lX11
-freecell_LDADD = $(LDADD)
-golf_LDADD = $(LDADD)
-mastermind_LDADD = ../lib/nocards.o $(LDADD)
-merlin_LDADD = ../lib/nocards.o $(LDADD)
-minesweeper_LDADD = ../lib/nocards.o $(LDADD)
-pegged_LDADD = ../lib/nocards.o $(LDADD)
-solitaire_LDADD = $(LDADD)
-taipedit_LDADD = ../lib/nocards.o $(LDADD)
-taipei_LDADD = ../lib/nocards.o $(LDADD)
-thornq_LDADD = $(LDADD)
+LDADD = ../lib/libcards.la -lpng -lz -lX11 -lm
 
-EXTRA_DIST = $(wildcard *.gif) $(wildcard *.tp)
+EXTRA_DIST = $(wildcard *.png) $(wildcard *.tp)
 
-freecell-img.c : freecell.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ freecell.gif
 
-golf-img.c : golf.gif golf-arrow.gif golf-noarrow.gif ../lib/gif2pack.c
-	../lib/gif2pack -b appimglib -o $@ golf.gif golf-arrow.gif golf-noarrow.gif
 
-MINESWEEPER_GIFS = minesweeper.gif minesweeper-x.gif minesweeper-t.gif \
-	minesweeper-c12.gif minesweeper-c24.gif minesweeper-c36.gif \
-	minesweeper-c48.gif
+canfield-img.c : canfield.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ canfield.png
 
-minesweeper-img.c : $(MINESWEEPER_GIFS) ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ $(MINESWEEPER_GIFS)
 
-merlin-img.c : merlin.gif merlin-c.gif merlin-b.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ merlin.gif merlin-c.gif merlin-b.gif
 
-mastermind-img.c : $(wildcard mastermind*.gif) ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ mastermind*.gif
+freecell-img.c : freecell.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ freecell.png
 
-pegged-img.c : pegged.gif pegged-h.gif pegged-p.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ pegged.gif pegged-h.gif pegged-p.gif
 
-solitaire-img.c : solitaire.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ solitaire.gif
 
-taipei-img.c : taipei.gif t/n1.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ taipei.gif t/*.gif
+golf-img.c : golf.png golf-arrow.png golf-noarrow.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ golf.png golf-arrow.png golf-noarrow.png
 
-TAIPEDITGIF = t/xa.gif taipedit.gif taipedit-bu.gif taipedit-bs.gif \
-	taipedit-bt.gif
 
-taipedit-img.c : $(TAIPEDITGIF) t/n1.gif ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ $(TAIPEDITGIF) t/n*.gif
 
-THORNQ_GIF = thornq.gif thornq-arrow.gif thornq-noarrow.gif
-thornq-img.c : $(THORNQ_GIF) ../lib/gif2pack.c
-	cd ../lib ; $(MAKE) gif2pack
-	../lib/gif2pack -b appimglib -o $@ $(THORNQ_GIF)
+MINESWEEPER_PNGS = minesweeper.png minesweeper-x.png minesweeper-t.png \
+	minesweeper-c12.png minesweeper-c24.png minesweeper-c36.png \
+	minesweeper-c48.png
 
-%-help.c : %.html ../lib/text2c.c
-	cd ../lib ; $(MAKE) text2c
+minesweeper-img.c : $(MINESWEEPER_PNGS) ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ $(MINESWEEPER_PNGS)
+
+
+
+merlin-img.c : merlin.png merlin-c.png merlin-b.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ merlin.png merlin-c.png merlin-b.png
+
+MASTERMIND_PNGS=mastermind-b.png mastermind-c.png mastermind-e.png \
+	mastermind-eb.png mastermind-g.png mastermind-k.png \
+	mastermind-o.png mastermind-p.png mastermind-r.png \
+	mastermind-w.png mastermind-y.png mastermind.png
+
+mastermind-img.c : $(MASTERMIND_PNGS) ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ $(MASTERMIND_PNGS)
+
+
+
+pegged-img.c : pegged.png pegged-h.png pegged-p.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ pegged.png pegged-h.png pegged-p.png
+
+
+
+solitaire-img.c : solitaire.png ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ solitaire.png
+
+
+
+taipei-img.c : ../lib/make-imglib taipei.png taipei-tiles.png Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ taipei taipei-tiles
+
+TAIPEDITPNG = taipedit.png taipedit-bu.png taipedit-bs.png taipedit-bt.png taipei-tiles.png
+
+taipedit-img.c : ../lib/make-imglib $(TAIPEDITPNG) Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ $(TAIPEDITPNG)
+
+
+
+THORNQ_PNG = thornq.png thornq-arrow.png thornq-noarrow.png
+thornq-img.c : $(THORNQ_PNG) ../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ $(THORNQ_PNG)
+
+
+
+%-help.c : %.html ../lib/text2c
 	../lib/text2c $*_help < $< > $@
 
-dist-hook :
-	mkdir $(distdir)/t
-	ln $(srcdir)/t/* $(distdir)/t
+strip :
+	$(STRIP) $(bin_PROGRAMS)
 
 bin-tar :
-	strip $(bin_PROGRAMS)
+	$(STRIP) $(bin_PROGRAMS)
 	tar cvf - $(bin_PROGRAMS) | gzip -9 > ../ace-bin.tar.gz

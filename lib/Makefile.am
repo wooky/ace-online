@@ -1,56 +1,28 @@
-noinst_PROGRAMS = make-cards text2c gif2pack
-noinst_LIBRARIES = libcards.a
-noinst_DATA = nocards.o
+lib_LTLIBRARIES = libcards.la
+
+noinst_PROGRAMS = text2c make-imglib
 noinst_HEADERS = cards.h
 
-INCLUDES = $(GD_CFLAGS) $(X_CFLAGS) $(XPM_CFLAGS)
+CLEANFILES = images.c images.d
 
-make_cards_LDADD = $(GD_LIBS) -lm
-gif2pack_LDADD = $(GD_LIBS) -lm
+INCLUDES = $(X_CFLAGS) @PDA@
+LDFLAGS = $(X_LIBS)
 
-BUILT_SOURCES = cards.c nocards.c
+BUILD_CC = @BUILD_CC@
+AR = @AR@
+STRIP = @STRIP@
 
-libcards_a_SOURCES = table.c cards.c help.c stack.c \
-	table_ai.c table_ck.c table_dc.c table_dg.c \
+libcards_la_LDFLAGS = -version-info 1:0:0 $(LDFLAGS)
+
+libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c \
+	images.c table_ai.c table_ck.c table_dc.c table_dg.c \
 	table_dp.c table_in.c table_ky.c table_rd.c table_rn.c
 
-SRCGIFS = \
-	blank.gif \
-	pjack.gif \
-	pqueen.gif \
-	pking.gif \
-	a-k.gif \
-	suits.gif \
-	smsuits.gif \
-	bigsuits.gif \
-	penguin.gif
+images.c : make-imglib Makefile images.in
+	./make-imglib -n cards -i $(srcdir)/png -d images.d $(srcdir)/images.in images.c
 
-GIFS = \
-	xemboss.gif \
-	no-drop.gif \
-	splash.gif \
-	youwin.gif \
-	youlose.gif
+make-imglib : make-imglib.c
+	$(BUILD_CC) $(srcdir)/make-imglib.c -o make-imglib -lpng -lz
 
-CARDGIFS = \
-	empty.gif \
-	back.gif
-
-card/as.gif : make-cards.c $(SRCGIFS)
-	$(MAKE) make-cards
-	./make-cards
-
-cards.c : gif2pack.c card/as.gif $(CARDGIFS) $(GIFS)
-	$(MAKE) gif2pack
-	@echo Warning - compressing takes a long time.
-	./gif2pack -b imglib -o cards.c card/*.gif $(CARDGIFS) $(GIFS)
-
-nocards.c : gif2pack.c card/as.gif $(GIFS)
-	$(MAKE) gif2pack
-	./gif2pack -b imglib -o nocards.c card/as.gif $(GIFS)
-
-EXTRA_DIST = $(SRCGIFS) $(GIFS) $(CARDGIFS)
-
-dist-hook :
-	mkdir $(distdir)/card
-	ln $(srcdir)/card/* $(distdir)/card
+text2c : text2c.c
+	$(BUILD_CC) $(srcdir)/text2c.c -o text2c -lpng -lz

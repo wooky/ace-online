@@ -1,5 +1,5 @@
 /* The Ace of Penguins - cards.h
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define _cards_h_
 
 /* Change these if you replace the card images */
+#ifndef PDA
 #define CARD_WIDTH	73
 #define CARD_HEIGHT	97
 #define CARD_MARGIN	6
@@ -26,12 +27,45 @@
 #define CARD_FAN_RIGHT	16
 #define CARD_FAN_TBDOWN	6
 #define CARD_FAN_TBRIGHT 6
+#endif
+#if 0
+#define CARD_WIDTH	65
+#define CARD_HEIGHT	86
+#define CARD_MARGIN	4
+#define CARD_FAN_DOWN	13
+#define CARD_FAN_RIGHT	12
+#define CARD_FAN_TBDOWN	4
+#define CARD_FAN_TBRIGHT 4
+#endif
+#if 0
+#define CARD_WIDTH	110
+#define CARD_HEIGHT	145
+#define CARD_MARGIN	9
+#define CARD_FAN_DOWN	30
+#define CARD_FAN_RIGHT	24
+#define CARD_FAN_TBDOWN	9
+#define CARD_FAN_TBRIGHT 9
+#endif
+#ifdef PDA
+#define CARD_WIDTH	17
+#define CARD_HEIGHT	31
+#define CARD_MARGIN	1
+#define CARD_FAN_DOWN	11
+#define CARD_FAN_RIGHT	5
+#define CARD_FAN_TBDOWN	3
+#define CARD_FAN_TBRIGHT 3
+#endif
+
+#define TABLE_MONO	0
+#define TABLE_GRAY	1
+#define TABLE_COLOR	2
+extern int table_type;
 
 void init_table(int argc, char **argv, int table_width, int table_height);
 void table_loop();
 
+/* Really, see image in imagelib.h */
 typedef struct Picture {
-  void *pixmap;
   int w, h;
 } Picture;
 
@@ -49,12 +83,15 @@ void set_centered_pic(Picture *picture);
 Picture *get_centered_pic();
 
 extern void clip(int x, int y, int w, int h);
+extern void clip_more(int x, int y, int w, int h);
+extern void unclip();
 extern void clear(int x, int y, int w, int h);
 extern void invalidate(int x, int y, int w, int h);
 extern void invalidate_nc(int x, int y, int w, int h);
 extern void invalidate_exposure(int ox, int oy, int ow, int oh,
 				int nx, int ny, int nw, int nh);
 extern void flush();
+extern void flushsync();
 extern void beep();
 extern void text(char *s, int x, int y); /* lower left corner */
 extern int font_width, font_height;
@@ -71,6 +108,16 @@ extern void click(int x, int y, int b);
 extern void double_click(int x, int y, int b);
 extern void drag(int x, int y, int b);
 extern void drop(int x, int y, int b);
+
+#define KEY_F(x)	(0x100 + (x))
+#define KEY_DELETE	0x200
+#define KEY_UP		0x201
+#define KEY_DOWN	0x202
+#define KEY_LEFT	0x203
+#define KEY_RIGHT	0x204
+#define KEY_PGUP	0x205
+#define KEY_PGDN	0x206
+#define KEY_HOME	0x207
 
 void snap_to_grid(int *x, int *y,
 		  int step_x, int step_y,

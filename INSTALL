@@ -1,0 +1,25 @@
+
+	Ace of Penguins
+
+
+For native Unix:
+
+./configure
+make
+make install
+
+
+You can use "./configure --disable-shared" to build statically linked games.
+
+
+
+For the Agenda PDA:
+
+./configure --with-cross=mipsel-linux
+make
+
+mipsel-linux-strip -x libs/.lib/libcard.so.0.0.0
+mipsel-linux-strip games/.lib/*
+copy libs/.lib/libcard.so* to /usr/local/lib on the agenda.
+as agenda's root run /sbin/ldconfig
+copy games/.lib/* to /usr/local/bin (or wherever)

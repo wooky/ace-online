@@ -1,5 +1,5 @@
 /* The Ace of Penguins - solitaire.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 #include <time.h>
 #include <math.h>
 #include "cards.h"
-
-#include <X11/keysym.h>
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
@@ -76,11 +74,11 @@ init()
   Picture *empty;
 
   stack_load_standard_deck();
-  empty = get_picture("empty.gif");
-  xlogo = get_picture("xemboss.gif");
-  splash = get_picture("solitaire.gif");
-  youwin = get_picture("youwin.gif");
-  youlose = get_picture("youlose.gif");
+  empty = get_picture("empty");
+  xlogo = get_picture("xemboss");
+  splash = get_picture("solitaire");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
 
   set_centered_pic(splash);
 
@@ -120,19 +118,22 @@ key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("solitaire.html", solitaire_help);
   }
-  if (k == XK_F2)
+  if (k == 'w')
+    set_centered_pic(youwin);
+  if (k == 'l')
+    set_centered_pic(youlose);
+  if (k == KEY_F(2))
   {
     set_centered_pic(0);
     start_again();
     while (auto_move());
   }
-  if ((k == 8 || k == 127
-       || k == XK_BackSpace || k == XK_Delete || k == XK_KP_Delete))
+  if ((k == 8 || k == 127 || k == KEY_DELETE))
   {
     stack_undo();
   }

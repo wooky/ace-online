@@ -1,5 +1,5 @@
 /* The Ace of Penguins - merlin.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 #include <time.h>
 #include <math.h>
 #include "cards.h"
-
-#include <X11/keysym.h>
 
 Picture *xlogo, *splash, *youwin;
 Picture *cell, *blank;
@@ -44,11 +42,11 @@ char affects[9][9] = {
 int
 main(int argc, char **argv)
 {
-  cell = get_picture("merlin-c.gif");
-  blank = get_picture("merlin-b.gif");
-  splash = get_picture("merlin.gif");
-  youwin = get_picture("youwin.gif");
-  xlogo = get_picture("xemboss.gif");
+  cell = get_picture("merlin-c");
+  blank = get_picture("merlin-b");
+  splash = get_picture("merlin");
+  youwin = get_picture("youwin");
+  xlogo = get_picture("xemboss");
 
   init_table(argc, argv, 300, 300);
   table_loop();
@@ -129,13 +127,13 @@ key(int k, int x, int y)
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
   set_centered_pic(0);
-  if (k == XK_F1 || k == 'h')
+  if (k == KEY_F(1) || k == 'h')
   {
     set_centered_pic(0);
     help("merlin.html", merlin_help);
     return;
   }
-  if (k == XK_F2)
+  if (k == KEY_F(2) || k == 'r')
   {
     start_again();
     redraw();

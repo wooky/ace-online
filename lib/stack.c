@@ -1,5 +1,5 @@
 /* The Ace of Penguins - stack.c
-   Copyright (C) 1998 DJ Delorie
+   Copyright (C) 1998, 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <math.h>
+
+extern int table_width, table_height;
 
 typedef struct Stack {
   struct Stack *prev, *next;
@@ -132,7 +134,7 @@ stack_set_pictures(Picture **f, Picture *b)
 {
   fronts = f;
   back = b;
-  nodrop = get_picture("no-drop.gif");
+  nodrop = get_picture("no-drop");
 }
 
 
@@ -150,11 +152,11 @@ stack_load_standard_deck()
   for (s=0; s<4; s++)
     for (v=1; v<=13; v++)
     {
-      sprintf(name, "card/%c%c.gif", values[v], suits[s]);
+      sprintf(name, "%c%c", values[v], suits[s]);
       cards[v*4+s] = get_picture(name);
     }
-  back = get_picture("back.gif");
-  nodrop = get_picture("no-drop.gif");
+  back = get_picture("back");
+  nodrop = get_picture("no-drop");
   stack_set_pictures(cards, back);
 }
 
@@ -764,7 +766,8 @@ stack_animate(Stack *s, Stack *d)
 
   /* 1 pixel per millisecond */
   dist = isqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-  dist /= 3;
+  if (table_width > 500)
+    dist /= 3;
 
   ox = y1;
   oy = x1;
@@ -787,7 +790,7 @@ stack_animate(Stack *s, Stack *d)
       stack_continue_drag(sn-1, x, y);
       ox = x;
       oy = y;
-      flush();
+      flushsync();
 #if 0
       frames++;
 #endif

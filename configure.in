@@ -1,6 +1,41 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(lib/cards.h)
-AM_INIT_AUTOMAKE(ace,1.1)
+AM_INIT_AUTOMAKE(ace,1.9)
+
+AC_ARG_WITH(cross,[  --with-cross=TARGET      select cross development], [
+  target=$withval
+  host=$withval
+  echo Cross compiling for $withval
+  CC=$target-gcc
+  AR=$target-ar
+  RANLIB=$target-ranlib
+  LD=$target-ld
+  STRIP=$target-strip
+  PDA=-DPDA
+
+  for dir in x `$CC --print-search-dirs | grep libraries: | sed -e 's/libraries: //' -e 's/:/ /g'`
+  do
+    dir=`echo $dir | sed 's@/$@@'`
+    echo testing $dir/X11
+    if test -d $dir/X11
+    then
+      x_libraries=$dir/X11
+      break;
+    fi
+  done
+  echo x_libraries=$x_libraries
+  case $x_libraries in
+    *lib/X11 ) dir=`echo $x_libraries | sed 's@lib/X11$@include@'` ;;
+    *gcc-lib* ) dir=`echo $x_libraries | sed -e 's@gcc-lib@@' -e 's@X11$@include@'` ;;
+    *) dir=`echo $x_libraries | sed 's@X11$@include@'` ;;
+  esac
+  test -d $dir/. && x_includes=$dir
+  export CC AR RANLIB LD STRIP PDA
+])
+
+AC_LANG_C
+
+AM_PROG_LIBTOOL
 
 dnl Checks for programs.
 AC_PROG_AWK
@@ -8,7 +43,11 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+
+AC_CHECK_PROGS(BUILD_CC,gcc cc ${CC},gcc)
+AC_CHECK_PROG(AR,${AR:-ar},${AR:-ar},ar)
+AC_CHECK_PROG(LD,${LD:-ld},${LD:-ld},ld)
+AC_CHECK_PROG(STRIP,${STRIP:-strip},${STRIP:-strip},strip)
 
 dnl Checks for libraries.
 dnl Replace `main' with a function in -lgd:
@@ -16,6 +55,7 @@ dnl doesn't work if gd isn't where the compiler can find it
 dnl AC_CHECK_LIB(gd, gdImageCreateFromGif)
 
 dnl Checks for header files.
+
 AC_PATH_XTRA
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h)
@@ -29,62 +69,63 @@ AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gettimeofday mkdir strdup strstr)
 
 opt_gd=
-AC_ARG_WITH(gd,[  --with-gd=DIR           location of the GD library],opt_gd=$withval)
-AC_ARG_WITH(xpm,[  --with-xpm=DIR          location of the XPM library],opt_xpm=$withval)
+AC_ARG_WITH(z,[  --with-z=DIR           location of the ZLIB library],opt_z=$withval)
+AC_ARG_WITH(png,[  --with-png=DIR          location of the PNG library],opt_png=$withval)
 
-case "$with_gd" in
+case "$with_z" in
   yes|no) AC_MSG_ERROR([
-*** Directory must be specified for --with-gd])
+*** Directory must be specified for --with-z])
     ;;
   "")
-    GD_CFLAGS=
-    GD_LIBS=-lgd
+    Z_CFLAGS=
+    Z_LIBS=-lz
     ;;
   *)
-    if test -f $with_gd/include/gd.h
+    if test -f $with_z/include/z.h
     then
-      GD_CFLAGS=-I$with_gd/include
+      Z_CFLAGS=-I$with_z/include
     else
-      GD_CFLAGS=-I$with_gd
+      Z_CFLAGS=-I$with_z
     fi
-    if test -f $with_gd/lib/libgd.a
+    if test -f $with_z/lib/libz.a
     then
-      GD_LIBS=$with_gd/lib/libgd.a
+      Z_LIBS=$with_z/lib/libz.a
     else
-      GD_LIBS=$with_gd/libgd.a
+      Z_LIBS=$with_z/libz.a
     fi
     ;;
 esac
 
-case "$with_xpm" in
+case "$with_png" in
   yes|no) AC_MSG_ERROR([
-*** Directory must be specified for --with-xpm])
+*** Directory must be specified for --with-png])
     ;;
   "")
-    XPM_CFLAGS=
-    XPM_LIBS=
+    PNG_CFLAGS=
+    PNG_LIBS=
     ;;
   *)
-    if test -f $with_xpm/lib/xpm.h
+    if test -f $with_png/lib/png.h
     then
-      XPM_CFLAGS=-I$with_xpm/lib
+      PNG_CFLAGS=-I$with_png/lib
     else
-      XPM_CFLAGS=-I$with_xpm/include/X11
+      PNG_CFLAGS=-I$with_png/include/X11
     fi
-    if test -f $with_xpm/lib/libXpm.a
+    if test -f $with_png/lib/libPng.a
     then
-      XPM_LIBS="-L$with_xpm/lib"
+      PNG_LIBS="-L$with_png/lib"
     else
-      XPM_LIBS="-L$with_xpm"
+      PNG_LIBS="-L$with_png"
     fi
     ;;
 esac
 
-AC_SUBST(GD_CFLAGS)
-AC_SUBST(GD_LIBS)
+AC_SUBST(Z_CFLAGS)
+AC_SUBST(Z_LIBS)
 
-AC_SUBST(XPM_CFLAGS)
-AC_SUBST(XPM_LIBS)
+AC_SUBST(PNG_CFLAGS)
+AC_SUBST(PNG_LIBS)
 
+AC_SUBST(PDA)
 
 AC_OUTPUT(Makefile lib/Makefile games/Makefile tests/Makefile)
