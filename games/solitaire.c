@@ -512,29 +512,6 @@ double_click(int x, int y, int b)
 
   sc = stack_count_cards(src_stack);
 
-  /*printf("- checking stacks, sc=%d\n", sc);*/
-  for (c=0; c<4; c++)
-  {
-    if (src_stack == outcells[c]) return;
-    stack_card_posn(outcells[c], 0, &x, &y);
-    n = n_droppable_s(outcells[c]);
-    /*printf("- outcell %d = %d\n", c, n);*/
-    if (n < sc)
-    {
-      dest_stack = outcells[c];
-      dest_n = n;
-      break; /* we don't care which outcell it is */
-    }
-  }
-
-  if (dest_stack)
-  {
-    /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
-    stack_move_cards(src_stack, dest_n, dest_stack);
-    check_for_end_of_game();
-    return;
-  }
-
   if (VALUE(stack_get_card(src_stack, sc-1)) > ACE)
     for (c=0; c<7; c++)
     {
@@ -571,6 +548,29 @@ double_click(int x, int y, int b)
   {
     /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
     stack_move_cards(src_stack, dest_n, dest_stack);
+  }
+
+  /*printf("- checking stacks, sc=%d\n", sc);*/
+  for (c=0; c<4; c++)
+  {
+    if (src_stack == outcells[c]) return;
+    stack_card_posn(outcells[c], 0, &x, &y);
+    n = n_droppable_s(outcells[c]);
+    /*printf("- outcell %d = %d\n", c, n);*/
+    if (n < sc)
+    {
+      dest_stack = outcells[c];
+      dest_n = n;
+      break; /* we don't care which outcell it is */
+    }
+  }
+
+  if (dest_stack)
+  {
+    /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
+    stack_move_cards(src_stack, dest_n, dest_stack);
+    check_for_end_of_game();
+    return;
   }
 
   check_for_end_of_game();

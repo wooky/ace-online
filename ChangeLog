@@ -1,3 +1,8 @@
+2001-12-07  DJ Delorie  <dj@redhat.com>
+
+	* games/solitaire.c (double_click): Prefer moving to a maincell
+	over moving to an outcell.
+
 2001-09-21  DJ Delorie  <dj@delorie.com>
 
 	* lib/cards.h (register_imagelib): Declare.
