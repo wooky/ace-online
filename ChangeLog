@@ -1,5 +1,9 @@
 2001-05-06  DJ Delorie  <dj@delorie.com>
 
+	* Version 1.2 released.
+
+2001-05-06  DJ Delorie  <dj@delorie.com>
+
 	* lib/table.c (init_ace): use strtol instead of atoi.
 	* lib/help.c (help_init): Use pixel_for instead of
 	{White,Black}Pixel
