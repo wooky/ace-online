@@ -1,3 +1,10 @@
+2001-04-07  DJ Delorie  <dj@redhat.com>
+
+	* lib/xwin.c (imggc): new, use separate GC for building synthetic
+	images (else the clipping gets in the way).
+	(put_image): Use imggc if the dest isn't the screen.
+	(fill_image): Ditto.
+
 1999-02-05  DJ Delorie  <dj@envy.delorie.com>
 
 	* games/taipedit.html: fix img references

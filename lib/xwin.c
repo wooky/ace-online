@@ -51,7 +51,7 @@ Visual *visual=0;
 Colormap cmap=0;
 Window window=0;
 Window rootwin=0;
-GC gc=0, maskgc=0;
+GC gc=0, imggc=0, maskgc=0;
 XFontStruct *font;
 int font_width, font_height;
 XVisualInfo vi, *vip;
@@ -133,6 +133,7 @@ init_xwin(int argc, char **argv, int width, int height)
   visual = XDefaultVisual(display, screen);
   rootwin = XDefaultRootWindow(display);
   gc = XCreateGC(display, rootwin, 0, 0);
+  imggc = XCreateGC(display, rootwin, 0, 0);
   
   vi.visualid = XVisualIDFromVisual(visual);
   vip = XGetVisualInfo (display, VisualIDMask, &vi, &i);
@@ -760,6 +761,12 @@ put_image (image *src, int x, int y, int w, int h,
 	   image *dest, int dx, int dy, int flags)
 {
   Pixmap which, mask;
+  GC pgc;
+  if (dest == &static_display_image)
+    pgc = gc;
+  else
+    pgc = imggc;
+
 #if 0
   printf("put_image %s.%s.%dx%d (%dx%d+%d+%d) to %s at %d,%d%s%s\n",
 	 src->list->name, type_names[src->type], src->width, src->height,
@@ -789,10 +796,10 @@ put_image (image *src, int x, int y, int w, int h,
 	  src->pixels->rotated_pixmap = XCreatePixmap(display, window, src->width, src->height,
 						      DefaultDepth(display, screen));
 	  for (rx=0; rx<src->width; rx++)
-	    XCopyArea (display, which, temp, gc,
+	    XCopyArea (display, which, temp, pgc,
 		       rx, 0, 1, src->height, src->width-rx-1, 0);
 	  for (ry=0; ry<src->height; ry++)
-	    XCopyArea (display, temp, src->pixels->rotated_pixmap, gc,
+	    XCopyArea (display, temp, src->pixels->rotated_pixmap, pgc,
 		       0, ry, src->width, 1, 0, src->height-ry-1);
 	  XFreePixmap(display, temp);
 	}
@@ -828,7 +835,7 @@ put_image (image *src, int x, int y, int w, int h,
 	  src->pixels->inverted_pixmap
 	    = XCreatePixmap(display, window, src->width, src->height,
 			    DefaultDepth(display, screen));
-	  XSetClipMask(display, gc, None);
+	  XSetClipMask(display, pgc, None);
 	  img = XGetImage (display, src->pixels->image_pixmap,
 			   0, 0, src->width, src->height, ~0, ZPixmap);
 	  for (x=0; x<src->width; x++)
@@ -848,7 +855,7 @@ put_image (image *src, int x, int y, int w, int h,
 		  }
 		XPutPixel(img, x, y, p);
 	      }
-	  XPutImage (display, src->pixels->inverted_pixmap, gc, img,
+	  XPutImage (display, src->pixels->inverted_pixmap, pgc, img,
 		     0, 0, 0, 0, src->width, src->height);
 	  xwin_restore_clip();
 	}
@@ -859,14 +866,19 @@ put_image (image *src, int x, int y, int w, int h,
 
   if (mask && vip->class != StaticGray)
     {
-      XSetClipMask(display, gc, mask);
-      XSetClipOrigin(display, gc, dx, dy);
+      XSetClipMask(display, pgc, mask);
+      XSetClipOrigin(display, pgc, dx, dy);
     }
-  XCopyArea(display, which, dest->pixels->image_pixmap, gc,
+  XCopyArea(display, which, dest->pixels->image_pixmap, pgc,
 	    x, y, w, h, dx+x, dy+y);
   XSync(display, 0);
   if (mask && vip->class != StaticGray)
-    xwin_restore_clip();
+    {
+      if (pgc == gc)
+	xwin_restore_clip();
+      else
+	XSetClipMask(display, pgc, None);
+    }
 }
 
 void
@@ -911,12 +923,18 @@ put_mask (image *src, int x, int y, int w, int h,
 void fill_image (image *dest, int x, int y, int w, int h,
 		 int r, int g, int b)
 {
+  GC pgc;
+  if (dest == &static_display_image)
+    pgc = gc;
+  else
+    pgc = imggc;
+
   if (!dest->pixels)
     build_image (dest);
   if (!dest->pixels->image_pixmap)
     return;
 
-  XSetForeground (display, gc, pixel_for (r, g, b));
-  XFillRectangle (display, dest->pixels->image_pixmap, gc, x, y, w, h);
+  XSetForeground (display, pgc, pixel_for (r, g, b));
+  XFillRectangle (display, dest->pixels->image_pixmap, pgc, x, y, w, h);
 }
 
