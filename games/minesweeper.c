@@ -63,14 +63,6 @@ static int title_y=0;
 
 extern int table_width, table_height;
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(TW, TH);
-  table_loop();
-}
-
 static inline int
 BOMB(int x, int y)
 {
@@ -87,7 +79,7 @@ GRID(int x, int y)
   return grid[x][y];
 }
 
-void
+static void
 start_again()
 {
   int fill[1024]; /* 32x32 */
@@ -135,7 +127,7 @@ start_again()
   invalidate(0, 0, table_width, table_height);
 }
 
-void
+static void
 init()
 {
   splash = get_picture("minesweeper");
@@ -149,13 +141,13 @@ init()
   start_again();
 }
 
-void
+static void
 pc(int dx, int dy, int sx, int sy, int w, int h)
 {
   put_picture(cells[level], dx-sx+x0, dy-sy+y0, sx, sy, w, h);
 }
 
-void
+static void
 set_grid(int x, int y, int c)
 {
   int xx = x*sz;
@@ -164,7 +156,7 @@ set_grid(int x, int y, int c)
   pc(xx, yy, c*sz, 0, sz, sz);
 }
 
-void
+static void
 set_penguin(int p)
 {
   int x, y;
@@ -173,7 +165,7 @@ set_penguin(int p)
   put_picture(title, table_width/2-TD_PW/2-x, title_y, x, 0, TD_PW, TD_PH);
 }
 
-void
+static void
 show_untagged()
 {
   char tmp[4];
@@ -191,7 +183,7 @@ show_untagged()
 
 extern char minesweeper_help[];
 
-void
+static void
 flood_fill(int x, int y)
 {
   if (x<0 || y<0 || x>=ct || y>=ct)
@@ -214,7 +206,7 @@ flood_fill(int x, int y)
   }
 }
 
-void
+static void
 check_for_win()
 {
   int x, y;
@@ -227,7 +219,7 @@ check_for_win()
   set_penguin(PENGUIN_COOL);
 }
 
-void
+static void
 do_bomb(int x, int y)
 {
   set_grid(x, y, C_RBOMB);
@@ -242,7 +234,7 @@ do_bomb(int x, int y)
     }
 }
 
-int
+static int
 autoclick(int x, int y)
 {
   int dx, dy, nflags=0, nfills=0, rv=0;
@@ -291,7 +283,7 @@ autoclick(int x, int y)
   return rv;
 }
 
-void
+static void
 autoplay()
 {
   int x, y, c=1;
@@ -312,7 +304,7 @@ autoplay()
   check_for_win();
 }
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
@@ -349,7 +341,7 @@ key(int k, int x, int y)
   }
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   if (y < y0-sc && x > table_width/2-TD_PW/2 && x < table_width/2+TD_PW/2)
@@ -369,7 +361,7 @@ click(int x, int y, int b)
   set_penguin(PENGUIN_SHOCK);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   if (penguin == PENGUIN_DEAD || penguin == PENGUIN_COOL)
@@ -439,7 +431,7 @@ drop(int x, int y, int b)
   check_for_win();
 }
 
-void
+static void
 put(int x, int y)
 {
   int xx = x*sz;
@@ -448,7 +440,7 @@ put(int x, int y)
   pc(xx, yy, cx, 0, sz, sz);
 }
 
-void
+static void
 redraw()
 {
   int x, y, i;
@@ -463,4 +455,21 @@ redraw()
   set_penguin(penguin);
   show_untagged();
   put_picture(xlogo, table_width-xlogo->w-x0, title_y, 0, 0, xlogo->w, xlogo->h);
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(TW, TH);
+  table_loop();
 }

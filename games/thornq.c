@@ -30,9 +30,9 @@
 
 extern int stack_fan_down;
 
-Picture *xlogo, *splash, *youwin, *youlose, *arrow, *no_arrow;
-Stack *deck, *outcells[4], *maincells[8];
-int hint_mode = 0;
+static Picture *xlogo, *splash, *youwin, *youlose, *arrow, *no_arrow;
+static Stack *deck, *outcells[4], *maincells[8];
+static int hint_mode = 0;
 static char values[] = " A23456789TJQK";
 static char suits[] = "HDCS";
 
@@ -40,31 +40,9 @@ static int auto_move();
 static void check_for_end_of_game();
 static void set_arrows();
 
-int
-main(int argc, char **argv)
-{
-  xlogo = get_picture("xemboss");
-  splash = get_picture("thornq");
-  youwin = get_picture("youwin");
-  youlose = get_picture("youlose");
-  arrow = get_picture("thornq-arrow");
-  no_arrow = get_picture("thornq-noarrow");
-
-  init_ace(argc, argv);
-  if (table_width == 0 || table_height == 0)
-    {
-      table_width = WIN_W;
-      table_height = WIN_H;
-    }
-  init_table(table_width, table_height);
-  table_loop();
-
-  return 0;
-}
-
 static int ax, adx, ay, ady;
 
-void
+static void
 resize(int w, int h)
 {
   int margin, offset, cw, ch, s, fd, fr, tfd, tfr;
@@ -195,7 +173,7 @@ start_again()
 }
 
 
-void
+static void
 init()
 {
   int s, v;
@@ -226,7 +204,7 @@ init()
 }
 
 
-void
+static void
 redraw()
 {
   int cw, ch;
@@ -241,7 +219,7 @@ redraw()
 
 extern char thornq_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
 
@@ -296,7 +274,7 @@ key(int k, int x, int y)
 }
 
 
-char *
+static char *
 card_string(int c)
 {
   static char names[5][5];
@@ -505,7 +483,7 @@ check_for_end_of_game()
     set_centered_pic(youlose);
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int c, f;
@@ -612,7 +590,7 @@ try_moving_from(int i)
   return 0;
 }
 
-void
+static void
 double_click(int x, int y, int b)
 {
   int c, f, i, j;
@@ -667,7 +645,7 @@ double_click(int x, int y, int b)
 #endif
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   if (b > 1)
@@ -678,7 +656,7 @@ drag(int x, int y, int b)
   stack_continue_drag(last_n, x, y);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   last_n = n_droppable(x, y); /* also sets dest_stack */
@@ -698,4 +676,38 @@ drop(int x, int y, int b)
 
   set_arrows();
   check_for_end_of_game();
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "double_click", (void *)double_click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { "resize", (void *)resize },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  xlogo = get_picture("xemboss");
+  splash = get_picture("thornq");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  arrow = get_picture("thornq-arrow");
+  no_arrow = get_picture("thornq-noarrow");
+
+  init_ace(argc, argv, fmap);
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = WIN_W;
+      table_height = WIN_H;
+    }
+  init_table(table_width, table_height);
+  table_loop();
+
+  return 0;
 }

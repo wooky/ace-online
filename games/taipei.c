@@ -19,7 +19,7 @@
 #include "cards.h"
 #include "taipeilib.h"
 
-char *tile_names[] = {
+static char *tile_names[] = {
   0, 0, 0, 0,
   "n1", "n1", "n1", "n1",
   "n2", "n2", "n2", "n2",
@@ -64,51 +64,51 @@ char *tile_names[] = {
   "du", "dd", "dl", "dr"
 };
 
-signed char tp_standard[] = {
+static signed char tp_standard[] = {
 #include "taipei-standard.tp"
 };
 
-signed char tp_bridge[] = {
+static signed char tp_bridge[] = {
 #include "taipei-bridge.tp"
 };
 
-signed char tp_castle[] = {
+static signed char tp_castle[] = {
 #include "taipei-castle.tp"
 };
 
-signed char tp_cube[] = {
+static signed char tp_cube[] = {
 #include "taipei-cube.tp"
 };
 
-signed char tp_glyph[] = {
+static signed char tp_glyph[] = {
 #include "taipei-glyph.tp"
 };
 
-signed char tp_pyramid[] = {
+static signed char tp_pyramid[] = {
 #include "taipei-pyramid.tp"
 };
 
-signed char tp_spiral[] = {
+static signed char tp_spiral[] = {
 #include "taipei-spiral.tp"
 };
 
-signed char tp_simple[] = {
+static signed char tp_simple[] = {
 #include "taipei-simple.tp"
 };
 
-signed char tp_smiley[] = {
+static signed char tp_smiley[] = {
 #include "taipei-smiley.tp"
 };
 
-signed char tp_jason[] = {
+static signed char tp_jason[] = {
 #include "taipei-jason.tp"
 };
 
-signed char tp_rebecca[] = {
+static signed char tp_rebecca[] = {
 #include "taipei-rebecca.tp"
 };
 
-signed char *layouts[] = {
+static signed char *layouts[] = {
   tp_standard,
   tp_bridge,
   tp_castle,
@@ -123,32 +123,20 @@ signed char *layouts[] = {
   0
 };
 
-int layout_number = 1;
+static int layout_number = 1;
 
 #define NUM_TILES (sizeof(tile_names)/(sizeof(tile_names[0])))
 #define NUM_TILE_SETS (NUM_TILES/4)
 
-Picture *tiles[NUM_TILES], *blank_tile;
-Picture *splash, *youwin, *youlose;
+static Picture *tiles[NUM_TILES], *blank_tile;
+static Picture *splash, *youwin, *youlose;
 
-unsigned char exposures[GRID_SX][GRID_SY][GRID_SZ];
+static unsigned char exposures[GRID_SX][GRID_SY][GRID_SZ];
 
 extern int table_width, table_height;
 
 static int selected_x=-1, selected_y=-1, selected_z=-1;
 static int selected_tile = 0;
-
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+2*MARGIN,
-	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
-  filename = argv[1];
-  if (filename)
-    layout_number = 0;
-  table_loop();
-}
 
 static int
 calculate_exposures(int x, int y, int z)
@@ -182,7 +170,7 @@ static int n_backup;
 
 #define TRACE_PLACEMENT 1
 #if TRACE_PLACEMENT
-int
+static int
 show_grid()
 {
   int x, y;
@@ -372,7 +360,7 @@ shuffle_set(int *s)
       }
 }
 
-void
+static void
 start_again()
 {
   int i, x, y, z, n;
@@ -470,7 +458,7 @@ start_again()
   invalidate(0, 0, table_width, table_height);
 }
 
-void
+static void
 init()
 {
   int i;
@@ -501,7 +489,7 @@ redraw_tile(int x, int y, int z)
     put_picture(p, gx2x(x, z), gy2y(y, z), 0, 0, TILE_SX, TILE_SY);
 }
 
-void
+static void
 redraw()
 {
   int x, y, z;
@@ -523,7 +511,7 @@ redraw()
 
 extern char taipei_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
@@ -657,7 +645,7 @@ remove_tile(int x, int y)
 }
 
 
-void
+static void
 click(int x, int y, int b)
 {
   Picture *cp = get_centered_pic();
@@ -683,4 +671,24 @@ click(int x, int y, int b)
   if (num_tiles == 0)
     set_centered_pic(youwin);
   redraw_free_tile_count();
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+2*MARGIN,
+	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
+  filename = argv[1];
+  if (filename)
+    layout_number = 0;
+  table_loop();
 }

@@ -31,35 +31,21 @@
 /* number of cards in stock -- higher number gives more difficult game */
 #define CARDS_IN_STOCK 10
 
-Picture *xlogo, *splash, *youwin, *youlose;
-Stack *hand, *talon, *stock, *tableau[4], *foundation[4];
+static Picture *xlogo, *splash, *youwin, *youlose;
+static Stack *hand, *talon, *stock, *tableau[4], *foundation[4];
 
-int base_rank;
-char base_mesg[14];
+static int base_rank;
+static char base_mesg[14];
 
 extern int table_width, table_height;
 
 static int auto_move();
 
-void debug(char *s)
+static void debug(char *s)
 {
 #ifdef DEBUG
 	printf("%s", s);
 #endif
-}
-
-int main(int argc, char **argv)
-{
-	xlogo = get_picture("xemboss");
-	splash = get_picture("canfield");
-	youwin = get_picture("youwin");
-	youlose = get_picture("youlose");
-
-	init_ace(argc, argv);
-	init_table(WIN_W, WIN_H);
-	table_loop();
-
-	return 0;
 }
 
 
@@ -98,7 +84,7 @@ static void start_again()
 }
 
 
-void init()
+static void init()
 {
 	int s, v;
 	Picture *empty;
@@ -131,7 +117,7 @@ void init()
 }
 
 
-void redraw()
+static void redraw()
 {
 	/* draw base_rank on background */
 
@@ -147,7 +133,7 @@ void redraw()
 
 extern char unnamed_help[];
 
-void key(int k, int x, int y)
+static void key(int k, int x, int y)
 {
 	switch (k) {
 	case 3: case 27: case 'q':
@@ -174,7 +160,7 @@ void key(int k, int x, int y)
 }
 
 
-char *card_string(int c)
+static char *card_string(int c)
 {
 	static char names[5][5];
 	static int n=0;
@@ -259,7 +245,7 @@ static int n_droppable(int x, int y)
 	return n_droppable_s(dest_stack);
 }
 
-void hand_to_talon() {
+static void hand_to_talon() {
 	stack_flip_card(hand, talon);
 	stack_flip_card(hand, talon);
 	stack_flip_card(hand, talon);
@@ -403,7 +389,7 @@ static void check_for_end_of_game()
 }
 
 
-void click(int x, int y, int b)
+static void click(int x, int y, int b)
 {
 	int c, f;
 
@@ -469,7 +455,7 @@ void click(int x, int y, int b)
 		src_stack = 0;
 }
 
-void double_click(int x, int y, int b)
+static void double_click(int x, int y, int b)
 {
 	int c, f, i;
 
@@ -511,7 +497,7 @@ void double_click(int x, int y, int b)
 
 }
 
-void drag(int x, int y, int b)
+static void drag(int x, int y, int b)
 {
 	if (b > 1)
 		return;
@@ -521,7 +507,7 @@ void drag(int x, int y, int b)
 	stack_continue_drag(last_n, x, y);
 }
 
-void drop(int x, int y, int b)
+static void drop(int x, int y, int b)
 {
 	last_n = n_droppable(x, y); /* also sets dest_stack */
 
@@ -538,4 +524,29 @@ void drop(int x, int y, int b)
 		;
 
 	check_for_end_of_game();
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "double_click", (void *)double_click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int main(int argc, char **argv)
+{
+	xlogo = get_picture("xemboss");
+	splash = get_picture("canfield");
+	youwin = get_picture("youwin");
+	youlose = get_picture("youlose");
+
+	init_ace(argc, argv, fmap);
+	init_table(WIN_W, WIN_H);
+	table_loop();
+
+	return 0;
 }

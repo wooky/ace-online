@@ -17,30 +17,36 @@
 
 #include "cards.h"
 
-Picture *card, *test6;
+static Picture *card, *test6;
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(3*M+2*W, 2*M+H);
-  table_loop();
-}
-
-void
+static void
 init()
 {
   card = get_picture("as");
   test6 = get_picture("test6");
 }
 
-void
+static void
 redraw()
 {
   put_picture(card, M, M, 0, 0, W, H);
   put_picture(test6, 2*M+W, M, 0, 0, W, H);
+}
+
+static FunctionMapping fmap[] = {
+  { "init", (void *)init },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(3*M+2*W, 2*M+H);
+  table_loop();
 }

@@ -19,31 +19,23 @@
 #include <time.h>
 #include "cards.h"
 
-char *suits = "hdcs";
-char *values = "a234567890jqk";
+static char *suits = "hdcs";
+static char *values = "a234567890jqk";
 
-Picture *cards[52];
-Picture *back;
-int cx[52];
-int cy[52];
+static Picture *cards[52];
+static Picture *back;
+static int cx[52];
+static int cy[52];
 
-Picture *empty;
+static Picture *empty;
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
 
-Stack *st;
+static Stack *st;
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(W+2*M+51*CARD_FAN_RIGHT, 2*M+H);
-  table_loop();
-}
-
-void
+static void
 init()
 {
   int s, v, t;
@@ -75,8 +67,22 @@ init()
   stack_shuffle(st);
 }
 
-void
+static void
 redraw()
 {
   stack_redraw();
+}
+
+static FunctionMapping fmap[] = {
+  { "init", (void *)init },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(W+2*M+51*CARD_FAN_RIGHT, 2*M+H);
+  table_loop();
 }

@@ -21,32 +21,20 @@
 
 #define DOWN 0
 
-char *suits = "hdcs";
-char *values = "a234567890jqk";
+static char *suits = "hdcs";
+static char *values = "a234567890jqk";
 
-Picture *cards[52];
+static Picture *cards[52];
 
-Picture *empty, *back, *xemboss, *nodrop;
+static Picture *empty, *back, *xemboss, *nodrop;
 
-Stack *st[4];
+static Stack *st[4];
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-#if DOWN
-  init_table(4*W+5*M, 2*M+51*CARD_FAN_DOWN+H);
-#else
-  init_table(2*M+51*CARD_FAN_RIGHT+W, 4*H+5*M);
-#endif
-  table_loop();
-}
-
-void
+static void
 init()
 {
   int s, v, t;
@@ -78,7 +66,7 @@ init()
   }
 }
 
-void
+static void
 redraw()
 {
   int c;
@@ -87,7 +75,7 @@ redraw()
   put_picture(nodrop, 500, 100, 0, 0, nodrop->w, nodrop->h);
 }
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
@@ -97,18 +85,39 @@ key(int k, int x, int y)
 static Stack *src_stack = 0;
 static int src_n = 0;
 
-void
+static void
 click(int x, int y, int b)
 {
   if (!stack_find(x, y, &src_stack, &src_n))
     src_stack = 0;
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   Stack *dest_stack;
   int dest_n;
   if (src_stack && stack_find(x, y, &dest_stack, &dest_n))
     stack_move_cards(src_stack, src_n, dest_stack);
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+#if DOWN
+  init_table(4*W+5*M, 2*M+51*CARD_FAN_DOWN+H);
+#else
+  init_table(2*M+51*CARD_FAN_RIGHT+W, 4*H+5*M);
+#endif
+  table_loop();
 }

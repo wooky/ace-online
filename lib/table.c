@@ -32,6 +32,7 @@
 #include "cards.h"
 #include "imagelib.h"
 #include "xwin.h"
+#include "funcs.h"
 
 #define TRACE_EVENTS		0
 #define TRACE_PICTURES		0
@@ -62,8 +63,20 @@ static OptionDesc ace_options[] = {
   { 0, 0, 0 }
 };
 
+static FunctionMapping flist[] = {
+  { "click", &click_cb },
+  { "drag", &drag_cb },
+  { "redraw", &redraw_cb },
+  { "init", &init_cb },
+  { "drop", &drop_cb },
+  { "key", &key_cb },
+  { "resize", &resize_cb },
+  { "double_click", &double_click_cb },
+  { 0, 0 }
+};
+
 void
-init_ace(int argc, char **argv)
+init_ace(int argc, char **argv, FunctionMapping *funcs)
 {
   int i = 0, o, a, errors=0;
   if (app_options)
@@ -72,6 +85,11 @@ init_ace(int argc, char **argv)
     options[i++] = xwin_options;
   options[i++] = ace_options;
   options[i++] = 0;
+
+  for (i=0; funcs[i].name; i++)
+    for (a=0; flist[a].name; a++)
+      if (strcmp(funcs[i].name, flist[a].name) == 0)
+	*(void **)flist[a].function = funcs[i].function;
 
   for (a=1; a<argc; a++)
     {
@@ -291,7 +309,7 @@ maybe_init()
       initted = 1;
       flush();
       graphics_disabled = 1;
-      init();
+      init_cb();
       graphics_disabled = 0;
 #if TRACE_EVENTS
       printf(" - done init\n");
@@ -328,7 +346,7 @@ table_loop()
 	else
 	  {
 	    graphics_disabled = 1;
-	    resize(event.w, event.h);
+	    resize_cb(event.w, event.h);
 	    graphics_disabled = 0;
 	    if (no_resize)
 	      xwin_fixed_size(table_width, table_height);
@@ -339,7 +357,7 @@ table_loop()
 		if (first_expose)
 		  {
 		    clear (0, 0, table_width, table_height);
-		    redraw();
+		    redraw_cb();
 		  }
 	      }
 	  }
@@ -369,7 +387,7 @@ table_loop()
 	if (help_is_showing)
 	  help_redraw();
 	else
-	  redraw();
+	  redraw_cb();
 	redraw_centered_pic();
 	xwin_noclip();
 #if TRACE_EVENTS
@@ -392,12 +410,12 @@ table_loop()
 	  }
 	else if (event.time - dct < DBLCLICK_TIME)
 	  {
-	    double_click(event.x, event.y, event.button);
+	    double_click_cb(event.x, event.y, event.button);
 	    dct -= DBLCLICK_TIME;
 	  }
 	else
 	  {
-	    click(event.x, event.y, click_button);
+	    click_cb(event.x, event.y, click_button);
 	    dcx = event.x;
 	    dcy = event.y;
 	    dct = event.time;
@@ -414,7 +432,7 @@ table_loop()
 #if TRACE_EVENTS
 	    printf("drag: %d,%d %d\n", event.x, event.y, click_button);
 #endif
-	    drag(event.x, event.y, click_button);
+	    drag_cb(event.x, event.y, click_button);
 	  }
 	break;
 
@@ -426,7 +444,7 @@ table_loop()
 	printf("drop: %d,%d\n", event.x, event.y);
 #endif
 	if (!help_is_showing)
-	  drop(event.x, event.y, click_button);
+	  drop_cb(event.x, event.y, click_button);
 	break;
 
       case ev_keypress:
@@ -435,7 +453,7 @@ table_loop()
 	if (help_is_showing)
 	  help_key(event.key, event.x, event.y);
 	else
-	  key(event.key, event.x, event.y);
+	  key_cb(event.key, event.x, event.y);
 	break;
 
       case ev_quit:
@@ -539,7 +557,7 @@ invalidate_sub(int x, int y, int w, int h)
   if (help_is_showing)
     help_redraw();
   else
-    redraw();
+    redraw_cb();
   redraw_centered_pic();
   xwin_noclip();
 }
@@ -587,7 +605,7 @@ invalidate_nc(int x, int y, int w, int h)
   if (help_is_showing)
     help_redraw();
   else
-    redraw();
+    redraw_cb();
   redraw_centered_pic();
 #if TRACE_INVALIDATE
   printf(" - done invalidate\n");

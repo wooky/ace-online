@@ -1,3 +1,15 @@
+2001-09-21  DJ Delorie  <dj@delorie.com>
+
+	* lib/funcs.h: New, define callback pointers.
+	* lib/funcs.c: New, provide default callbacks.
+	* lib/table.c: Accept list of callbacks in init_ace, and use
+	them.
+	* lib/cards.h: Define FunctionMapping struct.
+	* lib/Makefile.am: Build funcs.o, remove most table_*.c.
+	* games/*.c: Register callbacks instead of just providing them.
+	* tests/*.c: Likewise.
+	* lib/table_*.c: Remove.
+
 2001-08-31  Brian Rater  <brater@tiac.net>
 
 	* games/solitaire.c: Add vegas rules and scoring options

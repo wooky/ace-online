@@ -22,8 +22,8 @@
 
 #include <X11/keysym.h>
 
-Picture *xlogo, *splash, *youwin, *youlose;
-Picture *hole, *peg;
+static Picture *xlogo, *splash, *youwin, *youlose;
+static Picture *hole, *peg;
 #define RADIUS (peg->w/2)
 
 extern int table_width, table_height;
@@ -31,7 +31,7 @@ extern int table_width, table_height;
 #define RULES_VH       	1
 #define RULES_TRI	2
 
-char *layout_cross[] = {
+static char *layout_cross[] = {
   "    . . .    ",
   "    . * .    ",
   ". . * * * . .",
@@ -41,7 +41,7 @@ char *layout_cross[] = {
   "    . . .    ",
 };
 
-char *layout_plus[] = {
+static char *layout_plus[] = {
   "    . . .    ",
   "    . * .    ",
   ". . . * . . .",
@@ -51,7 +51,7 @@ char *layout_plus[] = {
   "    . . .    ",
 };
 
-char *layout_fireplace[] = {
+static char *layout_fireplace[] = {
   "    * * *    ",
   "    * * *    ",
   ". . * * * . .",
@@ -61,7 +61,7 @@ char *layout_fireplace[] = {
   "    . . .    ",
 };
 
-char *layout_uparrow[] = {
+static char *layout_uparrow[] = {
   "    . * .    ",
   "    * * *    ",
   ". * * * * * .",
@@ -71,7 +71,7 @@ char *layout_uparrow[] = {
   "    * * *    ",
 };
 
-char *layout_pyramid[] = {
+static char *layout_pyramid[] = {
   "    . . .    ",
   "    . * .    ",
   ". . * * * . .",
@@ -81,7 +81,7 @@ char *layout_pyramid[] = {
   "    . . .    ",
 };
 
-char *layout_diamond[] = {
+static char *layout_diamond[] = {
   "    . * .    ",
   "    * * *    ",
   ". * * * * * .",
@@ -91,7 +91,7 @@ char *layout_diamond[] = {
   "    . * .    ",
 };
 
-char *layout_solitaire[] = {
+static char *layout_solitaire[] = {
   "    * * *    ",
   "    * * *    ",
   "* * * * * * *",
@@ -101,7 +101,7 @@ char *layout_solitaire[] = {
   "    * * *    ",
 };
 
-char *layout_triangle5[] = {
+static char *layout_triangle5[] = {
   "*        ",
   "* *      ",
   "* * *    ",
@@ -109,7 +109,7 @@ char *layout_triangle5[] = {
   "* * * * *",
 };
 
-char *layout_triangle7[] = {
+static char *layout_triangle7[] = {
   "*            ",
   "* *          ",
   "* * *        ",
@@ -119,7 +119,7 @@ char *layout_triangle7[] = {
   "* * * * * * *",
 };
 
-struct {
+static struct {
   int key, width, height, rules;
   char **layout;
 } layouts[] = {
@@ -136,7 +136,7 @@ struct {
 };
 #define INITIAL_LAYOUT 6
 
-int layout_number = 0;
+static int layout_number = 0;
 
 #define MAXX	7
 #define MAXY	7
@@ -148,33 +148,18 @@ int layout_number = 0;
 #define GRID_YX_TRI	20
 #define GRID_YY_TRI	34
 
-char grid[MAXX+1][MAXY+1];
-int gr, gw, gh;
+static char grid[MAXX+1][MAXY+1];
+static int gr, gw, gh;
 
-int gx[MAXX+1][MAXY+1];
-int gy[MAXX+1][MAXY+1];
+static int gx[MAXX+1][MAXY+1];
+static int gy[MAXX+1][MAXY+1];
 
-struct UndoInfo {
+static struct UndoInfo {
   unsigned short initial_pick:1;
   unsigned short from_x:3, from_y:3;
   unsigned short to_x:3, to_y:3;
 } undo_list[49];
-int next_undo = 0;
-
-int
-main(int argc, char **argv)
-{
-  hole = get_picture("pegged-h");
-  peg = get_picture("pegged-p");
-  splash = get_picture("pegged");
-  youwin = get_picture("youwin");
-  youlose = get_picture("youlose");
-  xlogo = get_picture("xemboss");
-
-  init_ace(argc, argv);
-  init_table(320, 320);
-  table_loop();
-}
+static int next_undo = 0;
 
 static void
 start_again()
@@ -228,7 +213,7 @@ start_again()
   next_undo = 0;
 }
 
-void
+static void
 init()
 {
   layout_number = INITIAL_LAYOUT;
@@ -245,7 +230,7 @@ xyput(int x, int y, Picture *p)
   put_picture(p, px, py, 0, 0, p->w, p->h);
 }
 
-void
+static void
 redraw()
 {
   int x, y;
@@ -353,7 +338,7 @@ see_if_lose()
 static int click_x, click_y, ofs_x, ofs_y;
 static int drag_x, drag_y, dragging;
 
-void
+static void
 click(int mx, int my, int b)
 {
   int x, y;
@@ -392,7 +377,7 @@ click(int mx, int my, int b)
   dragging = 1;
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   if (!dragging)
@@ -403,7 +388,7 @@ drag(int x, int y, int b)
   put_picture(peg, drag_x-peg->w/2, drag_y-peg->h/2, 0, 0, peg->w, peg->h);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   if (!dragging)
@@ -461,7 +446,7 @@ drop(int x, int y, int b)
 
 extern char pegged_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   int i;
@@ -503,4 +488,29 @@ key(int k, int x, int y)
       start_again();
       return;
     }
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  hole = get_picture("pegged-h");
+  peg = get_picture("pegged-p");
+  splash = get_picture("pegged");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  xlogo = get_picture("xemboss");
+
+  init_ace(argc, argv, fmap);
+  init_table(320, 320);
+  table_loop();
 }

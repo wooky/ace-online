@@ -21,10 +21,10 @@
 #include "cards.h"
 #include "taipeilib.h"
 
-Picture *tpe_bs, *tpe_bu, *tpe_bt, *splash;
-Picture *tiles[9];
+static Picture *tpe_bs, *tpe_bu, *tpe_bt, *splash;
+static Picture *tiles[9];
 
-int lbx, lby, lbw, lbh;
+static int lbx, lby, lbw, lbh;
 
 extern int table_background;
 extern Display *display;
@@ -33,37 +33,7 @@ extern Window window;
 extern GC gc;
 extern int table_width, table_height;
 
-int
-main(int argc, char **argv)
-{
-  int x, y, z;
-  char tmp[20];
-  memset(grid, 0, sizeof(grid));
-
-  init_ace(argc, argv);
-
-  layer = 0;
-
-  for (x=1; x<9; x++)
-  {
-    sprintf(tmp, "n%d", x);
-    tiles[x-1] = get_picture(tmp);
-  }
-
-  tpe_bs = get_picture("taipedit-bs");
-  tpe_bu = get_picture("taipedit-bu");
-  tpe_bt = get_picture("taipedit-bt");
-  splash = get_picture("taipedit");
-  set_centered_pic(splash);
-
-  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+3*MARGIN + tpe_bs->w,
-	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
-
-  filename = argv[1];
-  table_loop();
-}
-
-void
+static void
 save()
 {
   int x, y, z, samey, w=-1;
@@ -105,7 +75,7 @@ save()
   fclose(f);
 }
 
-void
+static void
 init()
 {
   lbx = table_width-MARGIN-tpe_bs->w;
@@ -115,9 +85,9 @@ init()
   load(0);
 }
 
-int tile_count = 0;
+static int tile_count = 0;
 
-void
+static void
 show_tile_count()
 {
   int x, y, z, b4;
@@ -132,7 +102,7 @@ show_tile_count()
   text(tmp, lbx, lby-lbh*GRID_SZ+2);
 }
 
-void
+static void
 redraw()
 {
   int x, y, z;
@@ -175,7 +145,7 @@ redraw()
   show_tile_count();
 }
 
-int
+static int
 check_layer_buttons(int x, int y)
 {
   int z;
@@ -197,7 +167,7 @@ check_layer_buttons(int x, int y)
   return 0;
 }
 
-void
+static void
 add_tile(int x, int y)
 {
   int nx, ny, nz;
@@ -222,7 +192,7 @@ add_tile(int x, int y)
   show_tile_count();
 }
 
-void
+static void
 remove_tile(int x, int y)
 {
   int nx, ny, nz;
@@ -238,7 +208,7 @@ remove_tile(int x, int y)
 	  }
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   if (get_centered_pic())
@@ -255,7 +225,7 @@ click(int x, int y, int b)
     remove_tile(x, y);
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   click(x, y, b);
@@ -293,7 +263,7 @@ shift(int dx, int dy, int dz)
   invalidate(0, 0, table_width, table_height);
 }
 
-void
+static void
 auto_center()
 {
   int x, y, z, minx=GRID_SX, maxx=0, miny=GRID_SY, maxy=0, minz=GRID_SZ, maxz=0;
@@ -314,7 +284,7 @@ auto_center()
 
 extern char taipedit_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   if (get_centered_pic())
@@ -376,4 +346,43 @@ key(int k, int x, int y)
       auto_center();
       break;
     }
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "drag", (void *)drag },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  int x, y, z;
+  char tmp[20];
+  memset(grid, 0, sizeof(grid));
+
+  init_ace(argc, argv, fmap);
+
+  layer = 0;
+
+  for (x=1; x<9; x++)
+  {
+    sprintf(tmp, "n%d", x);
+    tiles[x-1] = get_picture(tmp);
+  }
+
+  tpe_bs = get_picture("taipedit-bs");
+  tpe_bu = get_picture("taipedit-bu");
+  tpe_bt = get_picture("taipedit-bt");
+  splash = get_picture("taipedit");
+  set_centered_pic(splash);
+
+  init_table(GRID_SX*GRID_DX+GRID_SZ*GRID_DZ+3*MARGIN + tpe_bs->w,
+	     GRID_SY*GRID_DY+GRID_SZ*GRID_DZ+2*MARGIN);
+
+  filename = argv[1];
+  table_loop();
 }

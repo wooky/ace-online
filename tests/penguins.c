@@ -19,28 +19,20 @@
 #include <time.h>
 #include "cards.h"
 
-char *suits = "hdcs";
-char *values = "a234567890jqk";
+static char *suits = "hdcs";
+static char *values = "a234567890jqk";
 
-Picture *cards[52];
-int cx[52];
-int cy[52];
+static Picture *cards[52];
+static int cx[52];
+static int cy[52];
 
-Picture *empty;
+static Picture *empty;
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(13*W+14*M, 5*H+6*M);
-  table_loop();
-}
-
-void
+static void
 init()
 {
   int s, v, t;
@@ -71,7 +63,7 @@ init()
   }
 }
 
-void
+static void
 redraw()
 {
   int c;
@@ -80,10 +72,10 @@ redraw()
     put_picture(cards[c], cx[c], cy[c], 0, 0, W, H);
 }
 
-int selected_card = -1;
-int offset_x, offset_y;
+static int selected_card = -1;
+static int offset_x, offset_y;
 
-int
+static int
 xy2card(int x, int y)
 {
   int i;
@@ -94,7 +86,7 @@ xy2card(int x, int y)
   return -1;
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int i;
@@ -123,7 +115,8 @@ click(int x, int y, int b)
   offset_y = y - cy[selected_card];
 }
 
-void double_click(int x, int y, int b)
+static void
+double_click(int x, int y, int b)
 {
   int old_x, old_y, i;
   Picture *c;
@@ -146,7 +139,7 @@ void double_click(int x, int y, int b)
   invalidate(cx[0], cy[0], W, H);
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   int old_x, old_y;
@@ -164,7 +157,7 @@ drag(int x, int y, int b)
     invalidate_nc(cx[selected_card], cy[selected_card], W, H);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   if (selected_card == -1)
@@ -177,9 +170,28 @@ drop(int x, int y, int b)
   selected_card = -1;
 }
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
     exit(0);
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "double_click", (void *)double_click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(13*W+14*M, 5*H+6*M);
+  table_loop();
 }

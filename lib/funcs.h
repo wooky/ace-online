@@ -1,5 +1,5 @@
-/* The Ace of Penguins - table_dg.c
-   Copyright (C) 1998 DJ Delorie
+/* The Ace of Penguins - funcs.h
+   Copyright (C) 2001 DJ Delorie
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,9 +15,18 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-#include "cards.h"
+extern void (*click_cb)(int x, int y, int b);
 
-void
-drag(int x, int y, int b)
-{
-}
+extern void (*drag_cb)(int x, int y, int b);
+
+extern void (*redraw_cb)();
+
+extern void (*init_cb)();
+
+extern void (*drop_cb)(int x, int y, int b);
+
+extern void (*key_cb)(int x, int y, int b);
+
+extern void (*resize_cb)(int w, int h);
+
+extern void (*double_click_cb)(int x, int y, int b);

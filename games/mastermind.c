@@ -20,19 +20,19 @@
 #include <math.h>
 #include "cards.h"
 
-Picture *splash, *youwin, *youlose;
+static Picture *splash, *youwin, *youlose;
 
-Picture *colors[6], *bighole, *cover;
-Picture *black, *white, *smallhole;
+static Picture *colors[6], *bighole, *cover;
+static Picture *black, *white, *smallhole;
 
 /* The "palette" */
-int px, py, pdy;
+static int px, py, pdy;
 /* The guesses */
-int gx, gy, gdx, gdy;
+static int gx, gy, gdx, gdy;
 /* The ranks */
-int rx, ry, rdx, rdy;
+static int rx, ry, rdx, rdy;
 /* The solution */
-int sx, sy, sdx;
+static int sx, sy, sdx;
 
 /* Sizes of the images */
 #define BSZ 16
@@ -41,60 +41,13 @@ int sx, sy, sdx;
 
 #define MOVES 10
 
-Picture *guesses[MOVES][4];
-Picture *ranks[MOVES][4];
-Picture *solution[4];
+static Picture *guesses[MOVES][4];
+static Picture *ranks[MOVES][4];
+static Picture *solution[4];
 
 extern int table_width, table_height;
 
-int active_row, solution_shown;
-
-int
-main(int argc, char **argv)
-{
-  splash = get_picture("mastermind");
-  youwin = get_picture("youwin");
-  youlose = get_picture("youlose");
-
-  colors[0] = get_picture("mastermind-r");
-  colors[1] = get_picture("mastermind-o");
-  colors[2] = get_picture("mastermind-y");
-  colors[3] = get_picture("mastermind-g");
-  colors[4] = get_picture("mastermind-b");
-  colors[5] = get_picture("mastermind-p");
-  bighole = get_picture("mastermind-eb");
-  cover = get_picture("mastermind-c");
-
-  black = get_picture("mastermind-k");
-  white = get_picture("mastermind-w");
-  smallhole = get_picture("mastermind-e");
-
-  px = WGAP;
-  py = CARD_MARGIN;
-  pdy = BSZ + 1;
-
-  sx = 2*WGAP+BSZ;
-  sy = CARD_MARGIN;
-  sdx = BSZ + 3;
-
-  gdx = BSZ + 3;
-  gdy = -(BSZ + 3);
-  gx = sx;
-  gy = 2*CARD_MARGIN+BSZ - (MOVES-1)*gdy;
-
-  rx = gx + 3*gdx + BSZ + WGAP;
-  ry = gy + (BSZ-SSZ)/2;
-  rdx = SSZ+3;
-  rdy = gdy;
-
-  init_ace(argc, argv);
-
-  table_width = rx + 3*rdx + SSZ + WGAP;
-  table_height = gy + BSZ + CARD_MARGIN;
-
-  init_table(table_width, table_height);
-  table_loop();
-}
+static int active_row, solution_shown;
 
 static int
 redraw_row(int row)
@@ -142,7 +95,7 @@ start_again()
   solution_shown = 0;
 }
 
-void
+static void
 init()
 {
   start_again();
@@ -156,7 +109,7 @@ show_solution()
   invalidate(0, 0, table_width, table_height);
 }
 
-void
+static void
 redraw()
 {
   int x, y;
@@ -241,7 +194,7 @@ key_color(int c)
 
 extern char mastermind_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   int i;
@@ -279,10 +232,10 @@ key(int k, int x, int y)
     check_row();
 }
 
-Picture *color_dragged=0;
-int drag_dx, drag_dy, drag_ox, drag_oy;
+static Picture *color_dragged=0;
+static int drag_dx, drag_dy, drag_ox, drag_oy;
 
-void
+static void
 click(int x, int y, int b)
 {
   Picture *p = get_centered_pic();
@@ -321,7 +274,7 @@ click(int x, int y, int b)
     check_row();
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   if (color_dragged == 0) return;
@@ -332,7 +285,7 @@ drag(int x, int y, int b)
   drag_oy = y;
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   if (color_dragged == 0) return;
@@ -348,4 +301,61 @@ drop(int x, int y, int b)
     redraw_row(active_row);
   }
   color_dragged = 0;
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  splash = get_picture("mastermind");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+
+  colors[0] = get_picture("mastermind-r");
+  colors[1] = get_picture("mastermind-o");
+  colors[2] = get_picture("mastermind-y");
+  colors[3] = get_picture("mastermind-g");
+  colors[4] = get_picture("mastermind-b");
+  colors[5] = get_picture("mastermind-p");
+  bighole = get_picture("mastermind-eb");
+  cover = get_picture("mastermind-c");
+
+  black = get_picture("mastermind-k");
+  white = get_picture("mastermind-w");
+  smallhole = get_picture("mastermind-e");
+
+  px = WGAP;
+  py = CARD_MARGIN;
+  pdy = BSZ + 1;
+
+  sx = 2*WGAP+BSZ;
+  sy = CARD_MARGIN;
+  sdx = BSZ + 3;
+
+  gdx = BSZ + 3;
+  gdy = -(BSZ + 3);
+  gx = sx;
+  gy = 2*CARD_MARGIN+BSZ - (MOVES-1)*gdy;
+
+  rx = gx + 3*gdx + BSZ + WGAP;
+  ry = gy + (BSZ-SSZ)/2;
+  rdx = SSZ+3;
+  rdy = gdy;
+
+  init_ace(argc, argv, fmap);
+
+  table_width = rx + 3*rdx + SSZ + WGAP;
+  table_height = gy + BSZ + CARD_MARGIN;
+
+  init_table(table_width, table_height);
+  table_loop();
 }

@@ -20,14 +20,14 @@
 #include <math.h>
 #include "cards.h"
 
-Picture *xlogo, *splash, *youwin;
-Picture *cell, *blank;
+static Picture *xlogo, *splash, *youwin;
+static Picture *cell, *blank;
 
 extern int table_width, table_height;
 
-char grid[9];
+static char grid[9];
 
-char affects[9][9] = {
+static char affects[9][9] = {
   "XX-XX----",
   "XXX------",
   "-XX-XX---",
@@ -39,21 +39,7 @@ char affects[9][9] = {
   "----XX-XX"
 };
 
-int
-main(int argc, char **argv)
-{
-  cell = get_picture("merlin-c");
-  blank = get_picture("merlin-b");
-  splash = get_picture("merlin");
-  youwin = get_picture("youwin");
-  xlogo = get_picture("xemboss");
-
-  init_ace(argc, argv);
-  init_table(300, 300);
-  table_loop();
-}
-
-void
+static void
 start_again()
 {
   int i;
@@ -61,7 +47,7 @@ start_again()
     grid[i] = rand() & 1;
 }
 
-void
+static void
 init()
 {
   set_centered_pic(splash);
@@ -79,7 +65,7 @@ show(int i)
     put_picture(blank, x, y, 0, 0, 100, 100);
 }
 
-void
+static void
 redraw()
 {
   int i;
@@ -87,7 +73,7 @@ redraw()
     show(i);
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int i;
@@ -121,7 +107,7 @@ click(int x, int y, int b)
 
 extern char merlin_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   int i;
@@ -139,4 +125,26 @@ key(int k, int x, int y)
     start_again();
     redraw();
   }
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  cell = get_picture("merlin-c");
+  blank = get_picture("merlin-b");
+  splash = get_picture("merlin");
+  youwin = get_picture("youwin");
+  xlogo = get_picture("xemboss");
+
+  init_ace(argc, argv, fmap);
+  init_table(300, 300);
+  table_loop();
 }

@@ -25,29 +25,29 @@
 #define M CARD_MARGIN
 #define F CARD_FAN_DOWN
 
-Picture *xlogo, *splash, *youwin, *youlose;
+static Picture *xlogo, *splash, *youwin, *youlose;
 
-Stack *deck, *hole;
-Stack *outcells[4];
-Stack *maincells[7];
+static Stack *deck, *hole;
+static Stack *outcells[4];
+static Stack *maincells[7];
 
 static int auto_move();
 static void update_status_text(int redraw);
 static void check_for_end_of_game();
 
-int no_auto = 0;        /* boolean */
-int use_auto_moves = 1; /* boolean */
-int flip_3s = 0;        /* boolean - zero means flip 1 at a time */
-                        /*           non-zero means flip 3 at a time */
-int vegas = 0;          /* boolean - in vegas style, you pay $52 to play */
-                        /*           and you win $5 for each card that you */
-                        /*           place in the outdeck.  The deck is only */
-                        /*           turned 3 times.  flip_3s is implied to */
-                        /*           be true. */
-int winnings = 0;
-int vegas_deck_count = 0;
-int display_vegas_xlogo = 0; /* set to 1 to display xlogo in pile area at */
-                             /* end of vegas game. */
+static int no_auto = 0;        /* boolean */
+static int use_auto_moves = 1; /* boolean */
+static int flip_3s = 0;        /* boolean - zero means flip 1 at a time */
+                               /*           non-zero means flip 3 at a time */
+static int vegas = 0;          /* boolean - in vegas style, you pay $52 to play */
+                               /*           and you win $5 for each card that you */
+                               /*           place in the outdeck.  The deck is only */
+                               /*           turned 3 times.  flip_3s is implied to */
+                               /*           be true. */
+static int winnings = 0;
+static int vegas_deck_count = 0;
+static int display_vegas_xlogo = 0; /* set to 1 to display xlogo in pile area at */
+                                    /* end of vegas game. */
 static OptionDesc new_options[] = {
   { "-noauto", OPTION_BOOLEAN, &no_auto }, 
   { "-flip3s", OPTION_BOOLEAN, &flip_3s },
@@ -55,27 +55,9 @@ static OptionDesc new_options[] = {
   { 0, 0, 0 }
 };
 
-OptionDesc *app_options = new_options;
+static OptionDesc *app_options = new_options;
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-
-  use_auto_moves = !no_auto;
-  if (vegas)
-    flip_3s = 1;
-
-  if (table_width == 0 || table_height == 0)
-    {
-      table_width = W*7+M*8;
-      table_height = H+3*M+19*F+font_height;
-    }
-  init_table(table_width, table_height);
-  table_loop();
-}
-
-void
+static void
 start_again()
 {
   int i, p, pc;
@@ -109,7 +91,7 @@ static int xlogo_y;
 static int vegas_xlogo_x;
 static int vegas_xlogo_y;
 
-void
+static void
 init()
 {
   int s, v;
@@ -151,7 +133,7 @@ init()
   start_again();
 }
 
-void
+static void
 resize(int w, int h)
 {
   int margin, offset, cw, ch, s;
@@ -187,7 +169,7 @@ resize(int w, int h)
     }
 }
 
-void
+static void
 redraw()
 {
   if (xlogo_x || xlogo_y)
@@ -202,7 +184,7 @@ redraw()
 
 extern char solitaire_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q' || k == 'Q')
@@ -420,7 +402,7 @@ check_for_end_of_game()
   }
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int c, f;
@@ -507,7 +489,7 @@ click(int x, int y, int b)
   }
 }
 
-void
+static void
 double_click(int x, int y, int b)
 {
   int c, f, n, sc;
@@ -594,7 +576,7 @@ double_click(int x, int y, int b)
   check_for_end_of_game();
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   if (b > 1) return;
@@ -602,7 +584,7 @@ drag(int x, int y, int b)
   stack_continue_drag(last_n, x, y);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   int i;
@@ -644,4 +626,32 @@ update_status_text(int redraw)
   }
 }
 
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "double_click", (void *)double_click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { "resize", (void *)resize },
+  { 0, 0 }
+};
 
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+
+  use_auto_moves = !no_auto;
+  if (vegas)
+    flip_3s = 1;
+
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = W*7+M*8;
+      table_height = H+3*M+19*F+font_height;
+    }
+  init_table(table_width, table_height);
+  table_loop();
+}

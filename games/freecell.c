@@ -24,31 +24,14 @@
 #define M CARD_MARGIN
 #define F CARD_FAN_DOWN
 
-Picture *xlogo, *splash, *youwin, *youlose;
+static Picture *xlogo, *splash, *youwin, *youlose;
 
-Stack *deck;
-Stack *freecells[4];
-Stack *outcells[4];
-Stack *maincells[8];
+static Stack *deck;
+static Stack *freecells[4];
+static Stack *outcells[4];
+static Stack *maincells[8];
 
 static int auto_move();
-
-int
-main(int argc, char **argv)
-{
-  xlogo = get_picture("xemboss");
-  splash = get_picture("freecell");
-  youwin = get_picture("youwin");
-  youlose = get_picture("youlose");
-  init_ace(argc, argv);
-  if (table_width == 0 || table_height == 0)
-    {
-      table_width = 640;
-      table_height = 480;
-    }
-  init_table(table_width, table_height);
-  table_loop();
-}
 
 static void
 start_again()
@@ -70,7 +53,7 @@ start_again()
   stack_undo_reset();
 }
 
-void
+static void
 init()
 {
   int s, v;
@@ -105,7 +88,7 @@ init()
   start_again();
 }
 
-void
+static void
 resize(int w, int h)
 {
   int margin, offset, cw, ch, s;
@@ -130,7 +113,7 @@ resize(int w, int h)
     stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset));
 }
 
-void
+static void
 redraw()
 {
   int cw, ch;
@@ -143,7 +126,7 @@ redraw()
 
 extern char freecell_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   Picture *p = get_centered_pic();
@@ -175,7 +158,7 @@ key(int k, int x, int y)
   }
 }
 
-char *card_string(int c)
+static char *card_string(int c)
 {
   static char names[5][5];
   static int n=0;
@@ -432,7 +415,7 @@ check_for_end_of_game()
   set_centered_pic(youlose);
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int c, f;
@@ -472,7 +455,7 @@ click(int x, int y, int b)
     src_stack = 0;
 }
 
-int
+static int
 stack_complete(Stack *s)
 {
   int i;
@@ -486,7 +469,7 @@ stack_complete(Stack *s)
   return 1;
 }
 
-void
+static void
 double_click_1(int x, int y, int b)
 {
   int f, i, n, cnt;
@@ -608,7 +591,7 @@ double_click_1(int x, int y, int b)
     }
 }
 
-void
+static void
 double_click(int x, int y, int b)
 {
   double_click_1(x, y, b);
@@ -616,7 +599,7 @@ double_click(int x, int y, int b)
   check_for_end_of_game();
 }
 
-void
+static void
 drag(int x, int y, int b)
 {
   if (b > 1) return;
@@ -624,7 +607,7 @@ drag(int x, int y, int b)
   stack_continue_drag(last_n, x, y);
 }
 
-void
+static void
 drop(int x, int y, int b)
 {
   last_n = n_droppable(x, y); /* also sets dest_stack */
@@ -638,4 +621,33 @@ drop(int x, int y, int b)
 
   stack_drop(dest_stack, last_n);
   check_for_end_of_game();
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "double_click", (void *)double_click },
+  { "drag", (void *)drag },
+  { "drop", (void *)drop },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { "resize", (void *)resize },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  xlogo = get_picture("xemboss");
+  splash = get_picture("freecell");
+  youwin = get_picture("youwin");
+  youlose = get_picture("youlose");
+  init_ace(argc, argv, fmap);
+  if (table_width == 0 || table_height == 0)
+    {
+      table_width = 640;
+      table_height = 480;
+    }
+  init_table(table_width, table_height);
+  table_loop();
 }

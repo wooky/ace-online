@@ -26,28 +26,16 @@
 
 extern int stack_fan_down;
 
-Picture *splash, *youwin, *youlose;
-Picture *arrow, *no_arrow;
+static Picture *splash, *youwin, *youlose;
+static Picture *arrow, *no_arrow;
 
-Stack *deck, *discard, *stacks[7];
+static Stack *deck, *discard, *stacks[7];
 
 static int table_width, table_height;
 
-int supress_arrows = 0;
+static int supress_arrows = 0;
 
-int arrow_offset, arrow_delta;
-
-int
-main(int argc, char **argv)
-{
-  int alt_width = 3*M+2*W+51*R;
-  init_ace(argc, argv);
-  table_width = 8*M+7*W;
-  if (table_width < alt_width) table_width = alt_width;
-  table_height = 3*M+5*CARD_FAN_DOWN+2*H;
-  init_table(table_width, table_height);
-  table_loop();
-}
+static int arrow_offset, arrow_delta;
 
 static int arrows[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
@@ -109,7 +97,7 @@ set_arrows()
   }
 }
 
-void
+static void
 show_count()
 {
   char s[10];
@@ -121,7 +109,7 @@ show_count()
   text(s, M*2, table_height-M-H-2);
 }
 
-void
+static void
 start_again()
 {
   int i, j;
@@ -147,7 +135,7 @@ start_again()
   set_arrows();
 }
 
-void
+static void
 init()
 {
   int s, v;
@@ -184,7 +172,7 @@ init()
   start_again();
 }
 
-void
+static void
 check_for_endgame()
 {
   int c, top_discard, top_stack;
@@ -211,7 +199,7 @@ check_for_endgame()
   }
 }
 
-void
+static void
 redraw()
 {
   stack_redraw();
@@ -219,7 +207,7 @@ redraw()
   redraw_arrows();
 }
 
-void
+static void
 click(int x, int y, int b)
 {
   int c, f, n;
@@ -283,7 +271,7 @@ click(int x, int y, int b)
 
 extern char golf_help[];
 
-void
+static void
 key(int k, int x, int y)
 {
   if (k == 3 || k == 27 || k == 'q')
@@ -314,4 +302,24 @@ key(int k, int x, int y)
     for (i=0; i<7; i++)
       printf("i=%d a=%d\n", i, arrows[i]);
   }
+}
+
+static FunctionMapping fmap[] = {
+  { "click", (void *)click },
+  { "init", (void *)init },
+  { "key", (void *)key },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  int alt_width = 3*M+2*W+51*R;
+  init_ace(argc, argv, fmap);
+  table_width = 8*M+7*W;
+  if (table_width < alt_width) table_width = alt_width;
+  table_height = 3*M+5*CARD_FAN_DOWN+2*H;
+  init_table(table_width, table_height);
+  table_loop();
 }

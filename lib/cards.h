@@ -44,8 +44,13 @@ typedef struct {
 } OptionDesc;
 /* Apps do `OptionDesc *app_options = app_option_table;' if needed, last zero */
 
+typedef struct {
+  char *name;
+  void *function;
+} FunctionMapping;
+
 /* This sets display_width/height, sets table_width/height to preferred or zero */
-void init_ace(int argc, char **argv);
+void init_ace(int argc, char **argv, FunctionMapping *funcs);
 /* This creates the initial window */
 void init_table(int table_width, int table_height);
 /* Call this to begin processing events;
@@ -88,14 +93,14 @@ extern void help(char *filename, char *text);
 /* user program may define these as needed.  It is not neccessary to
    clip the pictures during redraw, as put_picture knows when you're
    inside an expose and will clip and optimize accordingly. */
-extern void init();
-extern void redraw();
-extern void resize(int width, int height);
-extern void key(int k, int x, int y);
-extern void click(int x, int y, int b);
-extern void double_click(int x, int y, int b);
-extern void drag(int x, int y, int b);
-extern void drop(int x, int y, int b);
+static void init();
+static void redraw();
+static void resize(int width, int height);
+static void key(int k, int x, int y);
+static void click(int x, int y, int b);
+static void double_click(int x, int y, int b);
+static void drag(int x, int y, int b);
+static void drop(int x, int y, int b);
 
 #define KEY_F(x)	(0x100 + (x))
 #define KEY_DELETE	0x200

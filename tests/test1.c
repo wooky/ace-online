@@ -17,23 +17,15 @@
 
 #include "cards.h"
 
-Picture *cards[4][13];
-char *suits = "hdcs";
-char *values = "a234567890jqk";
+static Picture *cards[4][13];
+static char *suits = "hdcs";
+static char *values = "a234567890jqk";
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT
 #define M CARD_MARGIN
 
-int
-main(int argc, char **argv)
-{
-  init_ace(argc, argv);
-  init_table(300+4*(W+M), 4*H+5*M);
-  table_loop();
-}
-
-void
+static void
 init()
 {
   int s, v;
@@ -46,7 +38,7 @@ init()
     }
 }
 
-void
+static void
 redraw()
 {
   int s, v;
@@ -61,4 +53,18 @@ redraw()
 
   for (s=0; s<4; s++)
     put_picture(cards[s][0], 300+s*(W+M), M+3*(M+H), 0, 0, W, H);
+}
+
+static FunctionMapping fmap[] = {
+  { "init", (void *)init },
+  { "redraw", (void *)redraw },
+  { 0, 0 }
+};
+
+int
+main(int argc, char **argv)
+{
+  init_ace(argc, argv, fmap);
+  init_table(300+4*(W+M), 4*H+5*M);
+  table_loop();
 }
