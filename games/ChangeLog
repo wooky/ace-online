@@ -1,0 +1,11 @@
+Fri Jun 12 19:48:50 1998  DJ Delorie  <dj@delorie.com>
+
+	* freecell.c (check_for_end_of_game): check for manually moving a
+ 	card to the outcells
+
+	* pegged.c (click): When clicking for the first time in the
+ 	triangle versions, don't "create" a hole - you can only click on a
+ 	peg.
+
+	* minesweeper.c (drop): don't allow clicking on a flag
+

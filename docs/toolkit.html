@@ -1,0 +1,797 @@
+<title>The Ace of Penguins Toolkit</title>
+<body bgcolor="#e0e0e0" background="penguin.gif" text="#000000">
+
+<h1 align=center>
+<img src="title.gif" width=416 height=55 alt="The Ace of Penguins"><br>
+Toolkit</h1>
+
+<img src="as.gif" width=93 height=117 alt="" align=right>
+
+<p>The Ace of Penguins Toolkit allows you to create your own solitaire
+games pretty easily.  For example, I wrote the first version of
+<tt>golf</tt> in about ten minutes (the toolkit was already done at
+that point).  My wife watched, and played it when I was done.  I later
+added more bells and whistles, but the basic game only took ten
+minutes.  </p>
+
+<p>There are some utilities that come with the toolkit that you'll
+need to be familiar with in order to build your game.  These tools
+allow you to integrate pictures and online help into your program,
+much like the Windows(tm) resource compiler.  Graphics are created in
+the standard GIF format and integrated into your program with the
+<tt>gif2pack</tt> program.  Help is written as a limited HTML file and
+integrated with <tt>text2c</tt>.  The toolkit has functions that
+access these resources when the program needs them.</p>
+
+<p>All Ace programs use <a
+href="http://www.inria.fr/koala/lehors/xpm.html">the <b>Xpm</b>
+library</a>.  Most Linux distributions include this as a standard
+module; make sure you install it, or visit <a
+href="ftp://ftp.x.org/contrib/libraries/">ftp.x.org</a> to get the
+sources.  In addition, the utilities use <a
+href="http://www.boutell.com/gd/">the <b>gd</b> library</a> to read
+the GIF files; the solitaire programs do not include any part of the
+gd library or any gif images or code.</p>
+
+<p>The library consists of three main parts: A collection of standard
+images (including, of course, the deck of cards), functionality to
+maintain and manipulate the "table" and interface with X, and a set of
+functions to create and manipulate "stacks" of cards.</p>
+
+<h2>Getting Started</h2>
+
+<p>Your source file must inlude cards.h from wherever you installed
+it.  In my case, I use <tt>#include "cards.h"</tt> and let the
+<tt>Makefile</tt> worry about how to tell <tt>gcc</tt> where to
+include it from.
+
+<p>If your program responds to keypresses, you'll also need to include
+<tt>X11/keysym.h</tt> to get the keycode definitions (like
+<tt>XK_F1</tt>).
+
+<p>Your program should, in <tt>main()</tt>, call two functions:
+
+<pre>
+  init_table(argc, argv, width, height);
+  table_loop();
+</pre>
+
+Here, <tt>argc</tt> and <tt>argv</tt> are the parameters passed to
+<tt>main()</tt> and <tt>width</tt> and <tt>height</tt> are whatever
+width and height your window ("table") should be.  You'll probably
+want to calculate the size of the table based on the sizes of the
+cards and margins (they're defined in <tt>cards.h</tt>).  The
+<tt>init_table()</tt> call does everything needed to get the X
+interface running.  The <tt>table_loop()</tt> call passes control over
+to the Ace library, and does not return.  Instead, the Ace library
+manages the X interface, and calls functions you define when user
+interaction occurs (see the events section below).
+
+<h2>Makefiles and Linking</h2>
+
+You'll need to add<tt> -lXpm -lX11 </tt>to the end of your link line
+in your <tt>Makefile</tt>.  You'll also need to link the Ace library,
+which for me means adding <tt>../lib/cardlib.a</tt> but you'll need to
+do whatever is appropriate for where you installed the library.  For
+example, if you copied <tt>cardlib.a</tt> to
+<tt>/usr/lib/libcards.a</tt> then you'd add <tt>-lcards</tt> instead.
+Note that the card library gets linked before the X libraries.
+Example:
+
+<pre>
+sol : sol.o sol-help.o sol-img.o
+	$(CC) $(CFLAGS) -o $@ $^ -lcards -lXpm -lX11
+</pre>
+
+Note in the example above that your game will probably consist of at
+least three files.  First is the game itself (<tt>sol.o</tt> in this
+example).  Next is the help file (<tt>sol-help.o</tt>), which started
+as HTML and was converted to C by <tt>text2c</tt>.  Last is the image
+library (<tt>sol-img.o</tt>) which is generated from your gifs by
+<tt>gif2pack</tt>.  To build these, you'll need rules like this:
+
+<pre>
+%-help.c : %.html ../lib/text2c
+	../lib/text2c $*_help < $< > $@
+
+%-img.c : %.gif ../lib/gif2pack
+	../lib/gif2pack -b appimglib -o $@ $<
+</pre>
+
+Of course, you'll need to adjust these for your situation.
+
+
+<h2>Events</h2>
+
+There are a number of functions that you may define in your program to
+add functionality.  Each of these is called when some event happens,
+such as a mouse click or exposure.  Here are the events you may define,
+with their prototypes:
+
+<dl>
+
+<dt> <tt>void <b>init</b>();</tt>
+
+<dd> This function is called once just after your window appears on
+the screen.  You should use this function to set up the pitures,
+stacks, and other data you need to initialize once per program run.
+What I do is define a second function called start_over() that resets
+the game itself, and have init call start_over as the last thing it
+does.  That way, I can call start_over from other places also.</p>
+
+<dt> <tt>void <b>redraw</b>()</tt>
+
+<dd> This function is called whenever part of the X window is
+"exposed" and needs to be redrawn.  The computer doesn't remember what
+was there, it needs to draw it from scratch.  Note that the
+put_picture functions are designed to work with this event, so that
+they will automatically optimize themselves.  An X clipping region is
+also set up for you.  The best way to deal with redraw events is to
+redraw the entire window and let the Ace and X libraries worry about
+limiting you to the parts that were actually exposed.</p>
+
+<dt> <tt>void <b>key</b>(int k, int x, int y)</tt>
+
+<dd> This function is called each time the user presses a key.  If the
+key they pressed is a regular key with an ASCII equivalent (like `h'),
+the ASCII code is passed as <tt>k</tt>, otherwise the X keycode (like
+XK_F1) is passed.  The location of the pointer is passed as x and y.
+If you do not define this function, a default is provided which exits
+when the user presses ESC or Ctrl-C.  Your routine should do a similar
+check to remain consistent with other Ace programs.</p>
+
+<dt> <tt>void <b>click</b>(int x, int y, int b)</tt>
+
+<dd> This function is called whenever the user presses a mouse button.
+the primary button is number 1.  For maximum compatibility, you should
+only check to see if the button is 1 or greater than 1, since the
+numbering of buttons isn't guaranteed to be standard.</p>
+
+<dt> <tt>void <b>double_click</b>(int x, int y, int b)</tt>
+
+<dd> This function is called when the user double-clicks the mouse.
+Note that there will be a click() call for the first click but not for
+the second.  If you do not define this function, click() is called for
+every click.</p>
+
+<dt> <tt>void <b>drag</b>(int x, int y, int b)</tt>
+
+<dd> This function is called when the user moves the pointer while
+holding the button down.</p>
+
+<dt> <tt>void <b>drop</b>(int x, int y, int b)</tt>
+
+<dd> This function is called when the user releases the button.</p>
+
+</dl>
+
+
+
+<h2>Table Functions</h2>
+
+<dl>
+
+<dt> <tt><b>CARD_WIDTH</b>,  <b>CARD_HEIGHT</b>, <b>CARD_MARGIN</b></tt>
+
+<dd> These macros define the size of the cards, and the amount of
+space you should allow for between cards and around the edge of the
+window.  By using these macros, your program will have the same style
+as other programs written with this library.</p>
+
+<dt> <tt><b>CARD_FAN_DOWN</b>, <b>CARD_FAN_RIGHT</b>,
+<b>CARD_FAN_TBDOWN</b>, <b>CARD_FAN_TBRIGHT</b></tt>
+
+<dd> These macros define the offsets to be used when a stack of cards
+is "fanned" in a given direction (only down and right are supported).
+The <tt>TB</tt> versions are for a "tiny bit" of fanning; just enough
+to hint at the value of the card, whereas the others offset them
+enough to clearly see the value of the card.</p>
+
+<dt> <tt>void <b>init_table</b>(int argc, char **argv, int
+table_width, int table_height)</tt>
+
+<dd> This function sets up the interface to X and creates the initial
+window.  You should pass it the command line arguments <tt>main()</tt>
+was called with, as well as the dimensions of the window.  This
+function must be called exactly once from <tt>main()</tt>.  Upon
+return, any arguments used by the library will be removed from the
+argument list, leaving the extras behind.</p>
+
+<dt> void <b>table_loop</b>()
+
+<dd> <tt>main()</tt> must call this function as the last thing it
+does.  This function will never return.  Once called, the library
+starts managing the interaction between the user (via X) and the
+program (via events).</p>
+
+<dt> <tt>Picture *<b>get_picture</b>(char *name)</tt>
+
+<dd> This function loads one of the images that you added to your
+program with the <tt>gif2pack</tt> program (either the
+application-specific ones, or the standard ones).  This function
+searches one table prefixed by <tt>imglib</tt> (the standard set) and
+one prefixed by <tt>appimglib</tt> (the app-specific set).  Note that
+you may call this function at any time, even before
+<tt>init_table()</tt>, since the actual conversion of the image to
+native X format is deferred until it is needed.  The format of the
+<tt>Picture</tt> type is as follows:
+
+<ul>
+<li><tt>void *pixmap;</tt> - used only by the library
+<li><tt>int w, h;</tt> - the size of the image
+</ul>
+
+Note that images may have a non-rectangular shape.  This is
+automatically handled by the library.</p>
+
+<dt><tt>void <b>put_picture</b>(Picture *picture, int dx, int dy,
+		 int x, int y, int w, int h)</tt>
+
+<dd> This puts a picture onto the screen.  This should only be called
+by an event function, since it (like most of these types of functions)
+call X routines.  The <tt>picture</tt> is one as returned by
+<tt>get_picture</tt>.  The <tt>dx,dy</tt> tells where the upper left
+pixel of the picture should be placed on the window (regardless of
+what sub-part of the picture you are putting).  The <tt>x,y</tt> and
+<tt>w,h</tt> indicate a sub-part of the picture to be shown.  In most
+cases, <tt>x,y</tt> will be zero and <tt>w,h</tt> will be the actual
+size of the picture.  Note that, during a <tt>redraw</tt> event, the
+library knows what part of the window actually needs to be redrawn,
+and may not draw your picture (or only draw part of it) if it's not
+needed to redraw that part of the picture.</p>
+
+<dt><tt>void <b>put_picture_inverted</b>(Picture *picture, int dx, int dy,
+			  int x, int y, int w, int h)</tt>
+
+<dd> Same as <tt>put_picture</tt>, except that the picture is inverted
+before putting it.  Some things to note: On 24-bit displays, each RGB
+component is separately inverted, but on other displays "inverting"
+means only swapping black and white pixels.  Plan your pictures
+accordingly.  Also, there is only one inversion cache, so if you have
+multiple inverted images, performance will be degraded.</p>
+
+<dt><tt>void <b>set_centered_pic</b>(Picture *picture)</tt>
+
+<dd> This allows the program to tell the library to maintain a single
+picture that is displayed centered on the window.  This is used by the
+splash, win, and lose pictures.  Pass a <tt>NULL</tt> pointer to
+remove the picture.</p>
+
+<dt><tt>Picture *<b>get_centered_pic</b>()</tt>
+
+<dd> This returns the current centered picture, or <tt>NULL</tt> if
+none.  My programs use this in the <tt>click</tt> and <tt>key</tt>
+events to automatically remove the splash picture on the first event,
+and to detect when the user clicks on a win or lose picture.</p>
+
+<dt><tt>void <b>clip</b>(int x, int y, int w, int h)</tt>
+
+<dd> This changes the clipping rectangle.  Most programs won't need
+this, since it's set appropriately by the library during exposures.</p>
+
+<dt><tt>void <b>clear</b>(int x, int y, int w, int h)</tt>
+
+<dd> This clears (fills with the table color) a given section of the
+window.</p>
+
+<dt><tt>void <b>invalidate</b>(int x, int y, int w, int h)</tt>
+
+<dd>Forces the library to redraw part of the table.  This is different
+than just calling <tt>redraw()</tt> because it sets the clipping info,
+clears the area, calls redraw, and handles the centered picture.  This
+is the preferred way of causing part of the screen to be redrawn.
+Your program should alter the information about the layout, then
+invalidate the area and let <tt>redraw()</tt> update the screen.</p>
+
+<dt><tt>void <b>invalidate_nc</b>(int x, int y, int w, int h)</tt>
+
+<dd> Same, except that the area is not cleared first.  This is an
+optimization for the case where you're adding an image, and you don't
+want the screen to flash the background color.</p>
+
+<dt><tt>void <b>invalidate_exposure</b>(int ox, int oy, int ow, int oh,
+				int nx, int ny, int nw, int nh)</tt>
+
+<dd>This is a specialty function for the case where you're moving
+something from one point to another.  Pass the old and new regions,
+and it will invalidate the portion of the old region that isn't
+covered by the new region.  You'd then use <tt>invalidate</tt> to
+update the new region (or just <tt>put_picture</tt>).  By doing it
+this way, you can avoid flickering.</p>
+
+<dt><tt>void <b>flush</b>()</tt>
+
+<dd> This forces all drawing operations to be pushed to the server
+immediately, rather than cached.  You should use this between
+iterations of an animation to ensure that the server is updating the
+screen at a steady pace.</p>
+
+<dt><tt>void <b>beep</b>()</tt>
+
+<dd>It makes a beep.  Go figure.</p>
+
+<dt><tt>void <b>text</b>(char *s, int x, int y)</tt>
+
+<dd> This draws the given string at the given coordinates on the
+window.  Note that the coordinates are the lower left corner of the
+region the text occupies, not the starting baseline point.  The font
+can be assumed to be a monospaced font, with each character occupying
+a rectangle of width <tt>font_width</tt> and height
+<tt>font_height</tt> (defined in <tt>cards.h</tt>).  This avoids the
+messy calculations involving descenders and bearings.</p>
+
+<dt><tt>void <b>help</b>(char *filename, char *text)</tt>
+
+<dd> This invokes the help system.  Pass a file name and a pointer to
+the file's data as prepared by <tt>text2c</tt>.  If the file exists,
+it is used, else the data is used.  All the events are redirected to
+the help system until it decides to give control back.</p>
+
+<dt><tt>void <b>snap_to_grid</b>(int *x, int *y,
+		  int step_x, int step_y,
+		  int origin_x, int origin_y,
+		  int max_distance)</tt>
+
+<dd>This function is a general-purpose grid alignment function.  Pass
+the coordinates you want to align as <tt>x</tt> and <tt>y</tt>.  The
+grid is determined by the <tt>step</tt> and <tt>origin</tt>
+parameters, with the <tt>origin</tt> indicating one of the points to
+snap to.  If the given point is more than <tt>max_distance</tt> from
+one of the grid points, <tt>x</tt> and <tt>y</tt> are unchanged, else
+<tt>x</tt> and <tt>y</tt> are replaced with the closest grid point.
+Note that <tt>max_distance</tt> is not a pythagorian distance, it's an
+absolute value of the distance along each axis independently (i.e. it
+defines a square of side 2*<tt>max_distance</tt> centered on the grid
+point, not a circle of radius <tt>max_distance</tt>).</p>
+
+</dl>
+
+<h2>Stack Functions</h2>
+
+<p>The stack functions all deal with stacks of cards.  Each card is
+described by a single number that encodes its value, suit, and whether
+the card is face up or face down.  <tt>cards.h</tt> provides a number
+of macros for dealing with these numbers.  Also, the standard ace
+library provides all the images matched up with these numbers, so you
+do not need to worry about them.  Each stack is positioned on the
+table, and may be neatly piled up or fanned to the right or down.</p>
+
+<p>Note that the type <tt>Stack</tt> is an opaque pointer.  All stacks
+are of type <tt>Stack *</tt> but there are no fields you may access
+directly.</p>
+
+<dl>
+
+<dt><tt><b>MAKE_CARD</b>(s, v, f)</tt>
+
+<dd> This macro combines the suit (<tt>s</tt>), value (<tt>v</tt>),
+and face-upness (<tt>f</tt>) into a single card number.  The suit is
+one of <tt>SUIT_HEARTS</tt>, <tt>SUIT_DIAMONDS</tt>,
+<tt>SUIT_CLUBS</tt>, or <tt>SUIT_SPADES</tt>.  Note that these are
+<tt>0..3</tt>, but don't rely on that.  The value is <tt>1..13</tt>,
+but you may use <tt>ACE</tt>, <tt>2..10</tt>, <tt>JACK</tt>,
+<tt>QUEEN</tt>, and <tt>KING</tt> as well.  Zero is reserved for "no
+card", so a zero value is not used to refer to a card.  The
+face-upness is either <tt>FACEUP</tt> or <tt>FACEDOWN</tt>.  The macro
+returns the card number.</p>
+
+<dt><tt><b>SUIT</b>(c)</tt>
+
+<dd> Takes a card number and returns its suit (the <tt>SUIT_</tt>
+macros above).</p>
+
+<dt><tt><b>COLOR</b>(c)</tt>
+
+<dd>Returns the "color" of a card (red or black).  Note that no
+specific color values are defined; the only thing you can do with the
+returned value of this macro is compare it to other values returned by
+this macro.  In other words, you can tell if two cards are the same or
+different colors, but nothing else.</p>
+
+<dt><tt><b>VALUE</b>(c)</tt>
+
+<dd>Returns the value of a card (<tt>ACE</tt>, <tt>2..10</tt>,
+<tt>JACK</tt>, <tt>QUEEN</tt>, <tt>KING</tt>).</p>
+
+<dt><tt><b>FACEDOWNP</b>(c)</tt>
+
+<dd> The face-down predicate returns the face-downness of a card.  It
+returns either <tt>FACEUP</tt> or <tt>FACEDOWN</tt>.</p>
+
+<dt><tt>Stack *	<b>stack_create</b>(int x, int y)</tt>
+
+<dd> This function creates a stack and positions it on the table.  The
+stack is initially empty and is not fanned in any direction (i.e. the
+cards are neatly piled upon each other).</p>
+
+<dt><tt>void <b>stack_destroy</b>(Stack *s)</tt>
+
+<dd>This function destroys a stack and frees up the resources it was
+using.  Most solitaire-type games won't ever destroy stacks, they'll
+just reshuffle the cards among them.</p>
+
+<dt><tt>void <b>stack_set_pictures</b>(Picture **fronts, Picture *back)</tt>
+
+<dd>This function allows the application to specify the pictures to be
+used to display the cards.  The <tt>fronts</tt> array is indexed by
+the card number (i.e. <tt>MAKE_CARD</tt> with FACEUP); you should
+allow for 64 slots in your array.  The <tt>back</tt> picture is for
+all face-down cards.  All pictures should be <tt>CARD_WIDTH</tt> by
+<tt>CARD_HEIGHT</tt> pixels.</p>
+
+<dt><tt>void <b>stack_load_standard_deck</b>()</tt>
+
+<dd> This function loads all the standard card pictures from the
+built-in library.  Most card games should call this once in
+<tt>init()</tt>.</p>
+
+<dt><tt>void <b>stack_move</b>(Stack *s, int x, int y)</tt>
+
+<dd> This function moves a stack to a new location on the screen.
+While not generally useful to common solitaire games, it is used
+internally to drag and drop cards between stacks.</p>
+
+<dt><tt>void <b>stack_set_offset</b>(Stack *s, int which_offset)</tt>
+
+<dd>This function changes the offset for each card in a stack.  By
+offsetting cards, the player can view parts of obscured cards, thus
+being able to see the value of the card.  Valid values for
+<tt>which_offset</tt> are <tt>STACK_OFFSET_NONE</tt>,
+<tt>STACK_OFFSET_RIGHT</tt>, <tt>STACK_OFFSET_DOWN</tt>,
+<tt>STACK_OFFSET_TBRIGHT</tt>, and <tt>STACK_OFFSET_TBDOWN</tt>.
+The <tt>TB</tt> versions are for a "tiny bit" of offset.</p>
+
+<dt><tt>void <b>stack_set_empty_picture</b>(Stack *s, Picture *p)</tt>
+
+<dd> This lets you specify a picture that is drawn when the stack is
+empty.  For example, some games want it to look like you're stacking
+the cards on top of something.  This is where you specify the
+something.  There is a standard picture called <tt>empty.gif</tt> that
+simulates a small platform for the cards.</p>
+
+<dt><tt>void <b>stack_redraw</b>()</tt>
+
+<dd> This function should be called from your <tt>redraw()</tt>
+function (the default <tt>redraw</tt> does this for you if you don't
+specify one yourself).  This causes all stacks to redraw their
+cars.</p>
+
+<dt><tt>void <b>stack_peek_card</b>(Stack *s, int n, int show)</tt>
+
+<dd>This function lets the player "peek" at an otherwise obscured
+card.  What it does is force that card to be drawn on top of all the
+other cards in the stack, regardless of where it is in the stack.
+This is used to support the right-mouse button in solitaire, which
+lets you see the suit of obscured cards.  Note that this function will
+not show you the face of a face-down card.  Note that when <tt>n</tt>
+(the index of the card in the stack) is zero, it means the bottom-most
+card on the deck (the one closest to the table, not the one closest to
+the bottom of your monitor).  The top-most card (the one the player
+sees the most of) has the highest number, one less than
+<tt>stack_count_cards()</tt> returns.  Pass a non-zero value for
+<tt>show</tt> to show the card, or pass zero to put the card back and
+show the stack normally.  </p>
+
+<dt><tt>int <b>stack_count_cards</b>(Stack *s)</tt>
+
+<dd> Returns the number of cards in the stack.  Zero means empty.</p>
+
+<dt><tt>int <b>stack_get_card</b>(Stack *s, int n)</tt>
+
+<dd>Returns the number of the given card on the stack (suitable for
+the <tt>SUIT</tt>, <tt>COLOR</tt>, and <tt>VALUE</tt> macros, etc).</p>
+
+<dt><tt>void <b>stack_add_card</b>(Stack *s, int c)</tt>
+
+<dd>Adds one card to the top of the given stack.</p>
+
+<dt><tt>int <b>stack_take_card</b>(Stack *s)</tt>
+
+<dd>Removes one card from the top of the stack and returns it.</p>
+
+<dt><tt>void <b>stack_change_card</b>(Stack *s, int n, int c)</tt>
+
+<dd>Changes the given card to the given number.  Note that whan
+<tt>n</tt> is zero, that indicates the bottom-most card.  This
+function is most often used to change a card from <tt>FACEDOWN</tt> to
+<tt>FACEUP</tt>.  </p>
+
+<dt><tt>void <b>stack_shuffle</b>(Stack *s)</tt>
+
+<dd> This function randomizes the sequence of the cards stored in the
+stack.  To simulate a deck of cards, you'd create one stack and fill
+it with all 52 combinations (or more, depending on the game) and
+shuffle it.  Then, you'd use one of the other functions (like
+<tt>stack_flip_card</tt>) to move cards from this "deck" to the other
+stacks.  To restart the game, use <tt>stack_flip_stack</tt> to move
+them all back to the deck, shuffle again, and start over.</p>
+
+<dt><tt>int <b>stack_find</b>(int x, int y, Stack **stack_ret, int *n_ret)</tt>
+
+<dd>This function is used by the <tt>click</tt> type events to
+identify which card the player selected.  You pass it the <tt>x,y</tt>
+of the event, and a pointer to a stack pointer and integer.  If the
+player selected a card, the <tt>stack_ret</tt> and <tt>n_ret</tt>
+variables are set to the stack and index into the stack they selected
+(when <tt>n_ret</tt> is zero, they selected the bottom-most card) and
+a non-zero value is returned.  If the player did not select a card,
+<tt>stack_ret</tt> and <tt>n_ret</tt> are unchanged and a zero value
+is returned.</p>
+
+<dt><tt>int <b>stack_drag_find</b>(int x, int y, Stack **stack_ret)</tt>
+
+<dd>When dragging a stack, this function tells you which stack you
+have dragged it over.  Similar to <tt>stack_find</tt>.  Note that the
+library remembers what you're dragging from <tt>stack_begin_drag</tt>
+and will do the Right Thing.</p>
+
+<dt><tt>int <b>stack_card_posn</b>(Stack *s, int n, int *x, int *y)</tt>
+
+<dd>Given a card in a stack (when <tt>n</tt> is zero, it refers to the
+bottom-most card), find its position on the table.  This takes into
+account the offset the stack might have.  The size of the card is
+<tt>CARD_WIDTH</tt> by <tt>CARD_HEIGHT</tt>.  If the card specified
+exists, <tt>x</tt> and <tt>y</tt> are set to the coordinates of the
+upper left pixel and a non-zero value is returned, else zero is
+returned and <tt>x</tt> and <tt>y</tt> are unchanged.</p>
+
+<dt><tt>int <b>stack_move_cards</b>(Stack *src, int n, Stack *dest)</tt>
+
+<dd> Causes card <tt>n</tt> from stack <tt>src</tt>, and all cards on
+top of it to be moved to the top of stack <tt>dest</tt>.  The
+face-upness is not changed.  When <tt>n</tt> is zero, all cards are
+moved.</p>
+
+<dt><tt>void <b>stack_flip_card</b>(Stack *src, Stack *dest)</tt>
+
+<dd> Moves the top-most card from <tt>src</tt> to <tt>dest</tt>, and
+makes it face-up at the same time.</p>
+
+<dt><tt>void <b>stack_flip_stack</b>(Stack *src, Stack *dest)</tt>
+
+<dd> Moves all the cards from <tt>src</tt> to <tt>dest</tt> and makes
+all the moved cards face-down.  Note that the order is preserved as if
+the player had flipped the whole stack; the card that used to be on
+the bottom of <tt>src</tt> will be at the top of <tt>dest</tt>.</p>
+
+<dt><tt>void <b>stack_animate</b>(Stack *src, Stack *dest)</tt>
+
+<dd>Moves one card from <tt>src</tt> to <tt>dest</tt>, but does it in
+such a way that the player can <em>see</em> it moving from one to the
+other.  You should use this for auto-play so that the player can see
+what's happening.</p>
+
+<dt><tt>void <b>stack_undo</b>()</tt>
+
+<dd>All operations on stacks are recorded.  Calling this function
+reverses those operations.  You may continue calling this function,
+and it will continue reversing the operations, until no more exist.
+Calling it when no further undo is available causes no actions.</p>
+
+<dt><tt>void <b>stack_undo_reset</b>()</tt>
+
+<dd>This function erases all undo information.  You should call this
+function after dealing the cards each time you start (or restart) a
+game, so that the player cannot undo the deal itself.</p>
+
+<dt><tt>void <b>stack_begin_drag</b>(Stack *s, int n, int x, int y)</tt>
+
+<dd> This function is one of three that coordinate drag-and-drop
+between stacks.  With this function, you identify what you are picking
+up - the stack, the index of the card within the stack (when
+<tt>n</tt> is zero, the whole stack is picked up), and the coordinates
+of the pointer at the time you picked it up.  If you call this
+function while a drag is in progress, the previous drag is
+cancelled.</p>
+
+<dt><tt>void <b>stack_continue_drag</b>(int n, int x, int y)</tt>
+
+<dd>Called in your <tt>drag()</tt> function, this tells the library to
+move the cards you've picked up to a new location to follow the
+pointer.  The library maintains a constant offset relative to the
+pointer to give it a "natural" feel (the card don't jump into your
+hand, for example).  You also must pass the index of the card that is
+allowed to be dropped at that time (use <tt>stack_drag_find</tt>).  As
+you pass different values of <tt>n</tt> to this function, the window
+will change to reflect carrying the right number of cards.  If you
+pass <tt>n</tt> greater than the largest card index (see
+<tt>stack_count_cards</tt>), a special graphic that indicates "drop
+not allowed here" is used.</p>
+
+<dt><tt>void <b>stack_drop</b>(Stack *onto, int n)</tt>
+
+<dd>This function ends a drag-and-drop operation by specifying which
+cards from the original stack are to be dropped onto <tt>onto</tt>.
+You may pass the original stack as <tt>onto</tt> or pass <tt>n</tt>
+greater than the largest card index (see <tt>stack_count_cards</tt>)
+to cancel a drag operation. </p>
+
+</dl>
+
+<h2>Adding Pictures</h2>
+
+<p>It is to be expected that most applications will have some pictures
+that are specific to that application.  For example, the splash screen
+("Welcome to my game") usually has the name of the application, so it
+will be specific.  Each application is allowed to create one
+additional library of pictures that can be linked into your program;
+the library has the other one.  To add images, paint your images in
+standard GIF format (no animations, limited to 64 colors per GIF,
+transparency is supported).  Then, call <tt>gif2pack</tt> like this:
+
+<pre>
+gif2pack -b appimglib -o mypictures.c *.gif
+</pre>
+
+Of course, replace <tt>mypictures.c</tt> and <tt>*.gif</tt> with
+appropriate stuff for your application.  This will create a C source
+file that contains your image data and some statistics about your
+images to speed up loading (such as the number of rows, number of
+images, uncompressed data size, etc).  Then, compile and link that
+source with your other sources.  By calling your picture library
+<tt>appimglib</tt>, the ace library functions will automatically use
+it.  When you call <tt>get_picture</tt>, pass the name of the original
+file (<tt>*.gif</tt>) you passed to <tt>gif2pack</tt>, including any
+path information (like <tt>"card/7h.gif"</tt>).</p>
+
+<h2>Graphics - Behind the Scenes</h2>
+
+<p>I had some goals in mind when I designed the graphics storage
+system.  They were (if I remember correctly): easy to edit the images,
+easy to load the images in the app, don't take up a lot of space, and
+avoid patent problems.  So, I decided to use a compressed Xpm format
+for storage in the application.  Here's how everything works:
+
+<ul>
+
+<li>The GIF files are loaded by <tt>gif2pack</tt> and converted to
+uncompressed images in memory.
+
+<li> Each is then converted to an Xpm format, which consists of a
+number of lines of plain ASCII text.
+
+<li>All these text lines are contatenated together, along with some
+additional information about each image, into one big text chunk.
+
+<li>The text is compressed using run-length compression and
+substitution, choosing between them based on which compresses more
+bytes.  This method takes a long time to compress, but decompresses
+very fast with no memory overhead.  The standard library compresses to
+about 4% of its uncompressed size; about half of the aggregate size of
+the original GIFs (it compresses better because it doesn't have to
+start from scratch for each image).
+
+<li>The compressed text and statistics are written to the C source file,
+and linked into your program.
+
+<li>At runtime, the first call to <tt>get_picture</tt> causes the
+compressed data to be uncompressed and converted to an array of Xpm
+data.  <tt>get_picture</tt> just finds the Xpm image and gets its
+dimensions.
+
+<li>When you call <tt>put_picture</tt> for the first time on a
+picture, the Xpm library is called to convert the Xpm data to an X
+pixmap.  The pixmap is cached with the Xpm data so that the conversion
+is never done twice for a given picture, no matter how many times you
+call get_picture.
+
+</ul>
+
+<h2>Calling X Directly</h2>
+
+If you must call X directly (to draw lines or whatnot), look in
+table.c for a list of non-static variables you can use <em>after</em>
+your <tt>init()</tt> function is called.  These are:
+
+<pre>
+extern Display *display;
+extern int screen;
+extern Visual *visual;
+extern Colormap cmap;
+extern Window window;
+extern Window rootwin;
+extern GC gc;
+extern XFontStruct *font;
+</pre>
+
+You'll also need to include whatever X headers you need.  Note that
+during exposures, the clip mask in the gc is set as needed.  If you
+must mess with the clip mask, be careful to restore it if you can, or
+create your own GC to draw with.
+
+<h2>Online Help</h2>
+
+To add online help to your application, you need to write the help
+file in plain HTML.  There are only a few HTML constructs that are
+recognized, and you <strong>must</strong> write valid HTML.  Note that
+closing tags are <em>not</em> optional if you want it to work right.
+Here are the supported tags.  You must use lower case, and when the
+tag allows options (like <tt>img</tt>) they must be provided in the
+order given with exactly the syntax shown.  The HTML parser will not
+accept just any HTML file.  When a closing tag is shown, it is
+mandatory.  Tags may be nested, but do not need to be properly nested
+(you <em>should</em> properly nest them, but the program won't blow up
+if you don't).
+
+<dl>
+
+<dt><tt>&lt;b&gt; . . . &lt;/b&gt;</tt>
+
+<dd> Bold
+
+<dt><tt>&lt;i&gt; . . . &lt;/i&gt;</tt>
+
+<dd> Italics
+
+<dt><tt>&lt;tt&gt; . . . &lt;/tt&gt;</tt>
+
+<dd> Teletype (monospaced) font
+
+<dt><tt>&lt;big&gt; . . . &lt;/big&gt;</tt>
+
+<dd> Big font
+
+<dt><tt>&lt;h1&gt; . . . &lt;/h1&gt;</tt>
+
+<dd> Primary headers.  These are used to create the tabs that separate
+pages, so don't use any other HTML inside an H1, avoid newlines, and
+keep it short.
+
+<dt><tt>&lt;h2&gt; . . . &lt;/h2&gt;</tt>
+
+<dd> Secondary headers.  Same as &lt;p&gt;&lt;big&gt;&lt;b&gt;.  You
+should put one of these (with more elaborate text) after each H1 so
+that each page has a title banner.
+
+<dt><tt>&lt;p&gt; . . . &lt;/p&gt;</tt>
+
+<dd> Paragraph.  Note that both &lt;p&gt; and &lt;/p&gt; do exactly
+the same thing - they cause the next "thing" (word or picture) to
+start a new paragraph - but you should use them properly anyway.
+
+<dt><tt>&lt;br&gt;</tt>
+
+<dd>Line break.  The next "thing" will be at the left margin of the
+next line.  Multiple BR act like one BR.
+
+<dt><tt>&lt;img src=dir/file.gif&gt;</tt>
+<dt><tt>&lt;img align=center src=dir/file.gif&gt;</tt>
+<dt><tt>&lt;img align=left src=dir/file.gif&gt;</tt>
+<dt><tt>&lt;img align=right src=dir/file.gif&gt;</tt>
+
+<dd>An image.  No quotes around the file name, which is as you'd pass
+to <tt>get_picture</tt> (since that's what it does).  The
+<tt>align=center</tt> variant aligns the picture vertically centered
+on the line.  If text is included in the line also, the text
+centerline (not the baseline, but half the height of an "m") aligns
+with the image centerline.  Left and right alignment cause the image
+to float to the margins, with text wrapping around them.
+
+</dl>
+
+<p>While developing the HTML help, run your application such that the
+filename passed to <tt>help()</tt> refers to your HTML file.  Then,
+press <tt>F1</tt> to invoke the online help of your application, and
+it will read the file instead of using the built-in text.  Each time
+you exit help (<tt>F1</tt> again, or <tt>Esc</tt>) and re-invoke it,
+it re-reads the help file (you don't need to exit your
+application).</p>
+
+When you're done, use <tt>text2c</tt> to convert the HTML file to a C
+source file, which you can compile and link in to your application:
+
+<pre>
+text2c my_help < mygame-help.html > mygame-help.c
+</pre>
+
+That first argument (<tt>my_help</tt> in this example) defines the
+name of a symbol which you then refer to in your program:
+
+<pre>
+extern char my_help[];
+...
+help("mygame-help.html", my_help);
+</pre>
+
+<hr noshade size=1> <i>Copyright &copy; 1998 <a
+href="http://www.delorie.com/users/dj/">DJ Delorie</a></i>

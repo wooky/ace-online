@@ -1,0 +1,64 @@
+#!/bin/perl5
+# -*- perl -*-
+
+# The Ace of Penguins - split-tiles
+# Copyright (C) 1998 DJ Delorie.  See the file COPYING for details
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+$| = 1;
+
+mkdir("t", 0755) unless -d "t";
+
+system 'giftoppm tiles.gif > t/tiles.ppm';
+
+system 'pnmcut 5 5 39 39 < t/tiles.ppm > t/blank.ppm';
+system "ppmtogif < t/blank.ppm 2>/dev/null | giftrans -t '#010203' > t/bl.gif";
+
+for $i (1..9) {
+    &tile("n$i", 0, $i-1);
+    &tile("p$i", 1, $i-1);
+    &tile("b$i", 2, $i-1);
+}
+
+&tile("xj", 3, 0);
+&tile("xa", 3, 1);
+&tile("xx", 3, 2);
+
+&tile("sh", 4, 0);
+&tile("sd", 4, 1);
+&tile("sc", 4, 2);
+&tile("ss", 4, 3);
+
+&tile("cr", 3, 5);
+&tile("cg", 3, 6);
+&tile("cb", 3, 7);
+&tile("ck", 3, 8);
+
+&tile("du", 4, 5);
+&tile("dd", 4, 6);
+&tile("dl", 4, 7);
+&tile("dr", 4, 8);
+
+sub tile {
+    local($name, $x, $y) = @_;
+    $x = $x * 36 + 49;
+    $y = $y * 36 + 5;
+    print "$name ";
+    system "pnmcut $x $y 36 36 < t/tiles.ppm > t/temp.ppm";
+    system "pnmpaste t/temp.ppm 3 0 t/blank.ppm | ppmtogif 2>/dev/null | giftrans -t '#010203' > t/$name.gif";
+}
+
+unlink "t/blank.ppm", "t/temp.ppm", "t/tiles.ppm";
