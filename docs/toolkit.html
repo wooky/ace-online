@@ -23,15 +23,11 @@ the standard GIF format and integrated into your program with the
 integrated with <tt>text2c</tt>.  The toolkit has functions that
 access these resources when the program needs them.</p>
 
-<p>All Ace programs use <a
-href="http://www.inria.fr/koala/lehors/xpm.html">the <b>Xpm</b>
-library</a>.  Most Linux distributions include this as a standard
-module; make sure you install it, or visit <a
-href="ftp://ftp.x.org/contrib/libraries/">ftp.x.org</a> to get the
-sources.  In addition, the utilities use <a
-href="http://www.boutell.com/gd/">the <b>gd</b> library</a> to read
-the GIF files; the solitaire programs do not include any part of the
-gd library or any gif images or code.</p>
+<p>All Ace programs use <a href="http://www.libpng.org/pub/png/">the
+PNG library</a> and <a
+href="http://www.info-zip.org/pub/infozip/zlib/">ZLib</a>.  Your
+system may have them installed, otherwise you'll need to download and
+install them.</p>
 
 <p>The library consists of three main parts: A collection of standard
 images (including, of course, the deck of cards), functionality to
@@ -45,31 +41,28 @@ it.  In my case, I use <tt>#include "cards.h"</tt> and let the
 <tt>Makefile</tt> worry about how to tell <tt>gcc</tt> where to
 include it from.
 
-<p>If your program responds to keypresses, you'll also need to include
-<tt>X11/keysym.h</tt> to get the keycode definitions (like
-<tt>XK_F1</tt>).
-
-<p>Your program should, in <tt>main()</tt>, call two functions:
+<p>Your program should, in <tt>main()</tt>, call three functions:
 
 <pre>
-  init_table(argc, argv, width, height);
+  init_ace(argc, argv);
+  init_table(width, height);
   table_loop();
 </pre>
 
 Here, <tt>argc</tt> and <tt>argv</tt> are the parameters passed to
 <tt>main()</tt> and <tt>width</tt> and <tt>height</tt> are whatever
 width and height your window ("table") should be.  You'll probably
-want to calculate the size of the table based on the sizes of the
-cards and margins (they're defined in <tt>cards.h</tt>).  The
-<tt>init_table()</tt> call does everything needed to get the X
-interface running.  The <tt>table_loop()</tt> call passes control over
-to the Ace library, and does not return.  Instead, the Ace library
-manages the X interface, and calls functions you define when user
-interaction occurs (see the events section below).
+want to calculate the initial size of the table based on the sizes of
+the cards and margins (they're defined in <tt>cards.h</tt>).  The
+<tt>init_*()</tt> calls do everything needed to get the X interface
+running.  The <tt>table_loop()</tt> call passes control over to the
+Ace library, and does not return.  Instead, the Ace library manages
+the X interface, and calls functions you define when user interaction
+occurs (see the events section below).
 
 <h2>Makefiles and Linking</h2>
 
-You'll need to add<tt> -lXpm -lX11 </tt>to the end of your link line
+You'll need to add<tt> -lpng -lz -lX11 </tt>to the end of your link line
 in your <tt>Makefile</tt>.  You'll also need to link the Ace library,
 which for me means adding <tt>../lib/cardlib.a</tt> but you'll need to
 do whatever is appropriate for where you installed the library.  For
@@ -80,22 +73,22 @@ Example:
 
 <pre>
 sol : sol.o sol-help.o sol-img.o
-	$(CC) $(CFLAGS) -o $@ $^ -lcards -lXpm -lX11
+	$(CC) $(CFLAGS) -o $@ $^ -lcards -lpng -lz -lX11
 </pre>
 
 Note in the example above that your game will probably consist of at
 least three files.  First is the game itself (<tt>sol.o</tt> in this
 example).  Next is the help file (<tt>sol-help.o</tt>), which started
 as HTML and was converted to C by <tt>text2c</tt>.  Last is the image
-library (<tt>sol-img.o</tt>) which is generated from your gifs by
-<tt>gif2pack</tt>.  To build these, you'll need rules like this:
+library (<tt>sol-img.o</tt>) which is generated from your pngs by
+<tt>make-imglib</tt>.  To build these, you'll need rules like this:
 
 <pre>
 %-help.c : %.html ../lib/text2c
 	../lib/text2c $*_help < $< > $@
 
-%-img.c : %.gif ../lib/gif2pack
-	../lib/gif2pack -b appimglib -o $@ $<
+%-img.c : %.png
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ $<
 </pre>
 
 Of course, you'll need to adjust these for your situation.
@@ -130,15 +123,23 @@ also set up for you.  The best way to deal with redraw events is to
 redraw the entire window and let the Ace and X libraries worry about
 limiting you to the parts that were actually exposed.</p>
 
+<dt> <tt>void <b>resize</b>(int width, int height)</tt>
+
+<dd> If you provide this function, your game becomes resizable, and
+you will be responsible for repositioning all the images and stacks
+according to the new size.  You will probably need to call
+<tt>stack_set_card_size</tt> (and read back the actual sizes with
+<tt>stack_get_card_size</tt> and <tt>stack_get_fans</tt>).</p>
+
 <dt> <tt>void <b>key</b>(int k, int x, int y)</tt>
 
 <dd> This function is called each time the user presses a key.  If the
 key they pressed is a regular key with an ASCII equivalent (like `h'),
-the ASCII code is passed as <tt>k</tt>, otherwise the X keycode (like
-XK_F1) is passed.  The location of the pointer is passed as x and y.
-If you do not define this function, a default is provided which exits
-when the user presses ESC or Ctrl-C.  Your routine should do a similar
-check to remain consistent with other Ace programs.</p>
+the ASCII code is passed as <tt>k</tt>, otherwise the keyc ode (like
+KEY_F(1) or KEY_UP) is passed.  The location of the pointer is passed
+as x and y.  If you do not define this function, a default is provided
+which exits when the user presses ESC or Ctrl-C.  Your routine should
+do a similar check to remain consistent with other Ace programs.</p>
 
 <dt> <tt>void <b>click</b>(int x, int y, int b)</tt>
 
@@ -173,29 +174,36 @@ holding the button down.</p>
 
 <dt> <tt><b>CARD_WIDTH</b>,  <b>CARD_HEIGHT</b>, <b>CARD_MARGIN</b></tt>
 
-<dd> These macros define the size of the cards, and the amount of
-space you should allow for between cards and around the edge of the
+<dd> These macros define the default size of the cards, and the amount
+of space you should allow for between cards and around the edge of the
 window.  By using these macros, your program will have the same style
 as other programs written with this library.</p>
 
 <dt> <tt><b>CARD_FAN_DOWN</b>, <b>CARD_FAN_RIGHT</b>,
 <b>CARD_FAN_TBDOWN</b>, <b>CARD_FAN_TBRIGHT</b></tt>
 
-<dd> These macros define the offsets to be used when a stack of cards
-is "fanned" in a given direction (only down and right are supported).
-The <tt>TB</tt> versions are for a "tiny bit" of fanning; just enough
-to hint at the value of the card, whereas the others offset them
-enough to clearly see the value of the card.</p>
+<dd> These macros define the default offsets to be used when a stack
+of cards is "fanned" in a given direction (only down and right are
+supported).  The <tt>TB</tt> versions are for a "tiny bit" of fanning;
+just enough to hint at the value of the card, whereas the others
+offset them enough to clearly see the value of the card.</p>
+
+<dt> <tt>void <b>init_ace</b>(int argc, char **argv)</tt>
+
+<dd> This function initlizes the Ace library.  It processes all
+command line options and connects to the display.  After calling this,
+the global variables <tt>display_width</tt> and
+<tt>display_height</tt> are valid, and <tt>table_width</tt> and
+<tt>table_height</tt> are non-zero if the user requested a specific
+size on the command line.  If you need to see a command line option,
+create an OptionDesc list for your game (see cards.h for details).</p>
 
 <dt> <tt>void <b>init_table</b>(int argc, char **argv, int
 table_width, int table_height)</tt>
 
 <dd> This function sets up the interface to X and creates the initial
-window.  You should pass it the command line arguments <tt>main()</tt>
-was called with, as well as the dimensions of the window.  This
-function must be called exactly once from <tt>main()</tt>.  Upon
-return, any arguments used by the library will be removed from the
-argument list, leaving the extras behind.</p>
+window.  This function must be called exactly once from
+<tt>main()</tt>.</p>
 
 <dt> void <b>table_loop</b>()
 
@@ -207,7 +215,7 @@ program (via events).</p>
 <dt> <tt>Picture *<b>get_picture</b>(char *name)</tt>
 
 <dd> This function loads one of the images that you added to your
-program with the <tt>gif2pack</tt> program (either the
+program with the <tt>make-imglib</tt> program (either the
 application-specific ones, or the standard ones).  This function
 searches one table prefixed by <tt>imglib</tt> (the standard set) and
 one prefixed by <tt>appimglib</tt> (the app-specific set).  Note that
@@ -217,7 +225,6 @@ native X format is deferred until it is needed.  The format of the
 <tt>Picture</tt> type is as follows:
 
 <ul>
-<li><tt>void *pixmap;</tt> - used only by the library
 <li><tt>int w, h;</tt> - the size of the image
 </ul>
 
@@ -441,6 +448,22 @@ being able to see the value of the card.  Valid values for
 <tt>STACK_OFFSET_TBRIGHT</tt>, and <tt>STACK_OFFSET_TBDOWN</tt>.
 The <tt>TB</tt> versions are for a "tiny bit" of offset.</p>
 
+<dt><tt>void <b>stack_set_card_size</b>(int width, int height)</tt>
+
+<dd> Request that the card size be changed, such as after a resize.
+Note that the values you give are requests - the library may need to
+use a different size.  Use <tt>stack_get_card_size</tt> to find out
+what was really used.</p>
+
+<dt><tt>void <b>stack_get_card_size</b>(int *width, int *height)</tt>
+
+<dd> Find out how big the current cards are.</p>
+
+<dt><tt>void <b>stack_get_fans</b>(int *down, int *right, int *tbdown,
+int *tbright)</tt>
+
+<dd> Get the offsets for fan_down, etc.</p>
+
 <dt><tt>void <b>stack_set_empty_picture</b>(Stack *s, Picture *p)</tt>
 
 <dd> This lets you specify a picture that is drawn when the stack is
@@ -616,72 +639,29 @@ that are specific to that application.  For example, the splash screen
 will be specific.  Each application is allowed to create one
 additional library of pictures that can be linked into your program;
 the library has the other one.  To add images, paint your images in
-standard GIF format (no animations, limited to 64 colors per GIF,
-transparency is supported).  Then, call <tt>gif2pack</tt> like this:
+standard PNG format (no animations, transparency is supported).  Then,
+call <tt>make-imglib</tt> like this:
 
 <pre>
-gif2pack -b appimglib -o mypictures.c *.gif
+gif2pack -i $(srcdir) -n appimglib - mypictures.c *.png
 </pre>
 
-Of course, replace <tt>mypictures.c</tt> and <tt>*.gif</tt> with
+Of course, replace <tt>mypictures.c</tt> and <tt>*.png</tt> with
 appropriate stuff for your application.  This will create a C source
-file that contains your image data and some statistics about your
-images to speed up loading (such as the number of rows, number of
-images, uncompressed data size, etc).  Then, compile and link that
+file that contains your image data.  Then, compile and link that
 source with your other sources.  By calling your picture library
 <tt>appimglib</tt>, the ace library functions will automatically use
 it.  When you call <tt>get_picture</tt>, pass the name of the original
-file (<tt>*.gif</tt>) you passed to <tt>gif2pack</tt>, including any
-path information (like <tt>"card/7h.gif"</tt>).</p>
-
-<h2>Graphics - Behind the Scenes</h2>
-
-<p>I had some goals in mind when I designed the graphics storage
-system.  They were (if I remember correctly): easy to edit the images,
-easy to load the images in the app, don't take up a lot of space, and
-avoid patent problems.  So, I decided to use a compressed Xpm format
-for storage in the application.  Here's how everything works:
-
-<ul>
-
-<li>The GIF files are loaded by <tt>gif2pack</tt> and converted to
-uncompressed images in memory.
-
-<li> Each is then converted to an Xpm format, which consists of a
-number of lines of plain ASCII text.
-
-<li>All these text lines are contatenated together, along with some
-additional information about each image, into one big text chunk.
-
-<li>The text is compressed using run-length compression and
-substitution, choosing between them based on which compresses more
-bytes.  This method takes a long time to compress, but decompresses
-very fast with no memory overhead.  The standard library compresses to
-about 4% of its uncompressed size; about half of the aggregate size of
-the original GIFs (it compresses better because it doesn't have to
-start from scratch for each image).
-
-<li>The compressed text and statistics are written to the C source file,
-and linked into your program.
-
-<li>At runtime, the first call to <tt>get_picture</tt> causes the
-compressed data to be uncompressed and converted to an array of Xpm
-data.  <tt>get_picture</tt> just finds the Xpm image and gets its
-dimensions.
-
-<li>When you call <tt>put_picture</tt> for the first time on a
-picture, the Xpm library is called to convert the Xpm data to an X
-pixmap.  The pixmap is cached with the Xpm data so that the conversion
-is never done twice for a given picture, no matter how many times you
-call get_picture.
+file (<tt>*.png</tt>) but without path info or ".png".  Run
+"make-imglib -h" for a detailed list of options.</p>
 
 </ul>
 
 <h2>Calling X Directly</h2>
 
-If you must call X directly (to draw lines or whatnot), look in
-table.c for a list of non-static variables you can use <em>after</em>
-your <tt>init()</tt> function is called.  These are:
+If you must call X directly (to draw lines or whatnot), look in xwin.c
+for a list of non-static variables you can use <em>after</em> your
+<tt>init()</tt> function is called.  These are:
 
 <pre>
 extern Display *display;
@@ -698,6 +678,9 @@ You'll also need to include whatever X headers you need.  Note that
 during exposures, the clip mask in the gc is set as needed.  If you
 must mess with the clip mask, be careful to restore it if you can, or
 create your own GC to draw with.
+
+<p>If you do this, your program will not be portable to other
+windowing systems if/when that ever happens.
 
 <h2>Online Help</h2>
 
@@ -754,10 +737,10 @@ start a new paragraph - but you should use them properly anyway.
 <dd>Line break.  The next "thing" will be at the left margin of the
 next line.  Multiple BR act like one BR.
 
-<dt><tt>&lt;img src=dir/file.gif&gt;</tt>
-<dt><tt>&lt;img align=center src=dir/file.gif&gt;</tt>
-<dt><tt>&lt;img align=left src=dir/file.gif&gt;</tt>
-<dt><tt>&lt;img align=right src=dir/file.gif&gt;</tt>
+<dt><tt>&lt;img src=file&gt;</tt>
+<dt><tt>&lt;img align=center src=file&gt;</tt>
+<dt><tt>&lt;img align=left src=file&gt;</tt>
+<dt><tt>&lt;img align=right src=file&gt;</tt>
 
 <dd>An image.  No quotes around the file name, which is as you'd pass
 to <tt>get_picture</tt> (since that's what it does).  The
@@ -793,5 +776,5 @@ extern char my_help[];
 help("mygame-help.html", my_help);
 </pre>
 
-<hr noshade size=1> <i>Copyright &copy; 1998 <a
+<hr noshade size=1> <i>Copyright &copy; 2001 <a
 href="http://www.delorie.com/users/dj/">DJ Delorie</a></i>
