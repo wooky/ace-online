@@ -36,8 +36,8 @@ typedef struct Stack {
 } Stack;
 
 #define STACK_DEF
-#include "cards.h"
 #include "imagelib.h"
+#include "cards.h"
 
 static Picture **fronts=0;
 static Picture *back=0;

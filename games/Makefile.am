@@ -29,7 +29,7 @@ CLEANFILES = \
 STRIP = @STRIP@
 
 INCLUDES = -I$(srcdir)/../lib $(X_CFLAGS) @PDA@
-LDFLAGS = $(X_LIBS)
+AM_LDFLAGS = $(X_LIBS)
 
 canfield_SOURCES = canfield.c canfield-img.c
 freecell_SOURCES = freecell.c freecell-help.c freecell-img.c

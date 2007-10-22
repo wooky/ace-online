@@ -31,7 +31,7 @@ static Picture *arrow, *no_arrow;
 
 static Stack *deck, *discard, *stacks[7];
 
-static int table_width, table_height;
+extern int table_width, table_height;
 
 static int supress_arrows = 0;
 

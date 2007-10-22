@@ -16,8 +16,8 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #include <stdio.h>
-#include "cards.h"
 #include "imagelib.h"
+#include "cards.h"
 #include "taipeilib.h"
 
 static char *tile_names[] = {

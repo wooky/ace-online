@@ -3,7 +3,7 @@ bin_PROGRAMS = penguins
 test6_SOURCES = test6.c test6c.c
 
 INCLUDES = -I$(srcdir)/../lib $(X_CFLAGS) @PDA@
-LDFLAGS = $(X_LIBS)
+AM_LDFLAGS = $(X_LIBS)
 LDADD = ../lib/libcards.la -lpng -lz -lX11 -lm
 
 EXTRA_DIST = test6.png

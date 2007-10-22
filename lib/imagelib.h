@@ -1,6 +1,10 @@
 #ifndef _IMAGELIB_H_
 #define _IMAGELIB_H_
 
+#ifdef _cards_h_
+#error include imagelib.h before cards.h
+#endif
+
 #ifndef PIXELS_TYPE
 #define PIXELS_TYPE void *
 #endif

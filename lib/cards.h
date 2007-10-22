@@ -56,7 +56,12 @@ void init_table(int table_width, int table_height);
 /* Call this to begin processing events; */
 void table_loop();
 
+#ifndef _IMAGELIB_H_
+typedef struct image_list {
+  int filler;
+} image_list;
 extern struct image_list appimglib_imagelib[];
+#endif
 int register_imagelib(struct image_list *);
 
 /* Really, see image in imagelib.h */

@@ -40,8 +40,8 @@ typedef struct {
 
 int pixel_for (int r, int g, int b);
 
-#include "cards.h"
 #include "imagelib.h"
+#include "cards.h"
 #include "xwin.h"
 
 static char AOP[] = "The Ace of Penguins - ";

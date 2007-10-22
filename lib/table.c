@@ -29,8 +29,8 @@
 #undef CD
 #define CD
 
-#include "cards.h"
 #include "imagelib.h"
+#include "cards.h"
 #include "xwin.h"
 #include "funcs.h"
 
