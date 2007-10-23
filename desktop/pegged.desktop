@@ -5,6 +5,6 @@ Exec=pegged
 Terminal=false
 Type=Application
 Encoding=UTF-8
-Categories=Application;Games;
+Categories=Application;Game;
 X-Desktop-File-Install-Version=0.12
 Icon=ace.png
