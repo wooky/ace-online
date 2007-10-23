@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Solitaire
+Comment=Ace of Penguins Solitaire clone
+Exec=solitaire
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=Application;Games;
+X-Desktop-File-Install-Version=0.12
+Icon=ace.png

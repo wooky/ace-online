@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Pegged
+Comment=Ace of Penguins Pegged clone
+Exec=pegged
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=Application;Games;
+X-Desktop-File-Install-Version=0.12
+Icon=ace.png

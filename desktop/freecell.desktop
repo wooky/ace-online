@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Freecell
+Comment=Ace of Penguins Freecell clone
+Exec=freecell
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=Application;Games;
+X-Desktop-File-Install-Version=0.12
+Icon=ace.png
