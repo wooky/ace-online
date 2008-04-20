@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Spider
+Comment=Ace of Penguins Spider Solitaire
+Exec=spider
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=Application;Game;
+X-Desktop-File-Install-Version=0.12
+Icon=ace.png

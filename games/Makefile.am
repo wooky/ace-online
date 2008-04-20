@@ -7,6 +7,7 @@ bin_PROGRAMS = \
 	minesweeper \
 	pegged \
 	solitaire \
+	spider \
 	taipedit \
 	taipei \
 	thornq
@@ -22,6 +23,7 @@ CLEANFILES = \
 	minesweeper-img.c minesweeper-help.c \
 	pegged-img.c pegged-help.c \
 	solitaire-img.c solitaire-help.c \
+	spider-img.c spider-help.c \
 	taipedit-img.c taipedit-help.c \
 	taipei-img.c taipei-help.c \
 	thornq-img.c thornq-help.c
@@ -39,6 +41,7 @@ merlin_SOURCES = merlin.c merlin-help.c merlin-img.c
 minesweeper_SOURCES = minesweeper.c minesweeper-help.c minesweeper-img.c
 pegged_SOURCES = pegged.c pegged-help.c pegged-img.c
 solitaire_SOURCES = solitaire.c solitaire-help.c solitaire-img.c
+spider_SOURCES = spider.c spider-help.c spider-img.c
 taipedit_SOURCES = taipedit.c taipeilib.c taipedit-help.c taipedit-img.c
 taipei_SOURCES = taipei.c taipeilib.c taipei-help.c taipei-img.c
 thornq_SOURCES = thornq.c thornq-help.c thornq-img.c
@@ -46,8 +49,8 @@ thornq_SOURCES = thornq.c thornq-help.c thornq-img.c
 BUILT_SOURCES = canfield-img.c freecell-help.c freecell-img.c golf-help.c golf-img.c \
 	mastermind-help.c mastermind-img.c merlin-help.c merlin-img.c \
 	minesweeper-help.c minesweeper-img.c pegged-help.c pegged-img.c \
-	solitaire-help.c solitaire-img.c taipedit-help.c taipedit-img.c \
-	taipei-help.c taipei-img.c
+	solitaire-help.c solitaire-img.c spider-help.c spider-img.c \
+	taipedit-help.c taipedit-img.c taipei-help.c taipei-img.c
 
 LDADD = ../lib/libcards.la -lpng -lz -lX11 -lm
 
@@ -100,6 +103,10 @@ pegged-img.c : pegged.png pegged-h.png pegged-p.png ../lib/make-imglib Makefile.
 solitaire-img.c : solitaire.png ../lib/make-imglib Makefile.am
 	../lib/make-imglib -i $(srcdir) -n appimglib - $@ solitaire.png
 
+
+spider-img.c : spider.png golf-arrow.png golf-noarrow.png 
+	../lib/make-imglib Makefile.am
+	../lib/make-imglib -i $(srcdir) -n appimglib - $@ spider.png golf-arrow.png golf-noarrow.png
 
 
 taipei-img.c : ../lib/make-imglib taipei.png taipei-tiles.png Makefile.am

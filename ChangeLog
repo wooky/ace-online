@@ -1,3 +1,11 @@
+2008-04-19  Eric Bachalo  <ebachalo@redhat.com>
+
+	* games/spider.c: Implementation of solitaire game of spider.
+	* games/spider.html: Help for solitaire game of spider.
+	* games/spider.png: Splash screen for solitaire game of spider.
+	* games/Makefile.am: Added Spider build info. 
+	* desktop/spider.desktop: Solitaire desktop file.
+
 2004-06-13  Thimo Neubauer  <thimo@riff.netz>
 
 	* games/thornq.c: Applied patch from Seneca Cunningham so that
