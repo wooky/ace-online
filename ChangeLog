@@ -5,6 +5,12 @@
 	* games/spider.png: Splash screen for solitaire game of spider.
 	* games/Makefile.am: Added Spider build info. 
 	* desktop/spider.desktop: Solitaire desktop file.
+	* Makefile.in: regenerated (in fedora 8)
+	* aclocal.m4: regenerated (in fedora 8)
+	* configure: regenerated (in fedora 8)
+	* games/Makefile.in: regenerated (in fedora 8)
+	* lib/Makefile.in: regenerated (in fedora 8)
+	* tests/Makefile.in: regenerated (in fedora 8)
 
 2004-06-13  Thimo Neubauer  <thimo@riff.netz>
 
