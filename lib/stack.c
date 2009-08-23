@@ -550,6 +550,8 @@ stack_move_cards(Stack *src, int n, Stack *dest)
 void
 stack_flip_card(Stack *src, Stack *dest)
 {
+  if (src->num_cards < 1)
+    return;
   stack_note_undo(src, src->num_cards-1, dest);
   doing_undo = 1;
   if (src != dest)
@@ -589,6 +591,8 @@ stack_note_undo(Stack *src, int n, Stack *dest)
     else
       undo = (Undo *)malloc(max_undo * sizeof(Undo));
   }
+  if (src->num_cards < 1)
+    return;
   undo[num_undo].src = src;
   undo[num_undo].dest = dest;
   undo[num_undo].count = stack_count_cards(src) - n + 1;
