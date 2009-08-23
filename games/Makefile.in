@@ -676,7 +676,6 @@ solitaire-img.c : solitaire.png ../lib/make-imglib Makefile.am
 	../lib/make-imglib -i $(srcdir) -n appimglib - $@ solitaire.png
 
 spider-img.c : spider.png golf-arrow.png golf-noarrow.png 
-	../lib/make-imglib Makefile.am
 	../lib/make-imglib -i $(srcdir) -n appimglib - $@ spider.png golf-arrow.png golf-noarrow.png
 
 taipei-img.c : ../lib/make-imglib taipei.png taipei-tiles.png Makefile.am
