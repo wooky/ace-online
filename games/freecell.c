@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include "imagelib.h"
 #include "cards.h"
 
 #define W CARD_WIDTH

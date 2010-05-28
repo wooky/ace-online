@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "imagelib.h"
 #include "cards.h"
 
 #define W CARD_WIDTH
@@ -182,6 +183,8 @@ redraw()
 
   stack_redraw();
 }
+
+static void check_for_end_of_game();
 
 extern char solitaire_help[];
 
@@ -589,6 +592,7 @@ double_click(int x, int y, int b)
 static void
 drag(int x, int y, int b)
 {
+  drag_active = 1;
   if (b > 1) return;
   drag_active = 1;
   last_n = n_droppable(x, y);
@@ -617,10 +621,12 @@ drop(int x, int y, int b)
 	update_status_text(1);
       }
 
+  drag_active = 0;
+
   stack_drop(dest_stack, last_n);
 
   drag_active = 0;
-  
+
   check_for_end_of_game();
 }
 
