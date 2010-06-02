@@ -377,6 +377,18 @@ xwin_nextevent (XWin_Event *ev)
   char c;
   static int click_button;
   static int last_resize_w=-1, last_resize_h=-1;
+  static int need_expose = 0;
+
+  if (need_expose)
+    {
+      ev->type = ev_expose;
+      ev->x = 0;
+      ev->y = 0;
+      ev->w = last_resize_w;
+      ev->h = last_resize_h;
+      need_expose = 0;
+      return ev_expose;
+    }
 
   while (1)
   {
@@ -397,6 +409,7 @@ xwin_nextevent (XWin_Event *ev)
 	  break;
 	last_resize_w = ev->w;
 	last_resize_h = ev->h;
+	need_expose = 1;
 	return ev_resize;
 	
       case Expose:

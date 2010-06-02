@@ -330,7 +330,7 @@ void
 stack_shuffle(Stack *s)
 {
   int n, c, t;
-  int randomized = 0;
+  static int randomized = 0;
   if (! randomized)
   {
     srand(time(0));
