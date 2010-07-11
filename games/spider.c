@@ -217,6 +217,9 @@ set_arrows()
 	    if (!better) {
 	      if (SUIT(src_top) != SUIT(src_next)) better = 1;
 	    }
+	    if (!better) {
+	      if (FACEDOWNP(src_next)) better = 1;
+	    }
 	    if (better) add = 1;
 	  }
 	  if (n == 0 || VALUE(src_top) != VALUE(src_next)-1 ||
@@ -489,7 +492,7 @@ main(int argc, char **argv)
   if (table_width == 0 || table_height == 0)
     {
       table_width = 10*(W+M) + M;
-      table_height = 480;
+      table_height = 600;
     }
   init_table(table_width, table_height);
   table_loop();
