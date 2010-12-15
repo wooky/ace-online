@@ -378,8 +378,9 @@ xwin_nextevent (XWin_Event *ev)
   static int click_button;
   static int last_resize_w=-1, last_resize_h=-1;
   static int need_expose = 0;
+  static int window_is_mapped = 0;
 
-  if (need_expose)
+  if (need_expose && window_is_mapped)
     {
       ev->type = ev_expose;
       ev->x = 0;
@@ -420,6 +421,8 @@ xwin_nextevent (XWin_Event *ev)
 	ev->y = event.xexpose.y;
 	ev->w = event.xexpose.width;
 	ev->h = event.xexpose.height;
+	window_is_mapped = 1;
+	need_expose = 0;
 	return ev_expose;
 
       case ButtonPress:
