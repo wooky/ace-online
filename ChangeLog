@@ -1,3 +1,8 @@
+2012-03-24  DJ Delorie  <dj@delorie.com>
+
+	* configure.in : ACE 1.4 release
+	* configure: regenerated.
+
 2012-03-24  Jari Aalto <jari.aalto@cante.net>
 
 	* Debian mega-patch
