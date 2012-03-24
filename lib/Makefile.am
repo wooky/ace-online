@@ -24,7 +24,7 @@ images.c : make-imglib Makefile images.in
 	./make-imglib -n cards -i $(srcdir)/png -d images.d $(srcdir)/images.in images.c
 
 make-imglib : make-imglib.c
-	$(BUILD_CC) $(srcdir)/make-imglib.c -o make-imglib -lpng -lz
+	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(srcdir)/make-imglib.c -o make-imglib -lpng -lz
 
 text2c : text2c.c
-	$(BUILD_CC) $(srcdir)/text2c.c -o text2c -lpng -lz
+	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(srcdir)/text2c.c -o text2c -lpng -lz

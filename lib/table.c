@@ -16,6 +16,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
@@ -24,6 +25,8 @@
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
+
+#include "xwin.h"
 
 #define CD printf("%d: %d %d %d %d\n", __LINE__, ex, ey, ew, eh)
 #undef CD

@@ -115,6 +115,8 @@ scan_image_directory ()
 
     fclose (f);
   }
+
+  closedir(dir);
 }
 
 static int print_col = 0;

@@ -32,4 +32,9 @@ int xwin_init (int argc, char **argv);
 void xwin_create (int width, int height);
 int xwin_nextevent (XWin_Event *event);
 
+void xwin_fixed_size (int width, int height);
+void xwin_clip (int x, int y, int w, int h);
+void xwin_noclip ();
+int pixel_for (int r, int g, int b);
+
 #endif

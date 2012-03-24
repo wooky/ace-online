@@ -16,8 +16,10 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #include <stdio.h>
+#include <string.h>
 #include "imagelib.h"
 #include "taipeilib.h"
+#include "cards.h"
 
 unsigned char grid[GRID_SX][GRID_SY][GRID_SZ];
 

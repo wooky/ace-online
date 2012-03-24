@@ -16,6 +16,8 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,6 +26,8 @@
 #include <X11/keysym.h>
 
 #include "cards.h"
+#include "xwin.h"
+#include "table.h"
 
 extern Display *display;
 extern int screen;
