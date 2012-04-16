@@ -1,5 +1,5 @@
-/* The Ace of Penguins - freecell.c
-   Copyright (C) 1998, 2001 DJ Delorie
+/* The Ace of Penguins - spider.c
+   Copyright (C) 1998, 2001 Eric Bachalo
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
