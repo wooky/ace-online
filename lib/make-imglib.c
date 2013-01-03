@@ -257,7 +257,7 @@ main(int argc, char **argv)
     case 'd':
       depfile = fopen(optarg, "w");
       if (!depfile) {
-	fprintf(stderr, "Unable to open dependency file %s for writing\n", depfile);
+	fprintf(stderr, "Unable to open dependency file %s for writing\n", optarg);
 	perror("The error was");
 	exit(1);
       }

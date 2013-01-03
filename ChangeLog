@@ -1,3 +1,8 @@
+2013-01-03  Esa Peuha  <esa.peuha@gmail.com>
+
+	* lib/make-imglib.c (main): Print file name instead of null file
+	pointer if fopen fails.
+
 2012-03-24  DJ Delorie  <dj@delorie.com>
 
 	* configure.in : ACE 1.4 release
