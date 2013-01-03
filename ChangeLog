@@ -1,5 +1,6 @@
 2013-01-03  Esa Peuha  <esa.peuha@gmail.com>
 
+	* games/spider.c (key): Call clear_arrows before stack_undo.
 	* lib/make-imglib.c (main): Print file name instead of null file
 	pointer if fopen fails.
 

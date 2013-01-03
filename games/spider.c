@@ -263,6 +263,7 @@ key(int k, int x, int y)
     break;
   case 8:  case 127:  case KEY_DELETE:
     set_centered_pic(0);
+    clear_arrows();
     stack_undo();
     set_arrows();
     break;
