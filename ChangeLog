@@ -1,3 +1,10 @@
+2013-01-06  Esa Peuha  <esa.peuha@gmail.com>
+
+	* lib/stack.c (stack_move_card): New function.
+	* lib/cards.h: Declare it.
+	* docs/toolkit.html: Document it.
+	* games/solitaire.c, games/spider.c, games/thornq.c: Use it.
+
 2013-01-03  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/spider.c (key): Call clear_arrows before stack_undo.

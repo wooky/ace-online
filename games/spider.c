@@ -65,9 +65,9 @@ start_again()
   stack_shuffle(deck);
   stack_shuffle(deck);
   for (i=0; i<40; i++)
-    stack_move_cards(deck, stack_count_cards(deck)-1, maincells[i%10]);
+    stack_move_card(deck, maincells[i%10], 0);
   for (i=0; i<4; i++)
-    stack_move_cards(deck, stack_count_cards(deck)-1, maincells[i*3]);
+    stack_move_card(deck, maincells[i*3], 0);
   for (i=0; i<10; i++)
     stack_flip_card(deck, maincells[i]);
 

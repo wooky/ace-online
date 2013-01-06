@@ -565,6 +565,10 @@ top of it to be moved to the top of stack <tt>dest</tt>.  The
 face-upness is not changed.  When <tt>n</tt> is zero, all cards are
 moved.</p>
 
+<dt><tt>void <b>stack_move_card</b>(Stack *src, Stack *dest, int auto)</tt>
+
+<dd>Like <tt>stack_move_cards</tt> but moves just one card.</p>
+
 <dt><tt>void <b>stack_flip_card</b>(Stack *src, Stack *dest)</tt>
 
 <dd> Moves the top-most card from <tt>src</tt> to <tt>dest</tt>, and

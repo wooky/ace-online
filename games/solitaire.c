@@ -77,7 +77,7 @@ start_again()
   
   for (p=0; p<7; p++)
     for (pc=0; pc<=p; pc++)
-      stack_move_cards(deck, stack_count_cards(deck)-1, maincells[p]);
+      stack_move_card(deck, maincells[p], 0);
   for (p=0; p<7; p++)
     stack_flip_card(maincells[p], maincells[p]);
 

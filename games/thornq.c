@@ -160,7 +160,7 @@ start_again()
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++)
-      stack_move_cards(deck, stack_count_cards(deck)-1, maincells[i]);
+      stack_move_card(deck, maincells[i], 0);
     for (j = 0; j < 3; j++)
       stack_flip_card(deck, maincells[i]);
   }

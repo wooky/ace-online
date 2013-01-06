@@ -551,6 +551,12 @@ stack_move_cards(Stack *src, int n, Stack *dest)
 }
 
 void
+stack_move_card(Stack *src, Stack *dest, int auto)
+{
+  stack_move_cards(src, src->num_cards - 1, dest);
+}
+
+void
 stack_flip_card(Stack *src, Stack *dest)
 {
   if (src->num_cards < 1)
