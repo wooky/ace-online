@@ -1,5 +1,8 @@
 2013-01-06  Esa Peuha  <esa.peuha@gmail.com>
 
+	* lib/stack.c (stack_flip_cards): New function.
+	* lib/cards.h: Declare it.
+	* docs/toolkit.html: Document it.
 	* lib/stack.c (stack_move_card): New function.
 	* lib/cards.h: Declare it.
 	* docs/toolkit.html: Document it.

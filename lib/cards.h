@@ -185,6 +185,7 @@ int	stack_card_posn(Stack *s, int n, int *x, int *y);
 
 int	stack_move_cards(Stack *src, int n, Stack *dest); /* n is card # */
 void	stack_move_card(Stack *src, Stack *dest, int flag);
+void	stack_flip_cards(Stack *src, Stack *dest, int num, int flag);
 void	stack_flip_card(Stack *src, Stack *dest);
 void	stack_flip_stack(Stack *src, Stack *dest);
 void	stack_animate(Stack *src, Stack *dest);

@@ -557,6 +557,38 @@ stack_move_card(Stack *src, Stack *dest, int flag)
 }
 
 void
+stack_flip_cards(Stack *src, Stack *dest, int num, int flag)
+{
+  int i;
+  if (num <= 0 || num > src->num_cards)
+    return;
+  stack_note_undo(src, src->num_cards - num, dest);
+  if (src == dest)
+  {
+    if (num == 1)
+      src->cards[src->num_cards-1] ^= FACEDOWN;
+    else
+    {
+      int *temp = alloca(num * sizeof(int));
+      for (i = 0; i < num; i++)
+	temp[i] = src->cards[src->num_cards - i - 1] ^ FACEDOWN;
+      memcpy(src->cards + src->num_cards - num, temp, num * sizeof(int));
+    }
+    stack_show_change(src, src->num_cards, src->num_cards - num);
+  }
+  else
+  {
+    stack_expand(dest, dest->num_cards + num);
+    for (i = 0; i < num; i++)
+      dest->cards[dest->num_cards++] = src->cards[--src->num_cards] ^ FACEDOWN;
+    stack_recalculate_size(src);
+    stack_recalculate_size(dest);
+    stack_show_change(src, src->num_cards, src->num_cards + num);
+    stack_show_change(dest, dest->num_cards, dest->num_cards - num);
+  }
+}
+
+void
 stack_flip_card(Stack *src, Stack *dest)
 {
   if (src->num_cards < 1)

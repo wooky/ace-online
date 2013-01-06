@@ -569,6 +569,12 @@ moved.</p>
 
 <dd>Like <tt>stack_move_cards</tt> but moves just one card.</p>
 
+<dt><tt>void <b>stack_flip_cards</b>(Stack *src, Stack *dest, int num, int flag)</tt>
+
+<dd>Take <tt>num</tt> cards from <tt>src</tt>, flip them over, and put
+them on top of <tt>dest</tt>. If <tt>flag</tt> is nonzero then
+<tt>stack_undo</tt> considers this an automatic move.</p>
+
 <dt><tt>void <b>stack_flip_card</b>(Stack *src, Stack *dest)</tt>
 
 <dd> Moves the top-most card from <tt>src</tt> to <tt>dest</tt>, and
