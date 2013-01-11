@@ -162,12 +162,12 @@ start_again()
     for (j = 0; j < 4; j++)
       stack_move_card(deck, maincells[i], 0);
     for (j = 0; j < 3; j++)
-      stack_flip_card(deck, maincells[i]);
+      stack_flip_card(deck, maincells[i], 0);
   }
 
   for (i = 4; i < 8; i++)
     for (j = 0; j < 6; j++)
-      stack_flip_card(deck, maincells[i]);
+      stack_flip_card(deck, maincells[i], 0);
 
   stack_undo_reset();
   set_arrows();
@@ -392,7 +392,7 @@ auto_move()
     c = stack_get_card(maincells[i], stack_count_cards(maincells[i])-1);
 
     if (FACEDOWNP(c))
-      stack_flip_card(maincells[i], maincells[i]);
+      stack_flip_card(maincells[i], maincells[i], 1);
     /*continue;*//* use this to turn over cards yourself */
 
     if (ACE == VALUE(c)) {
@@ -514,7 +514,7 @@ click(int x, int y, int b)
 
   if (FACEDOWNP(stack_get_card(src_stack, stack_count_cards(src_stack)-1))
       == FACEDOWN) {
-    stack_flip_card(src_stack, src_stack);
+    stack_flip_card(src_stack, src_stack, 0);
     return;
   }
 

@@ -575,10 +575,9 @@ moved.</p>
 them on top of <tt>dest</tt>. If <tt>flag</tt> is nonzero then
 <tt>stack_undo</tt> considers this an automatic move.</p>
 
-<dt><tt>void <b>stack_flip_card</b>(Stack *src, Stack *dest)</tt>
+<dt><tt>void <b>stack_flip_card</b>(Stack *src, Stack *dest, int flag)</tt>
 
-<dd> Moves the top-most card from <tt>src</tt> to <tt>dest</tt>, and
-makes it face-up at the same time.</p>
+<dd>Like <tt>stack_flip_cards</tt> but flips just one card.</p>
 
 <dt><tt>void <b>stack_flip_stack</b>(Stack *src, Stack *dest)</tt>
 

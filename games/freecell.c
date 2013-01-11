@@ -51,7 +51,7 @@ start_again()
   stack_shuffle(deck);
   stack_shuffle(deck);
   for (i=0; i<52; i++)
-    stack_flip_card(deck, maincells[i%8]);
+    stack_flip_card(deck, maincells[i%8], 0);
 
   stack_undo_reset();
 }
@@ -293,7 +293,7 @@ auto_move_stack(Stack *s)
   c = stack_get_card(s, n-1);
   if (FACEDOWNP(c))
   {
-    stack_flip_card(s, s);
+    stack_flip_card(s, s, 1);
     c = stack_get_card(s, n-1);
     return 1;
   }

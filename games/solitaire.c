@@ -79,7 +79,7 @@ start_again()
     for (pc=0; pc<=p; pc++)
       stack_move_card(deck, maincells[p], 0);
   for (p=0; p<7; p++)
-    stack_flip_card(maincells[p], maincells[p]);
+    stack_flip_card(maincells[p], maincells[p], 0);
 
   stack_undo_reset();
 
@@ -320,7 +320,7 @@ auto_move_stack(Stack *s)
   c = stack_get_card(s, n-1);
   if (FACEDOWNP(c))
   {
-    stack_flip_card(s, s);
+    stack_flip_card(s, s, 1);
     c = stack_get_card(s, n-1);
     return 1;
   }
@@ -376,13 +376,13 @@ auto_move()
       lowest[COLOR(MAKE_CARD(i, ACE, FACEUP))?1:0] = 0;
   if (stack_count_cards(hole) == 0 && stack_count_cards(deck) > 0)
   {
-    stack_flip_card(deck, hole);
+    stack_flip_card(deck, hole, 1);
 
     if (flip_3s)
     {
       for (i=0; i<2; i++)
         if (stack_count_cards(deck))
-          stack_flip_card(deck, hole);
+          stack_flip_card(deck, hole, 1);
     }
 
     something_moved += 1;
@@ -469,11 +469,11 @@ click(int x, int y, int b)
     }
     else
     {
-      stack_flip_card(deck, hole);
+      stack_flip_card(deck, hole, 0);
       if (flip_3s)
         for (c=0; c<2; c++)
           if (stack_count_cards(deck) != 0)
-	    stack_flip_card(deck, hole);
+	    stack_flip_card(deck, hole, 1);
       if (vegas && vegas_deck_count == 2 && stack_count_cards(deck) == 0)
       {
         display_vegas_xlogo = 1;
@@ -496,7 +496,7 @@ click(int x, int y, int b)
   {
     c = stack_get_card(src_stack, src_n);
     if (FACEDOWNP(c))
-      stack_flip_card(src_stack, src_stack);
+      stack_flip_card(src_stack, src_stack, 0);
 
     stack_begin_drag(src_stack, src_n, x, y);
   }

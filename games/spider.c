@@ -69,7 +69,7 @@ start_again()
   for (i=0; i<4; i++)
     stack_move_card(deck, maincells[i*3], 0);
   for (i=0; i<10; i++)
-    stack_flip_card(deck, maincells[i]);
+    stack_flip_card(deck, maincells[i], 0);
 
   stack_undo_reset();
 
@@ -352,7 +352,8 @@ auto_move()
   for (i=0; i<10; i++) {
     n = stack_count_cards(maincells[i]);
     c = stack_get_card(maincells[i],n-1);
-    if (FACEDOWNP(c)) stack_flip_card(maincells[i], maincells[i]);
+    if (FACEDOWNP(c))
+      stack_flip_card(maincells[i], maincells[i], 1);
     if ((VALUE(c) == ACE) && n >= 13) {
       s = SUIT(c);
       v = 2;
@@ -434,7 +435,7 @@ click(int x, int y, int b)
     clear_arrows();
     if (empty_stack == 0) {
       for (c=0; c<10; c++) {
-	stack_flip_card(deck, maincells[c]);
+	stack_flip_card(deck, maincells[c], c);
       }
     }
   }

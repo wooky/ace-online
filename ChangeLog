@@ -1,3 +1,11 @@
+2013-01-11  Esa Peuha  <esa.peuha@gmail.com>
+
+	* lib/stack.c (stack_flip_card): Reimplement.
+	* lib/cards.h: Change declaration.
+	* docs/toolkit.html: Document it.
+	* games/canfield.c, games/freecell.c, games/golf.c,
+	  games/solitaire.c, games/spider.c, games/thornq.c: Update.
+
 2013-01-06  Esa Peuha  <esa.peuha@gmail.com>
 
 	* lib/stack.c (stack_flip_cards): New function.

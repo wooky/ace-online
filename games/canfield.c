@@ -66,12 +66,12 @@ static void start_again()
 	stack_shuffle(hand);
 
 	for (i = 0; i < CARDS_IN_STOCK; i++)
-		stack_flip_card(hand, stock);
+		stack_flip_card(hand, stock, 0);
 
 	for (i = 0; i < 4; i++)
-		stack_flip_card(hand, tableau[i]);
+		stack_flip_card(hand, tableau[i], 0);
 
-	stack_flip_card(hand, foundation[0]);
+	stack_flip_card(hand, foundation[0], 0);
 
 	text("              ", 90, font_height+5);
 
@@ -245,10 +245,10 @@ static int n_droppable(int x, int y)
 	return n_droppable_s(dest_stack);
 }
 
-static void hand_to_talon() {
-	stack_flip_card(hand, talon);
-	stack_flip_card(hand, talon);
-	stack_flip_card(hand, talon);
+static void hand_to_talon(int flag) {
+	stack_flip_card(hand, talon, flag);
+	stack_flip_card(hand, talon, 1);
+	stack_flip_card(hand, talon, 1);
 }
 
 static int auto_move()
@@ -264,7 +264,7 @@ static int auto_move()
 
 	if (!stack_count_cards(talon)) {
 		if (stack_count_cards(hand)) {
-			hand_to_talon();
+			hand_to_talon(1);
 			m = 1;
 		}
 	} else {
@@ -441,10 +441,7 @@ static void click(int x, int y, int b)
 			return;
 		}
 
-		hand_to_talon();
-/*		stack_flip_card(hand, talon);
-		stack_flip_card(hand, talon);
-		stack_flip_card(hand, talon);*/
+		hand_to_talon(0);
 
 		return;
 	}

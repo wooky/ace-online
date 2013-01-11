@@ -129,9 +129,9 @@ start_again()
 
   for (i=0; i<7; i++)
     for (j=0; j<5; j++)
-      stack_flip_card(deck, stacks[i]);
+      stack_flip_card(deck, stacks[i], 0);
 
-  stack_flip_card(deck, discard);
+  stack_flip_card(deck, discard, 0);
 
   stack_undo_reset();
   show_count();
@@ -245,7 +245,7 @@ click(int x, int y, int b)
 
   if (s == deck)
   {
-    stack_flip_card(deck, discard);
+    stack_flip_card(deck, discard, 0);
     show_count();
     set_arrows();
     check_for_endgame();
@@ -266,7 +266,7 @@ click(int x, int y, int b)
       && VALUE(top_discard) != VALUE(top_stack)-1)
     return;
 
-  stack_flip_card(s, discard);
+  stack_flip_card(s, discard, 0);
   set_arrows();
 
   check_for_endgame();

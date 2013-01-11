@@ -589,22 +589,10 @@ stack_flip_cards(Stack *src, Stack *dest, int num, int flag)
 }
 
 void
-stack_flip_card(Stack *src, Stack *dest)
+stack_flip_card(Stack *src, Stack *dest, int flag)
 {
-  if (src->num_cards < 1)
-    return;
-  stack_note_undo(src, src->num_cards-1, dest);
-  doing_undo = 1;
-  if (src != dest)
-  {
-    src->cards[src->num_cards-1] &= ~FACEDOWN;
-    stack_move_cards(src, src->num_cards-1, dest);
-  }
-  else
-    stack_change_card(dest, dest->num_cards-1,
-		      dest->cards[dest->num_cards-1] & ~FACEDOWN);
-  doing_undo = 0;
-}  
+  stack_flip_cards(src, dest, 1, flag);
+}
 
 void
 stack_flip_stack(Stack *src, Stack *dest)
