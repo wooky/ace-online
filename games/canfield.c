@@ -54,12 +54,12 @@ static void start_again()
 	int i, j;
 
 	for (i = 0; i < 4; i++)
-		stack_flip_stack(tableau[i], hand);
+		stack_flip_stack(tableau[i], hand, 0);
 
 	for (i = 0; i < 4; i++)
-		stack_flip_stack(foundation[i], hand);
+		stack_flip_stack(foundation[i], hand, 0);
 
-	stack_flip_stack(stock, hand);
+	stack_flip_stack(stock, hand, 0);
 
 	stack_shuffle(hand);
 	stack_shuffle(hand);
@@ -436,7 +436,7 @@ static void click(int x, int y, int b)
 
 	if (src_stack == hand) {
 		if (0 == stack_count_cards(hand)) {
-			stack_flip_stack(talon, hand);
+			stack_flip_stack(talon, hand, 0);
 
 			return;
 		}

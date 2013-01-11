@@ -42,11 +42,11 @@ start_again()
   int i;
   for (i=0; i<4; i++)
   {
-    stack_flip_stack(freecells[i], deck);
-    stack_flip_stack(outcells[i], deck);
+    stack_flip_stack(freecells[i], deck, 0);
+    stack_flip_stack(outcells[i], deck, 0);
   }
   for (i=0; i<8; i++)
-    stack_flip_stack(maincells[i], deck);
+    stack_flip_stack(maincells[i], deck, 0);
   stack_shuffle(deck);
   stack_shuffle(deck);
   stack_shuffle(deck);

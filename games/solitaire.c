@@ -65,11 +65,11 @@ static void
 start_again()
 {
   int i, p, pc;
-  stack_flip_stack(hole, deck);
+  stack_flip_stack(hole, deck, 0);
   for (i=0; i<4; i++)
-    stack_flip_stack(outcells[i], deck);
+    stack_flip_stack(outcells[i], deck, 0);
   for (i=0; i<7; i++)
-    stack_flip_stack(maincells[i], deck);
+    stack_flip_stack(maincells[i], deck, 0);
 
   stack_shuffle(deck);
   stack_shuffle(deck);
@@ -465,7 +465,7 @@ click(int x, int y, int b)
 	  return;
 	}
       }
-      stack_flip_stack(hole, deck);
+      stack_flip_stack(hole, deck, 0);
     }
     else
     {

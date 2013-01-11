@@ -595,17 +595,9 @@ stack_flip_card(Stack *src, Stack *dest, int flag)
 }
 
 void
-stack_flip_stack(Stack *src, Stack *dest)
+stack_flip_stack(Stack *src, Stack *dest, int flag)
 {
-  int old_s = src->num_cards;
-  int old_d = dest->num_cards;
-
-  stack_note_undo(src, 0, dest);
-  stack_expand(dest, dest->num_cards + src->num_cards);
-  while (src->num_cards > 0)
-    dest->cards[dest->num_cards++] = src->cards[--src->num_cards] | FACEDOWN;
-  stack_show_change(dest, old_d-1, dest->num_cards-1);
-  stack_show_change(src, old_s-1, 0);
+  stack_flip_cards(src, dest, src->num_cards, flag);
 }
 
 static void

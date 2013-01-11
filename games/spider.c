@@ -51,9 +51,9 @@ start_again()
   clear_arrows();
 
   for (i=0; i<8; i++)
-    stack_flip_stack(outcells[i], deck);
+    stack_flip_stack(outcells[i], deck, 0);
   for (i=0; i<10; i++)
-    stack_flip_stack(maincells[i], deck);
+    stack_flip_stack(maincells[i], deck, 0);
 
   while(stack_take_card(deck) != -1);
   for (d=0; d<2; d++)

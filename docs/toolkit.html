@@ -579,12 +579,9 @@ them on top of <tt>dest</tt>. If <tt>flag</tt> is nonzero then
 
 <dd>Like <tt>stack_flip_cards</tt> but flips just one card.</p>
 
-<dt><tt>void <b>stack_flip_stack</b>(Stack *src, Stack *dest)</tt>
+<dt><tt>void <b>stack_flip_stack</b>(Stack *src, Stack *dest, int flag)</tt>
 
-<dd> Moves all the cards from <tt>src</tt> to <tt>dest</tt> and makes
-all the moved cards face-down.  Note that the order is preserved as if
-the player had flipped the whole stack; the card that used to be on
-the bottom of <tt>src</tt> will be at the top of <tt>dest</tt>.</p>
+<dd>Like <tt>stack_flip_cards</tt> but flips the entire stack.</p>
 
 <dt><tt>void <b>stack_animate</b>(Stack *src, Stack *dest)</tt>
 

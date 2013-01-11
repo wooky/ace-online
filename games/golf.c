@@ -119,9 +119,9 @@ start_again()
 
   clear_arrows();
 
-  stack_flip_stack(discard, deck);
+  stack_flip_stack(discard, deck, 0);
   for (i=0; i<7; i++)
-    stack_flip_stack(stacks[i], deck);
+    stack_flip_stack(stacks[i], deck, 0);
 
   stack_shuffle(deck);
   stack_shuffle(deck);
