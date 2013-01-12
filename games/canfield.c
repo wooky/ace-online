@@ -258,9 +258,9 @@ static int auto_move()
 	for (i = 0; i < 4; ++i)
 		if (!stack_count_cards(tableau[i]))
 			if (stack_count_cards(stock))
-				stack_animate(stock, tableau[i]);
+				stack_animate(stock, tableau[i], 1);
 			else if (stack_count_cards(talon))
-				stack_animate(talon, tableau[i]);				
+				stack_animate(talon, tableau[i], 1);
 
 	if (!stack_count_cards(talon)) {
 		if (stack_count_cards(hand)) {
@@ -274,7 +274,7 @@ static int auto_move()
 			for (j = 0; stack_count_cards(foundation[j]); ++j)
 				;
 
-			stack_animate(talon, foundation[j]);
+			stack_animate(talon, foundation[j], 1);
 			m = 1;
 		}
 
@@ -285,13 +285,12 @@ static int auto_move()
 			if (SUIT(f) == SUIT(c) &&
 			    (VALUE(f) == VALUE(c) - 1 ||
 			     (VALUE(f) == KING && VALUE(c) == ACE))) {
-				stack_animate(talon, foundation[i]);
+				stack_animate(talon, foundation[i], 1);
 				m = 1;
 				break;
 			}
 		}
 	}
-		
 
 	if (stack_count_cards(stock)) {
 		c = stack_get_card(stock, stack_count_cards(stock)-1);
@@ -300,7 +299,7 @@ static int auto_move()
 			for (j = 0; stack_count_cards(foundation[j]); ++j)
 				;
 
-			stack_animate(stock, foundation[j]);
+			stack_animate(stock, foundation[j], 1);
 			m = 1;
 		}
 
@@ -310,7 +309,7 @@ static int auto_move()
 			if (SUIT(f) == SUIT(c) &&
 			    (VALUE(f) == VALUE(c) - 1 ||
 			     (VALUE(f) == KING && VALUE(c) == ACE))) {
-				stack_animate(stock, foundation[i]);
+				stack_animate(stock, foundation[i], 1);
 				m = 1;
 				break;
 			}
@@ -324,7 +323,7 @@ static int auto_move()
 			for (j = 0; stack_count_cards(foundation[j]); ++j)
 				;
 
-			stack_animate(tableau[i], foundation[j]);
+			stack_animate(tableau[i], foundation[j], 1);
 			m = 1;
 			continue;
 		}
@@ -335,7 +334,7 @@ static int auto_move()
 			if (SUIT(f) == SUIT(c) &&
 			    (VALUE(f) == VALUE(c) - 1 ||
 			     (VALUE(f) == KING && VALUE(c) == ACE))) {
-				stack_animate(tableau[i], foundation[j]);
+				stack_animate(tableau[i], foundation[j], 1);
 				m = 1;
 				break;
 			}
@@ -476,15 +475,15 @@ static void double_click(int x, int y, int b)
 			if (stack_count_cards(foundation[i]) == 0)
 				break;
 
-		stack_animate(src_stack, foundation[i]);
+		stack_animate(src_stack, foundation[i], 0);
 		return;
-	}	
+	}
 
 	for (i = 0; i < 4; ++i) {
 		f = stack_get_card(foundation[i], stack_count_cards(foundation[i])-1);
 
 		if (SUIT(f) == SUIT(c) && VALUE(f) == VALUE(c) - 1) {
-			stack_animate(src_stack, foundation[i]);
+			stack_animate(src_stack, foundation[i], 0);
 			return;
 		}
 	}

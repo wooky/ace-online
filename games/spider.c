@@ -367,7 +367,8 @@ auto_move()
 	c =0;
 	while(stack_count_cards(outcells[c++]) != 0);
 	c--;
-	for(v=ACE; v<=KING; v++) stack_animate(maincells[i],outcells[c]);
+	for(v=ACE; v<=KING; v++)
+	  stack_animate(maincells[i], outcells[c], 1);
 	i--; // to flip any cards in this column
       }
     }

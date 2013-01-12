@@ -583,12 +583,13 @@ them on top of <tt>dest</tt>. If <tt>flag</tt> is nonzero then
 
 <dd>Like <tt>stack_flip_cards</tt> but flips the entire stack.</p>
 
-<dt><tt>void <b>stack_animate</b>(Stack *src, Stack *dest)</tt>
+<dt><tt>void <b>stack_animate</b>(Stack *src, Stack *dest, int flag)</tt>
 
 <dd>Moves one card from <tt>src</tt> to <tt>dest</tt>, but does it in
 such a way that the player can <em>see</em> it moving from one to the
-other.  You should use this for auto-play so that the player can see
-what's happening.</p>
+other. If <tt>flag</tt> is nonzero then <tt>stack_undo</tt> considers
+this an automatic move. You should use this for auto-play so that the
+player can see what's happening.</p>
 
 <dt><tt>void <b>stack_undo</b>()</tt>
 

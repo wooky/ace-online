@@ -821,7 +821,7 @@ ms_pause()
 }
 
 void
-stack_animate(Stack *s, Stack *d)
+stack_animate(Stack *s, Stack *d, int flag)
 {
   int x1, y1, x2, y2, x, y, ox, oy;
   double dx, dist;

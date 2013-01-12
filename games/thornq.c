@@ -399,7 +399,7 @@ auto_move()
       for (j = 0; stack_count_cards(outcells[j]); ++j)
 	;
 
-      stack_animate(maincells[i], outcells[j]);
+      stack_animate(maincells[i], outcells[j], 1);
       m = 1;
       continue;
     }
@@ -409,7 +409,7 @@ auto_move()
 
       if (SUIT(f) == SUIT(c) &&
 	  VALUE(f) == VALUE(c) - 1) {
-	stack_animate(maincells[i], outcells[j]);
+	stack_animate(maincells[i], outcells[j], 1);
 	m = 1;
 	break;
       }
@@ -578,7 +578,7 @@ try_moving_from(int i)
 		&& ! FACEDOWNP(f)) {
 	      clear_arrows();
 	      if (j == n-1)
-		stack_animate(maincells[i], src_stack);
+		stack_animate(maincells[i], src_stack, 1);
 	      else
 		stack_move_cards(maincells[i], j, src_stack);
 	      while (auto_move()) ;

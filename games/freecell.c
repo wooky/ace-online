@@ -302,7 +302,7 @@ auto_move_stack(Stack *s)
     for (i=0; i<4; i++)
       if (stack_count_cards(outcells[i]) == 0)
       {
-	stack_animate(s, outcells[i]);
+	stack_animate(s, outcells[i], 1);
 	return 1;
       }
     return 0; /* can't happen? */
@@ -313,7 +313,7 @@ auto_move_stack(Stack *s)
       && VALUE(c) <= lowest[COLOR(c)?0:1] + 2
       && VALUE(c) <= lowest[COLOR(c)?1:0] + 3)
   {
-    stack_animate(s, outcells[pile_for[SUIT(c)]]);
+    stack_animate(s, outcells[pile_for[SUIT(c)]], 1);
     return 1;
   }
   return 0;
@@ -509,7 +509,7 @@ double_click_1(int x, int y, int b)
 	if (f != i && n < cnt && stack_count_cards(maincells[f]))
 	{
 	  if (n == cnt-1)
-	    stack_animate(maincells[i], maincells[f]);
+	    stack_animate(maincells[i], maincells[f], 0);
 	  else
 	    stack_move_cards(maincells[i], n, maincells[f]);
 	  return;
@@ -522,7 +522,7 @@ double_click_1(int x, int y, int b)
 	    (stack_count_cards(maincells[f]) || n))
 	{
 	  if (n == cnt-1)
-	    stack_animate(maincells[i], maincells[f]);
+	    stack_animate(maincells[i], maincells[f], 0);
 	  else
 	    stack_move_cards(maincells[i], n, maincells[f]);
 	  return;
@@ -535,7 +535,7 @@ double_click_1(int x, int y, int b)
 	  int c2 = TOPOF(maincells[f]);
 	  if (f != i && stack_count_cards(maincells[f]) == 0)
 	  {
-	    stack_animate(maincells[i], maincells[f]);
+	    stack_animate(maincells[i], maincells[f], 0);
 	    return;
 	  }
 	}
@@ -545,7 +545,7 @@ double_click_1(int x, int y, int b)
 	int c2 = TOPOF(freecells[f]);
 	if (stack_count_cards(freecells[f]) == 0)
 	{
-	  stack_animate(maincells[i], freecells[f]);
+	  stack_animate(maincells[i], freecells[f], 0);
 	  return;
 	}
       }
@@ -554,7 +554,7 @@ double_click_1(int x, int y, int b)
 	int c2 = TOPOF(outcells[f]);
 	if (SUIT(c2) == SUIT(c) && VALUE(c2) == VALUE(c)-1)
 	{
-	  stack_animate(maincells[i], outcells[f]);
+	  stack_animate(maincells[i], outcells[f], 0);
 	  return;
 	}
       }
@@ -569,7 +569,7 @@ double_click_1(int x, int y, int b)
 	int c2 = TOPOF(maincells[f]);
 	if (COLOR(c2) != COLOR(c) && VALUE(c2) == VALUE(c)+1)
 	{
-	  stack_animate(freecells[i], maincells[f]);
+	  stack_animate(freecells[i], maincells[f], 0);
 	  return;
 	}
       }
@@ -578,7 +578,7 @@ double_click_1(int x, int y, int b)
 	int c2 = TOPOF(maincells[f]);
 	if (stack_count_cards(maincells[f]) == 0)
 	{
-	  stack_animate(freecells[i], maincells[f]);
+	  stack_animate(freecells[i], maincells[f], 0);
 	  return;
 	}
       }
@@ -587,7 +587,7 @@ double_click_1(int x, int y, int b)
 	int c2 = TOPOF(outcells[f]);
 	if (SUIT(c2) == SUIT(c) && VALUE(c2) == VALUE(c)-1)
 	{
-	  stack_animate(freecells[i], outcells[f]);
+	  stack_animate(freecells[i], outcells[f], 0);
 	  return;
 	}
       }

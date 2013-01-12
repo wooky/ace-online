@@ -329,7 +329,7 @@ auto_move_stack(Stack *s)
     for (i=0; i<4; i++)
       if (stack_count_cards(outcells[i]) == 0)
       {
-	stack_animate(s, outcells[i]);
+	stack_animate(s, outcells[i], 1);
 
         winnings += 5;
         update_status_text(1);
@@ -344,7 +344,7 @@ auto_move_stack(Stack *s)
       && VALUE(c) <= lowest[COLOR(c)?0:1] + 2
       && VALUE(c) <= lowest[COLOR(c)?1:0] + 3)
   {
-    stack_animate(s, outcells[pile_for[SUIT(c)]]);
+    stack_animate(s, outcells[pile_for[SUIT(c)]], 1);
 
     winnings += 5;
     update_status_text(1);
