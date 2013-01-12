@@ -194,6 +194,6 @@ void	stack_undo_reset();
 
 void	stack_begin_drag(Stack *s, int n, int x, int y);
 void	stack_continue_drag(int n, int x, int y);
-void	stack_drop(Stack *onto, int n);
+void	stack_drop(Stack *onto, int n, int flag);
 
 #endif

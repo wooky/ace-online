@@ -418,11 +418,11 @@ click(int x, int y, int b)
 
   // abort drag on click of other mousebutton
   if (drag_active) {
-    stack_drop(dest_stack, last_n);
+    stack_drop(dest_stack, last_n, 0);
     drag_active = 0;
     return;
   };
-  
+
   if ((cp == youlose || cp == youwin)
       && (x > table_width/2-cp->w/2
 	  && x < table_width/2+cp->w/2
@@ -625,7 +625,7 @@ drop(int x, int y, int b)
 
   drag_active = 0;
 
-  stack_drop(dest_stack, last_n);
+  stack_drop(dest_stack, last_n, 0);
 
   drag_active = 0;
 

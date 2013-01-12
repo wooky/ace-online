@@ -628,10 +628,12 @@ pass <tt>n</tt> greater than the largest card index (see
 <tt>stack_count_cards</tt>), a special graphic that indicates "drop
 not allowed here" is used.</p>
 
-<dt><tt>void <b>stack_drop</b>(Stack *onto, int n)</tt>
+<dt><tt>void <b>stack_drop</b>(Stack *onto, int n, int flag)</tt>
 
 <dd>This function ends a drag-and-drop operation by specifying which
 cards from the original stack are to be dropped onto <tt>onto</tt>.
+If <tt>flag</tt> is nonzero then <tt>stack_undo</tt> considers this
+an automatic move.
 You may pass the original stack as <tt>onto</tt> or pass <tt>n</tt>
 greater than the largest card index (see <tt>stack_count_cards</tt>)
 to cancel a drag operation. </p>

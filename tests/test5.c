@@ -107,9 +107,9 @@ drop(int x, int y, int b)
 {
   Stack *dest_stack;
   if (src_stack && stack_drag_find(x, y, &dest_stack))
-    stack_drop(dest_stack, src_n);
+    stack_drop(dest_stack, src_n, 0);
   else
-    stack_drop(src_stack, src_n);
+    stack_drop(src_stack, src_n, 0);
 }
 
 static FunctionMapping fmap[] = {

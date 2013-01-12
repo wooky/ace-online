@@ -735,7 +735,7 @@ stack_continue_drag(int n, int x, int y)
 }
 
 void
-stack_drop(Stack *onto, int n)
+stack_drop(Stack *onto, int n, int flag)
 {
   Stack *os = dragging_os;
   if (!dragging_os) return;
@@ -878,7 +878,7 @@ stack_animate(Stack *s, Stack *d, int flag)
     else
       ms_pause();
   }
-  stack_drop(d, sn-1);
+  stack_drop(d, sn-1, flag);
   flush();
   now = ms_time();
   last = now - start;
@@ -930,7 +930,7 @@ old_stack_animate(Stack *s, Stack *d)
     oy = y;
     flush();
   }
-  stack_drop(d, sn-1);
+  stack_drop(d, sn-1, flag);
   flush();
 
   /* Figure out the new speed; we want the visual rate to be

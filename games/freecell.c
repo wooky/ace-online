@@ -622,7 +622,7 @@ drop(int x, int y, int b)
     return;
   }
 
-  stack_drop(dest_stack, last_n);
+  stack_drop(dest_stack, last_n, 0);
   check_for_end_of_game();
 }
 

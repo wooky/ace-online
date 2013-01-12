@@ -670,7 +670,7 @@ drop(int x, int y, int b)
   }
 
   clear_arrows();
-  stack_drop(dest_stack, last_n);
+  stack_drop(dest_stack, last_n, 0);
 
   while (auto_move())
     ;
