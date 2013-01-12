@@ -183,7 +183,7 @@ int	stack_find(int x, int y, Stack **stack_ret, int *n_ret);
 int	stack_drag_find(int x, int y, Stack **stack_ret);
 int	stack_card_posn(Stack *s, int n, int *x, int *y);
 
-int	stack_move_cards(Stack *src, int n, Stack *dest); /* n is card # */
+void	stack_move_cards(Stack *src, Stack *dest, int num, int flag);
 void	stack_move_card(Stack *src, Stack *dest, int flag);
 void	stack_flip_cards(Stack *src, Stack *dest, int num, int flag);
 void	stack_flip_card(Stack *src, Stack *dest, int flag);

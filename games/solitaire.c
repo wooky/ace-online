@@ -560,7 +560,7 @@ double_click(int x, int y, int b)
   if (dest_stack)
   {
     /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
-    stack_move_cards(src_stack, dest_n, dest_stack);
+    stack_move_cards(src_stack, dest_stack, stack_count_cards(src_stack) - dest_n, 0);
     check_for_end_of_game();
     return;
   }
@@ -583,7 +583,7 @@ double_click(int x, int y, int b)
   if (dest_stack)
   {
     /*printf("- move 0x%08x %d 0x%08x\n", src_stack, dest_n, dest_stack);*/
-    stack_move_cards(src_stack, dest_n, dest_stack);
+    stack_move_cards(src_stack, dest_stack, stack_count_cards(src_stack) - dest_n, 0);
     check_for_end_of_game();
     return;
   }

@@ -552,7 +552,7 @@ try_moving_to(int i)
 	    && VALUE(c) == VALUE(f) - 1
 	    && ! FACEDOWNP(c)) {
 	  clear_arrows();
-	  stack_move_cards(src_stack, src_n, maincells[i]);
+	  stack_move_cards(src_stack, maincells[i], stack_count_cards(src_stack) - src_n, 0);
 	  while (auto_move()) ;
 	  set_arrows();
 	  check_for_end_of_game();
@@ -580,7 +580,7 @@ try_moving_from(int i)
 	      if (j == n-1)
 		stack_animate(maincells[i], src_stack, 1);
 	      else
-		stack_move_cards(maincells[i], j, src_stack);
+		stack_move_cards(maincells[i], src_stack, n - j, 1);
 	      while (auto_move()) ;
 	      set_arrows();
 	      check_for_end_of_game();
@@ -621,7 +621,7 @@ double_click(int x, int y, int b)
 	    if (!FACEDOWNP(c) && VALUE(c) == KING)
 	      {
 		clear_arrows();
-		stack_move_cards(maincells[i], j, src_stack);
+		stack_move_cards(maincells[i], src_stack, stack_count_cards(maincells[i]) - j, 0);
 		while (auto_move()) ;
 		set_arrows();
 		check_for_end_of_game();

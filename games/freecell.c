@@ -511,7 +511,7 @@ double_click_1(int x, int y, int b)
 	  if (n == cnt-1)
 	    stack_animate(maincells[i], maincells[f], 0);
 	  else
-	    stack_move_cards(maincells[i], n, maincells[f]);
+	    stack_move_cards(maincells[i], maincells[f], cnt - n, 0);
 	  return;
 	}
       }
@@ -524,7 +524,7 @@ double_click_1(int x, int y, int b)
 	  if (n == cnt-1)
 	    stack_animate(maincells[i], maincells[f], 0);
 	  else
-	    stack_move_cards(maincells[i], n, maincells[f]);
+	    stack_move_cards(maincells[i], maincells[f], cnt - n, 0);
 	  return;
 	}
       }

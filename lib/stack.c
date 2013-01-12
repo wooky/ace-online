@@ -528,32 +528,33 @@ stack_card_posn(Stack *s, int n, int *x, int *y)
 }
 
 
-int
-stack_move_cards(Stack *src, int n, Stack *dest)
+void
+stack_move_cards(Stack *src, Stack *dest, int num, int flag)
 {
-  int count = src->num_cards - n;
-  if (n < 0 || n >= src->num_cards)
-    return 0;
+  if (num <= 0 || num > src->num_cards)
+    return;
 
-  stack_note_undo(src, n, dest);
+  stack_note_undo(src, src->num_cards - num, dest);
 
-  stack_expand(dest, dest->num_cards+count);
+  stack_expand(dest, dest->num_cards + num);
 
-  memcpy(dest->cards+dest->num_cards, src->cards+n, count*sizeof(int));
+  memcpy(dest->cards + dest->num_cards,
+	 src->cards + src->num_cards - num,
+	 num * sizeof(int));
 
-  src->num_cards -= count;
+  src->num_cards -= num;
   stack_recalculate_size(src);
-  stack_show_change(src, src->num_cards, src->num_cards+count);
+  stack_show_change(src, src->num_cards, src->num_cards + num);
 
-  dest->num_cards += count;
+  dest->num_cards += num;
   stack_recalculate_size(dest);
-  stack_show_change(dest, dest->num_cards, dest->num_cards-count);
+  stack_show_change(dest, dest->num_cards, dest->num_cards - num);
 }
 
 void
 stack_move_card(Stack *src, Stack *dest, int flag)
 {
-  stack_move_cards(src, src->num_cards - 1, dest);
+  stack_move_cards(src, dest, 1, flag);
 }
 
 void
@@ -637,9 +638,8 @@ stack_undo()
   num_undo--;
   if (undo[num_undo].dest != undo[num_undo].src)
   {
-    stack_move_cards(undo[num_undo].dest,
-		     stack_count_cards(undo[num_undo].dest)-undo[num_undo].count+1,
-		     undo[num_undo].src);
+    stack_move_cards(undo[num_undo].dest, undo[num_undo].src,
+		     undo[num_undo].count - 1, 0);
   }
   if (undo[num_undo].facedown)
   {
@@ -754,7 +754,7 @@ stack_drop(Stack *onto, int n, int flag)
   }
   else
   {
-    stack_move_cards(os, n, onto);
+    stack_move_cards(os, onto, os->num_cards - n, flag);
     stack_show_change(os, dragging_n, os->num_cards);
   }
 }

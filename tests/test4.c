@@ -100,7 +100,7 @@ drop(int x, int y, int b)
   Stack *dest_stack;
   int dest_n;
   if (src_stack && stack_find(x, y, &dest_stack, &dest_n))
-    stack_move_cards(src_stack, src_n, dest_stack);
+    stack_move_cards(src_stack, dest_stack, stack_count_cards(src_stack) - src_n, 0);
 }
 
 static FunctionMapping fmap[] = {

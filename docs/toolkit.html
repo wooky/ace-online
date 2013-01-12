@@ -558,12 +558,11 @@ exists, <tt>x</tt> and <tt>y</tt> are set to the coordinates of the
 upper left pixel and a non-zero value is returned, else zero is
 returned and <tt>x</tt> and <tt>y</tt> are unchanged.</p>
 
-<dt><tt>int <b>stack_move_cards</b>(Stack *src, int n, Stack *dest)</tt>
+<dt><tt>void <b>stack_move_cards</b>(Stack *src, Stack *dest, int num, int flag)</tt>
 
-<dd> Causes card <tt>n</tt> from stack <tt>src</tt>, and all cards on
-top of it to be moved to the top of stack <tt>dest</tt>.  The
-face-upness is not changed.  When <tt>n</tt> is zero, all cards are
-moved.</p>
+<dd>Move <tt>num</tt> cards from the top of stack <tt>src</tt> to the top of
+stack <tt>dest</tt>. If <tt>flag</tt> is nonzero then <tt>stack_undo</tt>
+considers this an automatic move.</p>
 
 <dt><tt>void <b>stack_move_card</b>(Stack *src, Stack *dest, int flag)</tt>
 
