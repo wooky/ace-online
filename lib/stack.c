@@ -61,16 +61,18 @@ static int dragging_dx, dragging_dy;
 
 typedef struct Undo {
   Stack *src;
-  short count;
-  short facedown;
   Stack *dest;
+  int num;
+  int flag;
 } Undo;
 
 static Undo *undo=0;
 static int max_undo=0, num_undo=0;
 static int doing_undo = 0;
 
-static void stack_note_undo(Stack *src, int n, Stack *dest);
+#define UNDO_FLAG_AUTO 1
+#define UNDO_FLAG_FLIP 2
+static void stack_note_undo(Stack *src, Stack *dest, int num, int flag);
 
 Stack *
 stack_create(int x, int y)
@@ -534,7 +536,7 @@ stack_move_cards(Stack *src, Stack *dest, int num, int flag)
   if (num <= 0 || num > src->num_cards)
     return;
 
-  stack_note_undo(src, src->num_cards - num, dest);
+  stack_note_undo(src, dest, num, flag ? UNDO_FLAG_AUTO : 0);
 
   stack_expand(dest, dest->num_cards + num);
 
@@ -563,7 +565,7 @@ stack_flip_cards(Stack *src, Stack *dest, int num, int flag)
   int i;
   if (num <= 0 || num > src->num_cards)
     return;
-  stack_note_undo(src, src->num_cards - num, dest);
+  stack_note_undo(src, dest, num, flag ? UNDO_FLAG_AUTO | UNDO_FLAG_FLIP : UNDO_FLAG_FLIP);
   if (src == dest)
   {
     if (num == 1)
@@ -602,7 +604,7 @@ stack_flip_stack(Stack *src, Stack *dest, int flag)
 }
 
 static void
-stack_note_undo(Stack *src, int n, Stack *dest)
+stack_note_undo(Stack *src, Stack *dest, int num, int flag)
 {
   if (doing_undo) return;
   if (num_undo >= max_undo)
@@ -617,8 +619,8 @@ stack_note_undo(Stack *src, int n, Stack *dest)
     return;
   undo[num_undo].src = src;
   undo[num_undo].dest = dest;
-  undo[num_undo].count = stack_count_cards(src) - n + 1;
-  undo[num_undo].facedown = src->cards[src->num_cards-1] & FACEDOWN;
+  undo[num_undo].num = num;
+  undo[num_undo].flag = flag;
   num_undo++;
 }
 
@@ -631,20 +633,18 @@ stack_undo_reset()
 void
 stack_undo()
 {
-  Stack *src;
-  if (num_undo == 0)
-    return;
   doing_undo = 1;
-  num_undo--;
-  if (undo[num_undo].dest != undo[num_undo].src)
+  while (num_undo)
   {
-    stack_move_cards(undo[num_undo].dest, undo[num_undo].src,
-		     undo[num_undo].count - 1, 0);
-  }
-  if (undo[num_undo].facedown)
-  {
-    src = undo[num_undo].src;
-    stack_change_card(src, src->num_cards-1, src->cards[src->num_cards-1] | FACEDOWN);
+    num_undo--;
+    if (undo[num_undo].flag & UNDO_FLAG_FLIP)
+      stack_flip_cards(undo[num_undo].dest, undo[num_undo].src,
+		       undo[num_undo].num, 0);
+    else
+      stack_move_cards(undo[num_undo].dest, undo[num_undo].src,
+		       undo[num_undo].num, 0);
+    if (!(undo[num_undo].flag & UNDO_FLAG_AUTO))
+      break;
   }
   doing_undo = 0;
 }

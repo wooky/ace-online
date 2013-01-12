@@ -1,5 +1,8 @@
 2013-01-12  Esa Peuha  <esa.peuha@gmail.com>
 
+	* lib/stack.c (struct Undo): Change members.
+	(stack_note_undo): Change parameters.
+	(stack_undo): Reimplement.
 	* lib/stack.c (stack_move_cards): Change parameters.
 	* lib/cards.h: Change declaration.
 	* docs/toolkit.html: Document it.
