@@ -30,7 +30,7 @@ CLEANFILES = \
 
 STRIP = @STRIP@
 
-INCLUDES = -I$(srcdir)/../lib $(X_CFLAGS) @PDA@
+AM_CPPFLAGS = -I$(srcdir)/../lib $(X_CFLAGS) @PDA@
 AM_LDFLAGS = $(X_LIBS)
 
 canfield_SOURCES = canfield.c canfield-img.c

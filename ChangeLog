@@ -1,3 +1,14 @@
+2015-05-28  Esa Peuha  <esa.peuha@gmail.com>
+
+	* aclocal.m4: Regenerate with aclocal 1.14.1
+	* games/Makefile.am, lib/Makefile.am, tests/Makefile.am:
+	  Change INCLUDES to AM_CPPFLAGS.
+	* lib/Makefile.am: Change make-imglib to make-imglib$(EXEEXT)
+	  and text2c to text2c$(EXEEXT).
+	* compile: New file.
+	* Makefile.in, games/Makefile.in, lib/Makefile.in,
+	  tests/Makefile.in: Regenerate with automake 1.14.1
+
 2013-01-12  Esa Peuha  <esa.peuha@gmail.com>
 
 	* lib/stack.c (struct Undo): Change members.

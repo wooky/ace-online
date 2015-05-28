@@ -1,11 +1,11 @@
 lib_LTLIBRARIES = libcards.la
 
-noinst_PROGRAMS = text2c make-imglib
+noinst_PROGRAMS = text2c$(EXEEXT) make-imglib$(EXEEXT)
 noinst_HEADERS = cards.h
 
 CLEANFILES = images.c images.d
 
-INCLUDES = $(X_CFLAGS) @PDA@
+AM_CPPFLAGS = $(X_CFLAGS) @PDA@
 AM_LDFLAGS = $(X_LIBS)
 
 BUILD_CC = @BUILD_CC@
@@ -23,8 +23,8 @@ libcards_la_SOURCES = table.c help.c stack.c imagelib.c xwin.c \
 images.c : make-imglib Makefile images.in
 	./make-imglib -n cards -i $(srcdir)/png -d images.d $(srcdir)/images.in images.c
 
-make-imglib : make-imglib.c
+make-imglib$(EXEEXT) : make-imglib.c
 	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(srcdir)/make-imglib.c -o make-imglib -lpng -lz
 
-text2c : text2c.c
+text2c$(EXEEXT) : text2c.c
 	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(srcdir)/text2c.c -o text2c -lpng -lz
