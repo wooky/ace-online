@@ -9,6 +9,7 @@
 	* Makefile.in, games/Makefile.in, lib/Makefile.in,
 	  tests/Makefile.in: Regenerate with automake 1.14.1
 	* configure: Regenerate with autoconf 2.69
+	* ltmain.sh: Regenerate with libtool 2.4.2
 
 2013-01-12  Esa Peuha  <esa.peuha@gmail.com>
 
