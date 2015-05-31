@@ -5,6 +5,7 @@
 	* lib/make-imglib.c (tokenize): Return NULL instead of 0 or
 	  nothing.
 	* lib/xwin.c (xwin_nextevent): Ignore spurious MotionNotify events.
+	* lib/xwin.c (PropMwmHints): Change ints to longs for 64-bit support.
 
 2015-05-28  Esa Peuha  <esa.peuha@gmail.com>
 

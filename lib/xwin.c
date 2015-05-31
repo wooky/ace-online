@@ -89,10 +89,10 @@ int help_background;
 /* Motif window hints */
 typedef struct
 {
-  unsigned flags;
-  unsigned functions;
-  unsigned decorations;
-  int inputMode;
+  unsigned long flags;
+  unsigned long functions;
+  unsigned long decorations;
+  long inputMode;
 } PropMotifWmHints;
 
 typedef PropMotifWmHints        PropMwmHints;
