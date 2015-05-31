@@ -202,10 +202,10 @@ tokenize(char *string)
   char *rv;
   if (string) {
     next = string;
-    return;
+    return NULL;
   }
   while (*next && !isgraph(*next)) next++;
-  if (!*next) return 0;
+  if (!*next) return NULL;
   rv = next;
   while (*next && isgraph(*next)) next++;
   if (*next)

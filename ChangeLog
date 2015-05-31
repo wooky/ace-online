@@ -2,6 +2,8 @@
 
 	* INSTALL, config.guess, config.sub, depcomp, install-sh,
 	  missing, mkinstalldirs: Update.
+	* lib/make-imglib.c (tokenize): Return NULL instead of 0 or
+	  nothing.
 
 2015-05-28  Esa Peuha  <esa.peuha@gmail.com>
 
