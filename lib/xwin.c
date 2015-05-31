@@ -441,6 +441,8 @@ xwin_nextevent (XWin_Event *ev)
 
       case MotionNotify:
 
+	if (!(event.xmotion.state & ButtonMask))
+	  break;
 	while (XCheckMaskEvent(display, ButtonMotionMask, &event));
 	if (!XQueryPointer(display, event.xmotion.window,
 			   &root, &child, &root_x, &root_y,
