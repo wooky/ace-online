@@ -36,7 +36,7 @@ extern GC gc;
 extern int help_background, table_background;
 extern int table_width, table_height;
 
-int help_foreground, help_beyondcolor;
+static int help_foreground, help_beyondcolor;
 
 extern int help_is_showing;
 extern void (*help_redraw)(void);

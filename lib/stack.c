@@ -391,9 +391,9 @@ stack_redraw_stack(Stack *s)
   }
 }
 
-int nodrop_x, nodrop_y, nodrop_showing=0;
+static int nodrop_x, nodrop_y, nodrop_showing=0;
 
-void
+static void
 stack_show_nodrop(int x, int y)
 {
   int oldx = nodrop_x;
@@ -410,7 +410,7 @@ stack_show_nodrop(int x, int y)
   put_picture(nodrop, nodrop_x, nodrop_y, 0, 0, nodrop->w, nodrop->h);
 }
 
-void
+static void
 stack_hide_nodrop()
 {
   if (nodrop_showing)

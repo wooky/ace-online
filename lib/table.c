@@ -745,7 +745,7 @@ snap_to_grid(int *x, int *y,
   }
 }
 
-char *suit_spots[] = {
+static char *suit_spots[] = {
   "15",
   "101:",
   "10151:",
@@ -758,8 +758,8 @@ char *suit_spots[] = {
   "00201104240626190:2:"
   };
 
-int spot_xx[] = { 0, 50, 100 };
-int spot_yy[] = { 0, 16, 25, 33, 36, 50, 63, 66, 75, 83, 100 };
+static int spot_xx[] = { 0, 50, 100 };
+static int spot_yy[] = { 0, 16, 25, 33, 36, 50, 63, 66, 75, 83, 100 };
 
 static void
 card_synth2(image *rv)

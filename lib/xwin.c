@@ -48,9 +48,9 @@ int pixel_for (int r, int g, int b);
 static char AOP[] = "The Ace of Penguins - ";
 static char *type_names[] = {"mono", "grey", "color"};
 
-int xrotate = 0;
-int visual_id = 0;
-OptionDesc xwin_options_list[] = {
+static int xrotate = 0;
+static int visual_id = 0;
+static OptionDesc xwin_options_list[] = {
   { "-rotate", OPTION_BOOLEAN, &xrotate },
   { "-visual", OPTION_INTEGER, &visual_id },
   { 0, 0, 0 }
@@ -59,14 +59,15 @@ OptionDesc *xwin_options = xwin_options_list;
 
 Display *display=0;
 int screen=0;
-Visual *visual=0;
-Colormap cmap=0;
+static Visual *visual=0;
+static Colormap cmap=0;
 Window window=0;
-Window rootwin=0;
-GC gc=0, imggc=0, maskgc=0;
-XFontStruct *font;
+static Window rootwin=0;
+GC gc=0;
+static GC imggc=0, maskgc=0;
+static XFontStruct *font;
 int font_width, font_height;
-XVisualInfo vi, *vip;
+static XVisualInfo vi, *vip;
 
 static int broken_xserver = 0;
 
@@ -122,7 +123,7 @@ typedef PropMotifWmHints        PropMwmHints;
 #define PROP_MWM_HINTS_ELEMENTS       PROP_MOTIF_WM_HINTS_ELEMENTS
 
 
-void break_here(){}
+static void break_here(){}
 
 static char *name;
 
@@ -702,7 +703,7 @@ pixel_for (int r, int g, int b)
   abort();
 }
 
-void
+static void
 cvt_rgbt (image *img)
 {
   int r, g, b, a=255, x, y;
@@ -731,7 +732,7 @@ cvt_rgbt (image *img)
       }
 }
 
-void
+static void
 cvt_cpt (image *img)
 {
   int rs, gs, bs, i, x, y;
@@ -776,7 +777,7 @@ cvt_cpt (image *img)
       }
 }
 
-void
+static void
 cvt_gt (image *img)
 {
   int rs, gs, bs, i, x, y;
@@ -799,7 +800,7 @@ cvt_gt (image *img)
       }
 }
 
-struct {
+static struct {
   int png_image_type;
   void (*converter)(image *);
 } image_converters[] = {

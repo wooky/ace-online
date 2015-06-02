@@ -3,6 +3,8 @@
 	* lib/make-imglib.c, lib/xwin.c: Change png_ptr->jmpbuf to
 	  png_jmpbuf(png_ptr)
 	* lib/xwin.c: Change voidp to png_voidp
+	* lib/help.c, lib/imagelib.c, lib/stack.c, lib/table.c, lib/xwin.c:
+	  Mark functions and variables static.
 
 2015-05-31  Esa Peuha  <esa.peuha@gmail.com>
 

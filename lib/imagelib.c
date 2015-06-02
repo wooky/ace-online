@@ -3,7 +3,7 @@
 #include "imagelib.h"
 #include "cards.h"
 
-image_list *image_root = 0;
+static image_list *image_root = 0;
 
 int
 register_imagelib (image_list *images)
