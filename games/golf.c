@@ -266,7 +266,7 @@ click(int x, int y, int b)
       && VALUE(top_discard) != VALUE(top_stack)-1)
     return;
 
-  stack_flip_card(s, discard, 0);
+  stack_move_card(s, discard, 0);
   set_arrows();
 
   check_for_endgame();

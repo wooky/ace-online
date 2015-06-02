@@ -5,6 +5,7 @@
 	* lib/xwin.c: Change voidp to png_voidp
 	* lib/help.c, lib/imagelib.c, lib/stack.c, lib/table.c, lib/xwin.c:
 	  Mark functions and variables static.
+	* games/golf.c: fix display bug.
 
 2015-05-31  Esa Peuha  <esa.peuha@gmail.com>
 
