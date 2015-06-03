@@ -582,6 +582,12 @@ them on top of <tt>dest</tt>. If <tt>flag</tt> is nonzero then
 
 <dd>Like <tt>stack_flip_cards</tt> but flips the entire stack.</p>
 
+<dt><tt>void <b>stack_flip_move_stack</b>(Stack *src, Stack *dest, int flag)</tt>
+
+<dd>Combination of <tt>stack_flip_cards</tt> and <tt>stack_move_cards</tt>;
+assuming that the cards at the top of <tt>src</tt> are face up and the rest are
+face down, first flip those cards that are face up, then move the rest.</p>
+
 <dt><tt>void <b>stack_animate</b>(Stack *src, Stack *dest, int flag)</tt>
 
 <dd>Moves one card from <tt>src</tt> to <tt>dest</tt>, but does it in
