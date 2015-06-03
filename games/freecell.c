@@ -86,7 +86,7 @@ init()
   deck = stack_create(10*W, 0);
   for (s=0; s<4; s++)
     for (v=ACE; v<=KING; v++)
-      stack_add_card(deck, MAKE_CARD(s, v, FACEUP));
+      stack_add_card(deck, MAKE_CARD(s, v, FACEDOWN));
 
   start_again();
 }

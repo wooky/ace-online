@@ -1,3 +1,7 @@
+2015-06-03  Esa Peuha  <esa.peuha@gmail.com>
+
+	* games/freecell.c: fix display bug.
+
 2015-06-02  Esa Peuha  <esa.peuha@gmail.com>
 
 	* lib/make-imglib.c, lib/xwin.c: Change png_ptr->jmpbuf to
