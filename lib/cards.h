@@ -188,6 +188,7 @@ void	stack_move_card(Stack *src, Stack *dest, int flag);
 void	stack_flip_cards(Stack *src, Stack *dest, int num, int flag);
 void	stack_flip_card(Stack *src, Stack *dest, int flag);
 void	stack_flip_stack(Stack *src, Stack *dest, int flag);
+void	stack_flip_move_stack(Stack *src, Stack *dest, int flag);
 void	stack_animate(Stack *src, Stack *dest, int flag);
 void	stack_undo();
 void	stack_undo_reset();

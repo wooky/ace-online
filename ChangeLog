@@ -1,6 +1,8 @@
 2015-06-03  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/freecell.c: fix display bug.
+	* lib/cards.h, lib/stack.c (stack_flip_move_stack): New function.
+	* games/solitaire.c, games/thornq.c: Use stack_flip_move_stack
 
 2015-06-02  Esa Peuha  <esa.peuha@gmail.com>
 

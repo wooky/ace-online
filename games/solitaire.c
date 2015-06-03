@@ -69,7 +69,7 @@ start_again()
   for (i=0; i<4; i++)
     stack_flip_stack(outcells[i], deck, 0);
   for (i=0; i<7; i++)
-    stack_flip_stack(maincells[i], deck, 0);
+    stack_flip_move_stack(maincells[i], deck, 0);
 
   stack_shuffle(deck);
   stack_shuffle(deck);
