@@ -1,3 +1,8 @@
+2015-06-04  Esa Peuha  <esa.peuha@gmail.com>
+
+	* games/solitaire.c (app_options): Mark non-static so that command
+	  line options work.
+
 2015-06-03  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/freecell.c: fix display bug.

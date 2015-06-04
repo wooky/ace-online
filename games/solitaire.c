@@ -59,7 +59,7 @@ static OptionDesc new_options[] = {
   { 0, 0, 0 }
 };
 
-static OptionDesc *app_options = new_options;
+OptionDesc *app_options = new_options;
 
 static void
 start_again()
