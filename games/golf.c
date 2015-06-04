@@ -27,7 +27,7 @@
 #define R CARD_FAN_TBRIGHT
 #define D stack_fan_down
 
-extern int stack_fan_down;
+static int stack_fan_down;
 
 static Picture *splash, *youwin, *youlose;
 static Picture *arrow, *no_arrow;
@@ -171,6 +171,8 @@ init()
       stack_add_card(deck, MAKE_CARD(s, v, FACEDOWN));
 
   arrow_offset = arrow_offset + (W - arrow->w)/2;
+
+  stack_get_fans(&stack_fan_down, NULL, NULL, NULL);
 
   start_again();
 }

@@ -48,8 +48,6 @@
 int table_width=0, table_height=0, table_type;
 int display_width, display_height;
 
-extern int stack_fan_down, stack_fan_right, stack_fan_tbdown, stack_fan_tbright;
-
 static Picture *centered_pic = 0;
 
 static int ex=0, ey=0, ew=0, eh=0;

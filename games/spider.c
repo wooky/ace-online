@@ -104,7 +104,7 @@ init()
 static void
 resize(int w, int h)
 {
-  int margin, offset, cw, ch, s, fd, fr, tfd, tfr;
+  int margin, offset, cw, ch, s, fd;
 
   Picture *empty;
 
@@ -124,7 +124,7 @@ resize(int w, int h)
     stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset));
   stack_move(deck, margin+offset, margin);
 
-  stack_get_fans(&fd, &fr, &tfd, &tfr);
+  stack_get_fans(&fd, NULL, NULL, NULL);
 
   ax = offset + cw/2;
   adx = margin + cw;

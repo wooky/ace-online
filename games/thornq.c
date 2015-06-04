@@ -29,8 +29,6 @@
 #define WIN_H H + M + 23*F
 #define WIN_W 8*W + 9*M
 
-extern int stack_fan_down;
-
 static Picture *xlogo, *splash, *youwin, *youlose, *arrow, *no_arrow;
 static Stack *deck, *outcells[4], *maincells[8];
 static int hint_mode = 0;
@@ -46,7 +44,7 @@ static int ax, adx, ay, ady;
 static void
 resize(int w, int h)
 {
-  int margin, offset, cw, ch, s, fd, fr, tfd, tfr;
+  int margin, offset, cw, ch, s, fd;
   Picture *empty;
 
   stack_set_card_size (w/9, w/9*4/3);
@@ -65,7 +63,7 @@ resize(int w, int h)
   for (s=0; s<8; s++)
     stack_move(maincells[s], offset + s*(cw+margin), ch + (offset<0?0:offset));
 
-  stack_get_fans(&fd, &fr, &tfd, &tfr);
+  stack_get_fans(&fd, NULL, NULL, NULL);
 
   ax = offset + cw/2;
   adx = margin + cw;

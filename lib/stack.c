@@ -46,8 +46,8 @@ static Picture **fronts=0;
 static Picture *back=0;
 static Picture *nodrop=0;
 static int card_width = CARD_WIDTH, card_height = CARD_HEIGHT;
-int stack_fan_down=CARD_FAN_DOWN, stack_fan_right=CARD_FAN_RIGHT;
-int stack_fan_tbdown=CARD_FAN_TBDOWN, stack_fan_tbright=CARD_FAN_TBRIGHT;
+static int stack_fan_down=CARD_FAN_DOWN, stack_fan_right=CARD_FAN_RIGHT;
+static int stack_fan_tbdown=CARD_FAN_TBDOWN, stack_fan_tbright=CARD_FAN_TBRIGHT;
 
 #define INIT_NUM	10
 #define STEP_NUM	10

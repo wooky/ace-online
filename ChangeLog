@@ -2,6 +2,12 @@
 
 	* games/solitaire.c (app_options): Mark non-static so that command
 	  line options work.
+	* lib/stack.c (stack_fan_*): Mark variables static.
+	* lib/table.c: Remove unused extern declarations of stack_fan_*
+	* games/golf.c: Replace reference to stack_fan_down with call to
+	  stack_get_fans.
+	* games/spider.c, games/thornq.c: Don't pass pointers to unused
+	  variables to stack_get_fans.
 
 2015-06-03  Esa Peuha  <esa.peuha@gmail.com>
 
