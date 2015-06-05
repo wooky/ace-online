@@ -576,9 +576,9 @@ try_moving_from(int i)
 		&& ! FACEDOWNP(f)) {
 	      clear_arrows();
 	      if (j == n-1)
-		stack_animate(maincells[i], src_stack, 1);
+		stack_animate(maincells[i], src_stack, 0);
 	      else
-		stack_move_cards(maincells[i], src_stack, n - j, 1);
+		stack_move_cards(maincells[i], src_stack, n - j, 0);
 	      while (auto_move()) ;
 	      set_arrows();
 	      check_for_end_of_game();
