@@ -1,6 +1,7 @@
 2015-06-05  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/thornq.c: Fix undo bug.
+	* lib/stack.c (stack_flip_move_stack): Fix undo bug.
 
 2015-06-04  Esa Peuha  <esa.peuha@gmail.com>
 

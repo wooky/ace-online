@@ -609,7 +609,7 @@ stack_flip_move_stack(Stack *src, Stack *dest, int flag)
   int i;
   for (i = 0; i < src->num_cards && FACEDOWNP(src->cards[i]); i++);
   stack_flip_cards(src, dest, src->num_cards - i, flag);
-  stack_move_cards(src, dest, src->num_cards, flag);
+  stack_move_cards(src, dest, src->num_cards, 1);
 }
 
 static void
