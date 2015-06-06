@@ -24,8 +24,6 @@
 #include <unistd.h>
 #include <math.h>
 
-extern int table_width, table_height;
-
 typedef struct Stack {
   struct Stack *prev, *next;
   int x, y;

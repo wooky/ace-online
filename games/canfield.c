@@ -37,8 +37,6 @@ static Stack *hand, *talon, *stock, *tableau[4], *foundation[4];
 static int base_rank;
 static char base_mesg[14];
 
-extern int table_width, table_height;
-
 static int auto_move();
 
 static void debug(char *s)

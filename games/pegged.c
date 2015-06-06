@@ -28,8 +28,6 @@ static Picture *xlogo, *splash, *youwin, *youlose;
 static Picture *hole, *peg;
 #define RADIUS (peg->w/2)
 
-extern int table_width, table_height;
-
 #define RULES_VH       	1
 #define RULES_TRI	2
 

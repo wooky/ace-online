@@ -26,8 +26,6 @@ unsigned char grid[GRID_SX][GRID_SY][GRID_SZ];
 char *filename;
 int layer;
 
-extern int table_width, table_height;
-
 void
 load(int complain)
 {

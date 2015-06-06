@@ -63,8 +63,6 @@ static int auto_play_mode = 0;
 
 static int title_y=0;
 
-extern int table_width, table_height;
-
 static inline int
 BOMB(int x, int y)
 {

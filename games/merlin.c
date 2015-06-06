@@ -23,8 +23,6 @@
 static Picture *xlogo, *splash, *youwin;
 static Picture *cell, *blank;
 
-extern int table_width, table_height;
-
 static char grid[9];
 
 static char affects[9][9] = {

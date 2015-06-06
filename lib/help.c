@@ -30,11 +30,9 @@
 #include "table.h"
 
 extern Display *display;
-extern int screen;
 extern Window window;
 extern GC gc;
 extern int help_background, table_background;
-extern int table_width, table_height;
 
 static int help_foreground, help_beyondcolor;
 

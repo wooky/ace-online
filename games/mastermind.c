@@ -45,8 +45,6 @@ static Picture *guesses[MOVES][4];
 static Picture *ranks[MOVES][4];
 static Picture *solution[4];
 
-extern int table_width, table_height;
-
 static int active_row, solution_shown;
 
 static int

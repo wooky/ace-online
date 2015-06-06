@@ -28,12 +28,10 @@ static Picture *tiles[9];
 
 static int lbx, lby, lbw, lbh;
 
-extern int table_background;
 extern Display *display;
 extern int screen;
 extern Window window;
 extern GC gc;
-extern int table_width, table_height;
 
 static void
 save()

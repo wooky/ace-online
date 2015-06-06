@@ -136,8 +136,6 @@ static Picture *splash, *youwin, *youlose;
 
 static unsigned char exposures[GRID_SX][GRID_SY][GRID_SZ];
 
-extern int table_width, table_height;
-
 static int selected_x=-1, selected_y=-1, selected_z=-1;
 static int selected_tile = 0;
 

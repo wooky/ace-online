@@ -1,3 +1,10 @@
+2015-06-06  Esa Peuha  <esa.peuha@gmail.com>
+
+	* games/canfield.c, games/golf.c, games/mastermind.c, games/merlin.c,
+	  games/minesweeper.c, games/pegged.c, games/taipedit.c,
+	  games/taipei.c, games/taipeilib.c, lib/help.c, lib/stack.c:
+	  Remove unneeded extern declarations.
+
 2015-06-05  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/thornq.c: Fix undo bug.
