@@ -54,7 +54,6 @@ int register_imagelib(image_list *);
 
 image *alloc_synth_image (image_list *list, int width, int height, int type);
 
-void   get_image_set_display_type (int type);
 image *get_image (char *name, int preferred_width, int preferred_height, int flags);
 /* This means the preferred dimensions are absolute maximums. */
 #define GI_NOT_BIGGER	0x01

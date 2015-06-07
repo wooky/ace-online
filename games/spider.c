@@ -22,7 +22,6 @@
 
 #include "imagelib.h" 
 #include "cards.h"
-void   get_image_set_display_type (int type);
 
 #define W CARD_WIDTH
 #define H CARD_HEIGHT

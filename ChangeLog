@@ -1,3 +1,8 @@
+2015-06-07  Esa Peuha  <esa.peuha@gmail.com>
+
+	* games/spider.c, lib/imagelib.h: Remove declaration of nonexisting
+	  function get_image_set_display_type
+
 2015-06-06  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/canfield.c, games/golf.c, games/mastermind.c, games/merlin.c,
