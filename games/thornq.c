@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "imagelib.h"
+#include "table.h"
 #include "cards.h"
 
 #define W CARD_WIDTH

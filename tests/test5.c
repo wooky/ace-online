@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+#include "table.h"
 #include "cards.h"
 
 #define DOWN 0

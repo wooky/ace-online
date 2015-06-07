@@ -38,6 +38,7 @@ typedef struct Stack {
 
 #define STACK_DEF
 #include "imagelib.h"
+#include "table.h"
 #include "cards.h"
 
 static Picture **fronts=0;
@@ -213,8 +214,6 @@ stack_set_offset(Stack *s, int which_offset)
   invalidate_exposure(s->x, s->y, ow, oh, s->x, s->y, s->w, s->h);
   invalidate(s->x, s->y, s->w, s->h);
 }
-
-extern int get_picture_default_width, get_picture_default_height;
 
 void
 stack_set_card_size(int width, int height)

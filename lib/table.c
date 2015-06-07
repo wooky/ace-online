@@ -26,13 +26,12 @@
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
 
-#include "xwin.h"
-
 #define CD printf("%d: %d %d %d %d\n", __LINE__, ex, ey, ew, eh)
 #undef CD
 #define CD
 
 #include "imagelib.h"
+#include "table.h"
 #include "cards.h"
 #include "xwin.h"
 #include "funcs.h"

@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+
+#include "table.h"
 #include "cards.h"
 
 static Picture *xlogo, *splash, *youwin;

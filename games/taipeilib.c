@@ -18,8 +18,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "imagelib.h"
+#include "table.h"
 #include "taipeilib.h"
-#include "cards.h"
 
 unsigned char grid[GRID_SX][GRID_SY][GRID_SZ];
 

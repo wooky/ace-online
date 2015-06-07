@@ -42,6 +42,7 @@ typedef struct {
 int pixel_for (int r, int g, int b);
 
 #include "imagelib.h"
+#include "table.h"
 #include "cards.h"
 #include "xwin.h"
 
@@ -554,8 +555,6 @@ xwin_restore_clip ()
   else
     XSetClipMask(display, gc, None);
 }
-
-extern int help_is_showing;
 
 void
 clear(int x, int y, int w, int h)

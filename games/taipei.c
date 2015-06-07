@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "imagelib.h"
+#include "table.h"
 #include "cards.h"
 #include "taipeilib.h"
 

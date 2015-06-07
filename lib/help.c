@@ -25,9 +25,9 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#include "table.h"
 #include "cards.h"
 #include "xwin.h"
-#include "table.h"
 
 extern Display *display;
 extern Window window;
@@ -35,11 +35,6 @@ extern GC gc;
 extern int help_background, table_background;
 
 static int help_foreground, help_beyondcolor;
-
-extern int help_is_showing;
-extern void (*help_redraw)(void);
-extern void (*help_click)(int x, int y, int b);
-extern void (*help_key)(int c, int x, int y);
 
 #define STYLE_NONE	0x00
 #define STYLE_B		0x01

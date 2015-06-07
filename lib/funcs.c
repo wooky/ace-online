@@ -18,8 +18,6 @@
 
 #include <stdlib.h>
 #include "funcs.h"
-#include "table.h"
-#include "cards.h"
 
 static void
 default_click_cb(int x, int y, int b)

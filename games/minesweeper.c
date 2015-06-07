@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "table.h"
 #include "cards.h"
 
 #define C_EMPTY	 0

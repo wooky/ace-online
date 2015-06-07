@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "imagelib.h"
-#include "cards.h"
+#include "table.h"
 
 static image_list *image_root = 0;
 

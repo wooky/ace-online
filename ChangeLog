@@ -2,6 +2,16 @@
 
 	* games/spider.c, lib/imagelib.h: Remove declaration of nonexisting
 	  function get_image_set_display_type
+	* lib/table.h: Add everything defined in table.c
+	* lib/cards.h: Remove things now in table.h
+	* games/canfield.c, games/freecell.c, games/golf.c,
+	  games/mastermind.c, games/merlin.c, games/minesweeper.c,
+	  games/pegged.c, games/solitaire.c, games/spider.c,
+	  games/taipedit.c, games/taipei.c, games/taipeilib.c,
+	  games/thornq.c, lib/funcs.c, lib/help.c, lib/imagelib.c,
+	  lib/stack.c, lib/table.c, lib/xwin.c, tests/penguins.c,
+	  tests/test1.c, tests/test3.c, tests/test4.c, tests/test5.c,
+	  tests/test6.c: Update included files.
 
 2015-06-06  Esa Peuha  <esa.peuha@gmail.com>
 

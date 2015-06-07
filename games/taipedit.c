@@ -20,6 +20,8 @@
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+
+#include "table.h"
 #include "cards.h"
 #include "taipeilib.h"
 

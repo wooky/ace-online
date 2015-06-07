@@ -17,6 +17,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "table.h"
 #include "cards.h"
 
 static Picture *cards[4][13];

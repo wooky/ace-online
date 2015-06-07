@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <X11/Xlib.h>
+
+#include "table.h"
 #include "cards.h"
 
 #define W CARD_WIDTH

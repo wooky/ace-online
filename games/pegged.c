@@ -20,9 +20,11 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include "cards.h"
 
 #include <X11/keysym.h>
+
+#include "table.h"
+#include "cards.h"
 
 static Picture *xlogo, *splash, *youwin, *youlose;
 static Picture *hole, *peg;
