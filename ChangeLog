@@ -1,3 +1,8 @@
+2015-06-08  Esa Peuha  <esa.peuha@gmail.com>
+
+	* games/Makefile.am: Fix spider-img.c dependencies.
+	* games/Makefile.in: Update.
+
 2015-06-07  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/spider.c, lib/imagelib.h: Remove declaration of nonexisting

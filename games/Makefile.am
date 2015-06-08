@@ -104,7 +104,7 @@ solitaire-img.c : solitaire.png ../lib/make-imglib Makefile.am
 	../lib/make-imglib -i $(srcdir) -n appimglib - $@ solitaire.png
 
 
-spider-img.c : spider.png golf-arrow.png golf-noarrow.png 
+spider-img.c : spider.png golf-arrow.png golf-noarrow.png ../lib/make-imglib Makefile.am
 	../lib/make-imglib -i $(srcdir) -n appimglib - $@ spider.png golf-arrow.png golf-noarrow.png
 
 
