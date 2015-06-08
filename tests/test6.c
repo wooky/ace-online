@@ -16,6 +16,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #include "table.h"
+#include "imagelib.h"
 #include "cards.h"
 
 static Picture *card, *test6;

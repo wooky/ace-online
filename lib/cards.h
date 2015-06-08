@@ -26,14 +26,6 @@
 #define CARD_FAN_TBDOWN	6
 #define CARD_FAN_TBRIGHT 6
 
-#ifndef _IMAGELIB_H_
-typedef struct image_list {
-  int filler;
-} image_list;
-extern struct image_list appimglib_imagelib[];
-#endif
-int register_imagelib(struct image_list *);
-
 extern void clear(int x, int y, int w, int h);
 extern void flush();
 extern void flushsync();

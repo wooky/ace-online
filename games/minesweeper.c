@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "table.h"
+#include "imagelib.h"
 #include "cards.h"
 
 #define C_EMPTY	 0

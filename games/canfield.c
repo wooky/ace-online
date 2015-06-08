@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "table.h"
+#include "imagelib.h"
 #include "cards.h"
 
 #define W CARD_WIDTH

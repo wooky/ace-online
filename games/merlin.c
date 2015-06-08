@@ -20,6 +20,7 @@
 #include <math.h>
 
 #include "table.h"
+#include "imagelib.h"
 #include "cards.h"
 
 static Picture *xlogo, *splash, *youwin;

@@ -2,6 +2,11 @@
 
 	* games/Makefile.am: Fix spider-img.c dependencies.
 	* games/Makefile.in: Update.
+	* lib/cards.h: Remove fake definition of struct image_list and
+	  declarations of appimglib_imagelib and register_imagelib
+	* games/canfield.c, games/golf.c, games/mastermind.c,
+	  games/merlin.c, games/minesweeper.c, games/pegged.c,
+	  games/taipedit.c, tests/test6.c: Include imagelib.h
 
 2015-06-07  Esa Peuha  <esa.peuha@gmail.com>
 

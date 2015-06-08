@@ -22,6 +22,7 @@
 #include <X11/keysym.h>
 
 #include "table.h"
+#include "imagelib.h"
 #include "cards.h"
 #include "taipeilib.h"
 
