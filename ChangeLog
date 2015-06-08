@@ -7,6 +7,7 @@
 	* games/canfield.c, games/golf.c, games/mastermind.c,
 	  games/merlin.c, games/minesweeper.c, games/pegged.c,
 	  games/taipedit.c, tests/test6.c: Include imagelib.h
+	* lib/xwin.c: Remove redundant declaration of pixel_for
 
 2015-06-07  Esa Peuha  <esa.peuha@gmail.com>
 

@@ -39,8 +39,6 @@ typedef struct {
 
 #define ROT(a,b) if (xrotate) { int t = a; a = b; b = t; }
 
-int pixel_for (int r, int g, int b);
-
 #include "imagelib.h"
 #include "table.h"
 #include "cards.h"
