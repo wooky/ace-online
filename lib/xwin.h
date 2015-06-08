@@ -1,6 +1,7 @@
 #ifndef _XWIN_H_
 #define _XWIN_H_
 
+extern int help_background, table_background;
 
 #define ES_SHIFT	0x01
 #define ES_ALT		0x02

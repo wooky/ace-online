@@ -32,7 +32,6 @@
 extern Display *display;
 extern Window window;
 extern GC gc;
-extern int help_background, table_background;
 
 static int help_foreground, help_beyondcolor;
 

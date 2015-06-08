@@ -8,6 +8,9 @@
 	  games/merlin.c, games/minesweeper.c, games/pegged.c,
 	  games/taipedit.c, tests/test6.c: Include imagelib.h
 	* lib/xwin.c: Remove redundant declaration of pixel_for
+	* lib/xwin.h: Declare help_background and table_background
+	* lib/help.c: Remove declarations of help_background and
+	  table_background
 
 2015-06-07  Esa Peuha  <esa.peuha@gmail.com>
 
