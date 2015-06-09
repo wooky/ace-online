@@ -1,3 +1,7 @@
+2015-06-09  Esa Peuha  <esa.peuha@gmail.com>
+
+	* lib/table.c: Remove unneeded include of X11/xpm.h
+
 2015-06-08  Esa Peuha  <esa.peuha@gmail.com>
 
 	* games/Makefile.am: Fix spider-img.c dependencies.

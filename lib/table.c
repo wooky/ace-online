@@ -24,7 +24,6 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
-#include <X11/xpm.h>
 
 #define CD printf("%d: %d %d %d %d\n", __LINE__, ex, ey, ew, eh)
 #undef CD
