@@ -1,0 +1,17 @@
+.deps
+.libs
+Makefile
+*-help.c
+*-img.c
+canfield
+freecell
+golf
+mastermind
+merlin
+minesweeper
+pegged
+solitaire
+spider
+taipedit
+taipei
+thornq
