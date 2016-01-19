@@ -46,14 +46,20 @@ static int ax, adx, ay, ady;
 static void
 start_again()
 {
-  int i;
+  int i, d, s, v;
 
   clear_arrows();
 
   for (i=0; i<8; i++)
     stack_flip_stack(outcells[i], deck, 0);
   for (i=0; i<10; i++)
-    stack_flip_move_stack(maincells[i], deck, 0);
+    stack_flip_stack(maincells[i], deck, 0);
+
+  while(stack_take_card(deck) != -1);
+  for (d=0; d<2; d++)
+    for (s=0; s<4; s++)
+      for (v=ACE; v<=KING; v++)
+	stack_add_card(deck, MAKE_CARD(s & suit_mask, v, FACEDOWN));
 
   stack_shuffle(deck);
   stack_shuffle(deck);
@@ -73,7 +79,7 @@ start_again()
 static void
 init()
 {
-  int d, s, v;
+  int s;
   Picture *empty;
 
   stack_load_standard_deck();
@@ -92,11 +98,6 @@ init()
   }
 
   deck = stack_create(M, M);
-
-  for (d=0; d<2; d++)
-    for (s=0; s<4; s++)
-      for (v=ACE; v<=KING; v++)
-	stack_add_card(deck, MAKE_CARD(s & suit_mask, v, FACEDOWN));
 
   start_again();
 }
