@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wno-implicit-function-declaration)
 add_link_options(
   -sMODULARIZE -sEXPORT_NAME=createAce
-  -sEXPORTED_FUNCTIONS=_main
+  -sEXPORTED_FUNCTIONS=_main,setValue
   -sEXPORTED_RUNTIME_METHODS=allocateUTF8
   -sNO_FILESYSTEM=1
   -sASYNCIFY -sASYNCIFY_IMPORTS=nextEvent

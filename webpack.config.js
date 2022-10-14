@@ -10,6 +10,18 @@ module.exports = {
     filename: 'ace-online.js',
     path: path.resolve(__dirname, 'build', 'dist'),
   },
+  module: {
+    rules: [
+      {
+        test: /\.in$/,
+        loader: 'csv-loader',
+        options: {
+          delimiter: " ",
+          skipEmptyLines: true,
+        }
+      },
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "wasm/"),
