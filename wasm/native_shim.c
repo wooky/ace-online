@@ -39,9 +39,10 @@ void fill_image(image *dest, int x, int y, int w, int h,
                 int r, int g, int b)
 {
   EM_ASM({
-    const { drawRect } = require("@/drawer");
+    const {drawRect} = require("@/drawer");
     drawRect($0, $1, $2, $3, $4, $5, $6, $7);
-  }, dest != display_image, x, y, w, h, r, g, b);
+  },
+         dest != display_image, x, y, w, h, r, g, b);
 }
 
 void put_image(image *src, int x, int y, int w, int h,
@@ -51,11 +52,13 @@ void put_image(image *src, int x, int y, int w, int h,
   {
     src->synth_func(src);
   }
-  EM_ASM({
-    const { drawImage } = require("@/drawer");
-    const src = $0 ? UTF8ToString($0) : null;
-    drawImage(src, $1, $2, $3, $4, $5, $6, $7);
-  }, src->file_data, x, y, w, h, dest != display_image, dx, dy);
+  EM_ASM(
+      {
+        const {drawImage} = require("@/drawer");
+        const src = $0 ? UTF8ToString($0) : null;
+        drawImage(src, $1, $2, $3, $4, $5, $6, $7, $8);
+      },
+      src->file_data, x, y, w, h, dest != display_image, dx, dy, flags);
 }
 
 void xwin_fixed_size(int width, int height)
@@ -66,12 +69,14 @@ void xwin_fixed_size(int width, int height)
 
 int xwin_nextevent(XWin_Event *ev)
 {
-  EM_ASM({
-    const { setUpEvents } = require("@/event");
-    return Asyncify.handleSleep((wakeUp) => {
-      setUpEvents(wakeUp, setValue, $0);
-    });
-  }, ev);
+  EM_ASM(
+      {
+        const {setUpEvents} = require("@/event");
+        return Asyncify.handleSleep(function (wakeUp) {
+          setUpEvents(wakeUp, setValue, $0);
+        });
+      },
+      ev);
   return 0;
 }
 
