@@ -48,7 +48,6 @@ void fill_image(image *dest, int x, int y, int w, int h,
 void put_image(image *src, int x, int y, int w, int h,
                image *dest, int dx, int dy, int flags)
 {
-  // TODO
   if (src->synth_func)
   {
     src->synth_func(src);
@@ -69,6 +68,11 @@ int xwin_nextevent(XWin_Event *ev)
   return 0;
 }
 
+void flushsync()
+{
+  emscripten_sleep(0);
+}
+
 void help(char *filename, char *text)
 {
   // TODO
@@ -78,13 +82,6 @@ void help(char *filename, char *text)
 void flush()
 {
   // Do nothing.
-  emscripten_log(EM_LOG_WARN, "TODO flush");
-}
-
-void flushsync()
-{
-  // Do nothing.
-  emscripten_log(EM_LOG_WARN, "TODO flushsync");
 }
 
 void xwin_clip(int x, int y, int w, int h)
