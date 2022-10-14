@@ -10,7 +10,6 @@ import { loadImages } from "@/imagelib";
 
   createAce({ noInitialRun: true }).then((Module) => {
     loadImages(Module);
-    Module._setTableSize(canvas.width, canvas.height);
     Module._main();
   });
 })();

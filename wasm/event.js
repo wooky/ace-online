@@ -7,7 +7,12 @@ const ev_resize = 5;
 const ev_expose = 6;
 const ev_quit = 7;
 
-/** @type Function */ let wakeUpFn = null;
+const EVENT_STATE_INITIALIZING = 0;
+const EVENT_STATE_EXPOSING = 1;
+const EVENT_STATE_NORMAL = 2;
+
+let eventState = EVENT_STATE_INITIALIZING;
+/** @type Function */ let wakeUpFn;
 /** @type HTMLCanvasElement */ let canvasObj;
 let setValueFn;
 let ptrObj;
@@ -20,13 +25,24 @@ export function initEvents(canvas) {
 }
 
 export function setUpEvents(wakeUp, setValue, ptr) {
-  const initialize = !wakeUpFn;
   wakeUpFn = wakeUp;
-  if (initialize) {
+  if (eventState === EVENT_STATE_INITIALIZING) {
+    eventState = EVENT_STATE_EXPOSING;
     setValueFn = setValue;
     ptrObj = ptr;
     canvasObj = document.getElementById("game");
     canvasObj.addEventListener("click", onCanvasClick);
+    
+    setEventPointer(ev_resize, {
+      "x": 0,
+      "y": 0,
+      "w": canvasObj.width,
+      "h": canvasObj.height,
+    });
+    wakeUpFn();
+  }
+  else if (eventState === EVENT_STATE_EXPOSING) {
+    eventState = EVENT_STATE_NORMAL;
     setEventPointer(ev_expose, {
       "x": 0,
       "y": 0,

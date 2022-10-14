@@ -1,7 +1,6 @@
 #include <emscripten.h>
 #include <stdlib.h>
 #include "imagelib.h"
-#include "table.h"
 
 /** List of per-application images, located in games/. In WASM, images are added through `addImageFilename`, so this variable is unused. */
 image_list appimglib_imagelib[] = {{0}};
@@ -15,12 +14,6 @@ typedef struct
   int height;
   int frameName;
 } SubImage;
-
-void EMSCRIPTEN_KEEPALIVE setTableSize(int width, int height)
-{
-  table_width = width;
-  table_height = height;
-}
 
 void EMSCRIPTEN_KEEPALIVE addImageFilename(const char *filename, int across, int down, int subImageCount, SubImage *subImages)
 {
