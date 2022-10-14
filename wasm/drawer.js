@@ -1,7 +1,5 @@
-import uuid from "uuid";
-
 /** @type HTMLCanvasElement */ let mainCanvas;
-/** @type Object.<string, HTMLCanvasElement> */ const tempCanvases = {};
+/** @type HTMLCanvasElement */ let tempCanvas;
 
 /**
  * @param {HTMLCanvasElement} canvas 
@@ -13,19 +11,15 @@ export function initDrawer(canvas) {
 /**
  * @param {Number} width
  * @param {Number} height
- * @returns String
  */
 export function allocateTempCanvas(width, height) {
-  const key = uuid.v4();
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  tempCanvases[key] = canvas;
-  return key;
+  tempCanvas = document.createElement("canvas");
+  tempCanvas.width = width;
+  tempCanvas.height = height;
 }
 
 /**
- * @param {String|null} name
+ * @param {boolean} temp
  * @param {Number} x 
  * @param {Number} y 
  * @param {Number} w 
@@ -34,8 +28,8 @@ export function allocateTempCanvas(width, height) {
  * @param {Number} g 
  * @param {Number} b 
  */
-export function drawRect(name, x, y, w, h, r, g, b) {
-  const canvas = getCanvas(name);
+export function drawRect(temp, x, y, w, h, r, g, b) {
+  const canvas = temp ? tempCanvas : mainCanvas;
   const ctx = canvas.getContext("2d");
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -44,33 +38,23 @@ export function drawRect(name, x, y, w, h, r, g, b) {
 }
 
 /**
- * @param {String} src
+ * @param {String|null} src
  * @param {Number} x
  * @param {Number} y
  * @param {Number} w
  * @param {Number} h
- * @param {String|null} dest
+ * @param {boolean} destIsTemp
  * @param {Number} dx
  * @param {Number} dy
  */
-export function drawImage(src, x, y, w, h, dest, dx, dy) {
-  if (!(src in tempCanvases)) {
+export function drawImage(src, x, y, w, h, destIsTemp, dx, dy) {
+  if (src) {
     // TODO
     console.warn("TODO drawImage from", src);
     return;
   }
-  const srcCanvas = getCanvas(src);
-  const destCanvas = getCanvas(dest);
+  const srcCanvas = tempCanvas;
+  const destCanvas = destIsTemp ? tempCanvas : mainCanvas;
   const destCtx = destCanvas.getContext("2d");
   destCtx.drawImage(srcCanvas, x, y, w, h, dx+x, dy+y, w, h);
-  // delete tempCanvases[src]; // TODO
-}
-
-/**
- * 
- * @param {String|null} name
- * @returns HTMLCanvasElement
- */
-function getCanvas(name) {
-  return name ? tempCanvases[name] : mainCanvas;
 }

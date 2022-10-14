@@ -5,9 +5,9 @@
 #include "xwin.h"
 
 extern void nextEvent(XWin_Event *);
-extern const unsigned char* allocateSynthImage(int width, int height);
-extern void fillImage(const unsigned char *name, int x, int y, int w, int h, int r, int g, int b);
-extern void putImage(const unsigned char *srcPtr, int x, int y, int w, int h, const unsigned char *destPtr, int dx, int dy);
+extern void allocateSynthImage(int width, int height);
+extern void fillImage(int temp, int x, int y, int w, int h, int r, int g, int b);
+extern void putImage(const unsigned char *src, int x, int y, int w, int h, int destIsTemp, int dx, int dy);
 
 /** "Alias" for the screen. May be used as the `dest` parameter in some functions. */
 image *display_image;
@@ -43,7 +43,7 @@ void clear(int x, int y, int w, int h)
 void fill_image(image *dest, int x, int y, int w, int h,
                 int r, int g, int b)
 {
-  fillImage(dest == display_image ? 0 : dest->file_data, x, y, w, h, r, g, b);
+  fillImage(dest != display_image, x, y, w, h, r, g, b);
 }
 
 void put_image(image *src, int x, int y, int w, int h,
@@ -52,12 +52,10 @@ void put_image(image *src, int x, int y, int w, int h,
   // TODO
   if (src->synth_func)
   {
-    src->file_data = allocateSynthImage(w, h);
+    allocateSynthImage(w, h);
     src->synth_func(src);
   }
-  putImage(
-      src->file_data, x, y, w, h,
-      dest == display_image ? 0 : dest->file_data, dx, dy);
+  putImage(src->file_data, x, y, w, h, dest != display_image, dx, dy);
 }
 
 void xwin_clip(int x, int y, int w, int h)
