@@ -12,6 +12,9 @@ const ev_quit = 7;
 let setValueFn;
 let ptrObj;
 
+/**
+ * @param {HTMLCanvasElement} canvas 
+ */
 export function initEvents(canvas) {
   canvasObj = canvas;
 }

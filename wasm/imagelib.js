@@ -1,4 +1,4 @@
-import aceTextures from "../build/dist/ace-texture.json";
+import aceTextures from "@build/dist/ace-texture.json";
 
 const images = {};
 

@@ -11,6 +11,10 @@ module.exports = {
     path: path.resolve(__dirname, 'build', 'dist'),
   },
   resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "wasm/"),
+      "@build": path.resolve(__dirname, "build/"),
+    },
     fallback: {
       "crypto": false,
       "path": false,

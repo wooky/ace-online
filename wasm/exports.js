@@ -1,6 +1,6 @@
 mergeInto(LibraryManager.library, {
   nextEvent: function (ptr) {
-    const { setUpEvents } = require("../wasm/event");
+    const { setUpEvents } = require("@/event");
     return Asyncify.handleSleep((wakeUp) => {
       setUpEvents(wakeUp, setValue, ptr);
     });
@@ -11,7 +11,7 @@ mergeInto(LibraryManager.library, {
    * @param {Number} height
    */
   allocateSynthImage: function (width, height) {
-    const { allocateTempCanvas } = require("../wasm/drawer");
+    const { allocateTempCanvas } = require("@/drawer");
     allocateTempCanvas(width, height);
   },
 
@@ -26,7 +26,7 @@ mergeInto(LibraryManager.library, {
    * @param {Number} b 
    */
   fillImage: function (temp, x, y, w, h, r, g, b) {
-    const { drawRect } = require("../wasm/drawer");
+    const { drawRect } = require("@/drawer");
     drawRect(temp, x, y, w, h, r, g, b);
   },
 
@@ -41,7 +41,7 @@ mergeInto(LibraryManager.library, {
    * @param {Number} dy
    */
   putImage: function (srcPtr, x, y, w, h, destIsTemp, dx, dy) {
-    const { drawImage } = require("../wasm/drawer");
+    const { drawImage } = require("@/drawer");
     const src = srcPtr ? UTF8ToString(srcPtr) : null;
     drawImage(src, x, y, w, h, destIsTemp, dx, dy);
   },

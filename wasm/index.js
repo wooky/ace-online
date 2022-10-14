@@ -1,7 +1,7 @@
-import createAce from "../build/ace-online";
-import { initDrawer } from "./drawer";
-import { initEvents } from "./event";
-import { loadImages } from "./imagelib";
+import createAce from "@build/ace-online";
+import { initDrawer } from "@/drawer";
+import { initEvents } from "@/event";
+import { loadImages } from "@/imagelib";
 
 (function () {
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
