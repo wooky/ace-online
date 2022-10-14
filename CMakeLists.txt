@@ -10,8 +10,6 @@ find_program(NPM
   REQUIRED
 )
 
-set(JS_EXPORTS "${CMAKE_CURRENT_SOURCE_DIR}/wasm/exports.js")
-
 set(CMAKE_C_COMPILER ${EMCC})
 set(CMAKE_CXX_COMPILER ${EMCC})
 set(CMAKE_CXX_STANDARD 11)
@@ -21,8 +19,7 @@ add_link_options(
   -sEXPORTED_FUNCTIONS=_main,setValue
   -sEXPORTED_RUNTIME_METHODS=allocateUTF8
   -sNO_FILESYSTEM=1
-  -sASYNCIFY -sASYNCIFY_IMPORTS=nextEvent
-  --js-library ${JS_EXPORTS}
+  -sASYNCIFY -sASYNCIFY_IMPORTS=nextEvent,emscripten_asm_const_int
 )
 
 add_executable(ace-online
@@ -42,5 +39,4 @@ target_include_directories(ace-online PUBLIC
 )
 set_target_properties(ace-online PROPERTIES
   OUTPUT_NAME "ace-online.js"
-  LINK_DEPENDS ${JS_EXPORTS}
 )
