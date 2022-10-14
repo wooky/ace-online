@@ -140,6 +140,11 @@ function generateMouseEvent(button) {
  * @param {KeyboardEvent} event
  */
 function onCanvasKeyPress(event) {
+  //Stop quit events from going through
+  if (event.key == 'q') {
+    return;
+  }
+
   const mouseEvent = generateMouseEvent(null);
   let key = 0;
   if (event.key.length == 1) {

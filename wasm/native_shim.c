@@ -64,7 +64,6 @@ void xwin_fixed_size(int width, int height)
 int xwin_nextevent(XWin_Event *ev)
 {
   nextEvent(ev);
-  emscripten_log(EM_LOG_DEBUG, "Got event type=%d x=%d y=%d w=%d h=%d", ev->type, ev->x, ev->y, ev->w, ev->h);
   return 0;
 }
 
