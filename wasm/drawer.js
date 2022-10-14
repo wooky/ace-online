@@ -16,8 +16,12 @@ export async function initDrawer(canvas) {
   texture.src = textureUrl;
   await texture.decode();
   tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
+  resizeCanvases();
+}
+
+export function resizeCanvases() {
+  mainCanvas.width = tempCanvas.width = mainCanvas.parentElement.offsetWidth;
+  mainCanvas.height = tempCanvas.height = mainCanvas.parentElement.offsetHeight - 4;
 }
 
 /**

@@ -52,7 +52,6 @@ export function initEvents(canvas) {
 export function setUpEvents(wakeUp, setValue, ptr) {
   wakeUpFn = wakeUp;
   if (eventState === EVENT_STATE_INITIALIZING) {
-    eventState = EVENT_STATE_EXPOSING;
     setValueFn = setValue;
     ptrObj = ptr;
     canvasObj = document.getElementById("game");
@@ -61,13 +60,7 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     canvasObj.addEventListener("mouseup", onCanvasMouseUp);
     canvasObj.addEventListener("keypress", onCanvasKeyPress);
 
-    setEventPointer(ev_resize, {
-      "x": 0,
-      "y": 0,
-      "w": canvasObj.width,
-      "h": canvasObj.height,
-    });
-    wakeUpFn();
+    emitResizeEvent();
   }
   else if (eventState === EVENT_STATE_EXPOSING) {
     eventState = EVENT_STATE_NORMAL;
@@ -83,6 +76,17 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     // Just in case
     setEventPointer(ev_none, {});
   }
+}
+
+export function emitResizeEvent() {
+  eventState = EVENT_STATE_EXPOSING;
+  setEventPointer(ev_resize, {
+    "x": 0,
+    "y": 0,
+    "w": canvasObj.width,
+    "h": canvasObj.height,
+  });
+  wakeUpFn();
 }
 
 /**
