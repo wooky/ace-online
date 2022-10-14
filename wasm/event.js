@@ -5,7 +5,30 @@ const ev_buttonup = 3;
 const ev_motion = 4;
 const ev_resize = 5;
 const ev_expose = 6;
-const ev_quit = 7;
+
+const KEY_MAPPINGS = {
+  "F1": 0x101,
+  "F2": 0x102,
+  "F3": 0x103,
+  "F4": 0x104,
+  "F5": 0x105,
+  "F6": 0x106,
+  "F7": 0x107,
+  "F8": 0x108,
+  "F9": 0x109,
+  "F10": 0x10a,
+  "F11": 0x10b,
+  "F12": 0x10c,
+  "Delete": 0x200,
+  "Backspace": 0x200,
+  "ArrowUp": 0x201,
+  "ArrowDown": 0x202,
+  "ArrowLeft": 0x203,
+  "ArrowRight": 0x204,
+  "PageUp": 0x205,
+  "PageDown": 0x206,
+  "Home": 0x207,
+};
 
 const EVENT_STATE_INITIALIZING = 0;
 const EVENT_STATE_EXPOSING = 1;
@@ -17,6 +40,7 @@ let eventState = EVENT_STATE_INITIALIZING;
 let setValueFn;
 let ptrObj;
 let isMouseDown = false;
+/** @type MouseEvent */ let lastMouseEvent;
 
 /**
  * @param {HTMLCanvasElement} canvas 
@@ -35,6 +59,7 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     canvasObj.addEventListener("mousedown", onCanvasMouseDown);
     canvasObj.addEventListener("mousemove", onCanvasDrag);
     canvasObj.addEventListener("mouseup", onCanvasMouseUp);
+    canvasObj.addEventListener("keypress", onCanvasKeyPress);
 
     setEventPointer(ev_resize, {
       "x": 0,
@@ -64,16 +89,18 @@ export function setUpEvents(wakeUp, setValue, ptr) {
  * @param {MouseEvent} event 
  */
 function onCanvasMouseDown(event) {
+  lastMouseEvent = event;
   isMouseDown = true;
-  makeMouseEvent(event, ev_buttondown)
+  makeMouseEvent(ev_buttondown)
 }
 
 /**
  * @param {MouseEvent} event
  */
 function onCanvasDrag(event) {
+  lastMouseEvent = event;
   if (isMouseDown) {
-    makeMouseEvent(event, ev_motion);
+    makeMouseEvent(ev_motion);
   }
 }
 
@@ -81,28 +108,52 @@ function onCanvasDrag(event) {
  * @param {MouseEvent} event
  */
 function onCanvasMouseUp(event) {
+  lastMouseEvent = event;
   isMouseDown = false;
-  makeMouseEvent(event, ev_buttonup);
+  makeMouseEvent(ev_buttonup);
 }
 
-/**
- * @param {MouseEvent} event
- */
-function makeMouseEvent(event, type) {
+function makeMouseEvent(type) {
   let button = 1;
-  switch (event.button) {
+  switch (lastMouseEvent.button) {
     case 0: button = 1; break;
     case 1: button = 2; break;
     case 2: button = 3; break;
   }
 
   const rect = canvasObj.getBoundingClientRect();
-  setEventPointer(type, {
+  setEventPointer(type, generateMouseEvent());
+  wakeUpFn();
+}
+
+function generateMouseEvent(button) {
+  const rect = canvasObj.getBoundingClientRect();
+  return {
     "button": button,
-    "x": event.clientX - rect.left,
-    "y": event.clientY - rect.top,
+    "x": lastMouseEvent.clientX - rect.left,
+    "y": lastMouseEvent.clientY - rect.top,
     "time": Date.now(),
-  })
+  };
+}
+
+/**
+ * @param {KeyboardEvent} event
+ */
+function onCanvasKeyPress(event) {
+  const mouseEvent = generateMouseEvent(null);
+  let key = 0;
+  if (event.key.length == 1) {
+    key = event.key.charCodeAt(0);
+  }
+  else if (event.key in KEY_MAPPINGS) {
+    key = KEY_MAPPINGS[event.key];
+  }
+
+  setEventPointer(ev_keypress, {
+    "key": key,
+    "x": mouseEvent.x,
+    "y": mouseEvent.y,
+  });
   wakeUpFn();
 }
 
