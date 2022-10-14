@@ -1,11 +1,17 @@
+import { getImage } from "@/imagelib";
+import textureUrl from "@build/dist/ace-texture.png";
+
+const texture = new Image();
 /** @type HTMLCanvasElement */ let mainCanvas;
 /** @type HTMLCanvasElement */ let tempCanvas;
 
 /**
  * @param {HTMLCanvasElement} canvas 
  */
-export function initDrawer(canvas) {
+export async function initDrawer(canvas) {
   mainCanvas = canvas;
+  texture.src = textureUrl;
+  await texture.decode();
 }
 
 /**
@@ -48,13 +54,14 @@ export function drawRect(temp, x, y, w, h, r, g, b) {
  * @param {Number} dy
  */
 export function drawImage(src, x, y, w, h, destIsTemp, dx, dy) {
+  let srcCanvas = tempCanvas, sx = 0, sy = 0;
   if (src) {
-    // TODO
-    console.warn("TODO drawImage from", src);
-    return;
+    const frame = getImage(src);
+    sx = frame.frame.x;
+    sy = frame.frame.y;
+    srcCanvas = texture;
   }
-  const srcCanvas = tempCanvas;
   const destCanvas = destIsTemp ? tempCanvas : mainCanvas;
   const destCtx = destCanvas.getContext("2d");
-  destCtx.drawImage(srcCanvas, x, y, w, h, dx+x, dy+y, w, h);
+  destCtx.drawImage(srcCanvas, sx + x, sy + y, w, h, dx + x, dy + y, w, h);
 }

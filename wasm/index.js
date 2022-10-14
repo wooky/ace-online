@@ -3,9 +3,9 @@ import { initDrawer } from "@/drawer";
 import { initEvents } from "@/event";
 import { loadImages } from "@/imagelib";
 
-(function () {
+(async function () {
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
-  initDrawer(canvas);
+  await initDrawer(canvas);
   initEvents(canvas);
 
   createAce({ noInitialRun: true }).then((Module) => {

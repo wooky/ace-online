@@ -35,3 +35,7 @@ export function loadImages(Module) {
     Module._free(subImages);
   }
 }
+
+export function getImage(name) {
+  return aceTextures.frames[name];
+}

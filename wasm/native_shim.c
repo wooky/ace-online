@@ -58,12 +58,6 @@ void put_image(image *src, int x, int y, int w, int h,
   putImage(src->file_data, x, y, w, h, dest != display_image, dx, dy);
 }
 
-void xwin_clip(int x, int y, int w, int h)
-{
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO xwin_clip");
-}
-
 void xwin_fixed_size(int width, int height)
 {
   // TODO
@@ -75,12 +69,6 @@ int xwin_nextevent(XWin_Event *ev)
   nextEvent(ev);
   emscripten_log(EM_LOG_DEBUG, "Got event type=%d x=%d y=%d w=%d h=%d", ev->type, ev->x, ev->y, ev->w, ev->h);
   return 0;
-}
-
-void xwin_noclip()
-{
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO xwin_noclip");
 }
 
 void help(char *filename, char *text)
@@ -95,6 +83,16 @@ void flush()
 }
 
 void flushsync()
+{
+  // Do nothing.
+}
+
+void xwin_clip(int x, int y, int w, int h)
+{
+  // Do nothing.
+}
+
+void xwin_noclip()
 {
   // Do nothing.
 }
