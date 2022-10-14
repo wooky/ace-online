@@ -17,7 +17,6 @@ set(CMAKE_CXX_COMPILER ${EMCC})
 set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wno-implicit-function-declaration)
 add_link_options(
-  -lembind
   -sMODULARIZE -sEXPORT_NAME=createAce
   -sEXPORTED_FUNCTIONS=_main
   -sEXPORTED_RUNTIME_METHODS=allocateUTF8
@@ -30,11 +29,11 @@ add_executable(ace-online
   "${CMAKE_CURRENT_SOURCE_DIR}/games/thornq.c"
 
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/funcs.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/imagelib.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/stack.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/table.c"
   
   "${CMAKE_CURRENT_SOURCE_DIR}/wasm/js_callback.c"
-  "${CMAKE_CURRENT_SOURCE_DIR}/wasm/imagelib_shim.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/wasm/native_shim.c"
 )
 

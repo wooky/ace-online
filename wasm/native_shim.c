@@ -5,6 +5,7 @@
 #include "xwin.h"
 
 extern void nextEvent(XWin_Event *);
+extern const unsigned char* allocateSynthImage(int width, int height);
 extern void fillImage(const unsigned char *name, int x, int y, int w, int h, int r, int g, int b);
 extern void putImage(const unsigned char *srcPtr, int x, int y, int w, int h, const unsigned char *destPtr, int dx, int dy);
 
@@ -51,6 +52,7 @@ void put_image(image *src, int x, int y, int w, int h,
   // TODO
   if (src->synth_func)
   {
+    src->file_data = allocateSynthImage(w, h);
     src->synth_func(src);
   }
   putImage(
