@@ -16,6 +16,7 @@ let eventState = EVENT_STATE_INITIALIZING;
 /** @type HTMLCanvasElement */ let canvasObj;
 let setValueFn;
 let ptrObj;
+let isMouseDown = false;
 
 /**
  * @param {HTMLCanvasElement} canvas 
@@ -31,8 +32,10 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     setValueFn = setValue;
     ptrObj = ptr;
     canvasObj = document.getElementById("game");
-    canvasObj.addEventListener("click", onCanvasClick);
-    
+    canvasObj.addEventListener("mousedown", onCanvasMouseDown);
+    canvasObj.addEventListener("mousemove", onCanvasDrag);
+    canvasObj.addEventListener("mouseup", onCanvasMouseUp);
+
     setEventPointer(ev_resize, {
       "x": 0,
       "y": 0,
@@ -51,12 +54,55 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     });
     wakeUpFn();
   }
+  else {
+    // Just in case
+    setEventPointer(ev_none, {});
+  }
 }
 
 /**
  * @param {MouseEvent} event 
  */
-function onCanvasClick(event) {
+function onCanvasMouseDown(event) {
+  isMouseDown = true;
+  makeMouseEvent(event, ev_buttondown)
+}
+
+/**
+ * @param {MouseEvent} event
+ */
+function onCanvasDrag(event) {
+  if (isMouseDown) {
+    makeMouseEvent(event, ev_motion);
+  }
+}
+
+/**
+ * @param {MouseEvent} event
+ */
+function onCanvasMouseUp(event) {
+  isMouseDown = false;
+  makeMouseEvent(event, ev_buttonup);
+}
+
+/**
+ * @param {MouseEvent} event
+ */
+function makeMouseEvent(event, type) {
+  let button = 1;
+  switch (event.button) {
+    case 0: button = 1; break;
+    case 1: button = 2; break;
+    case 2: button = 3; break;
+  }
+
+  const rect = canvasObj.getBoundingClientRect();
+  setEventPointer(type, {
+    "button": button,
+    "x": event.clientX - rect.left,
+    "y": event.clientY - rect.top,
+    "time": Date.now(),
+  })
   wakeUpFn();
 }
 
