@@ -5,7 +5,6 @@
 #include "xwin.h"
 
 extern void nextEvent(XWin_Event *);
-extern void allocateSynthImage(int width, int height);
 extern void fillImage(int temp, int x, int y, int w, int h, int r, int g, int b);
 extern void putImage(const unsigned char *src, int x, int y, int w, int h, int destIsTemp, int dx, int dy);
 
@@ -52,7 +51,6 @@ void put_image(image *src, int x, int y, int w, int h,
   // TODO
   if (src->synth_func)
   {
-    allocateSynthImage(w, h);
     src->synth_func(src);
   }
   putImage(src->file_data, x, y, w, h, dest != display_image, dx, dy);
@@ -80,11 +78,13 @@ void help(char *filename, char *text)
 void flush()
 {
   // Do nothing.
+  emscripten_log(EM_LOG_WARN, "TODO flush");
 }
 
 void flushsync()
 {
   // Do nothing.
+  emscripten_log(EM_LOG_WARN, "TODO flushsync");
 }
 
 void xwin_clip(int x, int y, int w, int h)

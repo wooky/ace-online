@@ -12,16 +12,9 @@ export async function initDrawer(canvas) {
   mainCanvas = canvas;
   texture.src = textureUrl;
   await texture.decode();
-}
-
-/**
- * @param {Number} width
- * @param {Number} height
- */
-export function allocateTempCanvas(width, height) {
   tempCanvas = document.createElement("canvas");
-  tempCanvas.width = width;
-  tempCanvas.height = height;
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
 }
 
 /**

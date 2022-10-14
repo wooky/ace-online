@@ -7,15 +7,6 @@ mergeInto(LibraryManager.library, {
   },
 
   /**
-   * @param {Number} width
-   * @param {Number} height
-   */
-  allocateSynthImage: function (width, height) {
-    const { allocateTempCanvas } = require("@/drawer");
-    allocateTempCanvas(width, height);
-  },
-
-  /**
    * @param {Number} temp
    * @param {Number} x 
    * @param {Number} y 
@@ -44,12 +35,5 @@ mergeInto(LibraryManager.library, {
     const { drawImage } = require("@/drawer");
     const src = srcPtr ? UTF8ToString(srcPtr) : null;
     drawImage(src, x, y, w, h, destIsTemp, dx, dy);
-  },
-
-  /**
-   * @param {string} image 
-   */
-  getImage: function (image) {
-
   },
 });
