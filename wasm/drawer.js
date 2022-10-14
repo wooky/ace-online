@@ -4,18 +4,26 @@ import textureUrl from "@build/dist/ace-texture.png";
 const PUT_INVERTED = 0x01;
 const PUT_ROTATED = 0x02;
 
-const texture = new Image();
 /** @type HTMLCanvasElement */ let mainCanvas;
-/** @type HTMLCanvasElement */ let tempCanvas;
+const tempCanvas = document.createElement("canvas");
+const texture = new Image();
+const textureRotated = document.createElement("canvas");
 
 /**
  * @param {HTMLCanvasElement} canvas 
  */
 export async function initDrawer(canvas) {
   mainCanvas = canvas;
+
   texture.src = textureUrl;
   await texture.decode();
-  tempCanvas = document.createElement("canvas");
+  textureRotated.width = texture.width;
+  textureRotated.height = texture.height;
+  const textureRotatedCtx = textureRotated.getContext("2d");
+  textureRotatedCtx.translate(texture.width / 2, texture.height / 2);
+  textureRotatedCtx.rotate(Math.PI);
+  textureRotatedCtx.drawImage(texture, -texture.width / 2, -texture.height / 2);
+
   resizeCanvases();
 }
 
@@ -36,7 +44,7 @@ export function resizeCanvases() {
  */
 export function drawRect(temp, x, y, w, h, r, g, b) {
   const canvas = temp ? tempCanvas : mainCanvas;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: false });
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
@@ -55,24 +63,26 @@ export function drawRect(temp, x, y, w, h, r, g, b) {
  * @param {Number} flags
  */
 export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
-  let srcCanvas = tempCanvas, sx = 0, sy = 0;
-  if (src) {
-    const frame = getImage(src);
-    sx = frame.frame.x;
-    sy = frame.frame.y;
-    srcCanvas = texture;
-  }
+  let srcCanvas = tempCanvas, sx = x, sy = y;
   const destCanvas = destIsTemp ? tempCanvas : mainCanvas;
-  const destCtx = destCanvas.getContext("2d");
-  destCtx.save();
+  const destCtx = destCanvas.getContext("2d", { alpha: false });
 
   if (flags & PUT_ROTATED) {
-    destCtx.translate(dx + x + Math.floor(w/2), dy + y + Math.floor(h/2));
-    destCtx.rotate(Math.PI);
-    destCtx.translate(-Math.floor(w/2), -Math.floor(h/2));
+    if (src) {
+      const frame = getImage(src);
+      sx = textureRotated.width - frame.frame.x - w - x;
+      sy = textureRotated.height - frame.frame.y - h - y;
+      srcCanvas = textureRotated;
+    }
+    else {
+      console.error("drawImage rotated from a non-texture");
+    }
   }
-  else {
-    destCtx.translate(dx + x, dy + y);
+  else if (src) {
+    const frame = getImage(src);
+    sx += frame.frame.x;
+    sy += frame.frame.y;
+    srcCanvas = texture;
   }
 
   if (flags & PUT_INVERTED) {
@@ -80,6 +90,5 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
     console.warn("TODO drawImage inverted");
   }
 
-  destCtx.drawImage(srcCanvas, sx + x, sy + y, w, h, 0, 0, w, h);
-  destCtx.restore();
+  destCtx.drawImage(srcCanvas, sx, sy, w, h, dx + x, dy + y, w, h);
 }
