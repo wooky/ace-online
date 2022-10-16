@@ -1,0 +1,39 @@
+name: Build & Deploy Pages
+on:
+  push:
+    branches:
+      - master
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        run: |
+          sudo apt-get install -y cmake
+          git clone https://github.com/emscripten-core/emsdk.git
+          ./emsdk/emsdk install latest
+          ./emsdk/emsdk activate latest
+          npm i
+      - name: Build pages
+        run: |
+          source ./emsdk/emsdk_env.sh
+          cmake -B build
+          make -C build pages
+      - name: Upload dist
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: build/dist/
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v1
+        id: deployment
