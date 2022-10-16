@@ -13,6 +13,7 @@ jobs:
           git clone https://github.com/emscripten-core/emsdk.git
           ./emsdk/emsdk install latest
           ./emsdk/emsdk activate latest
+          npm i
       - name: Build pages
         run: |
           source ./emsdk/emsdk_env.sh
