@@ -40,7 +40,14 @@ let eventState = EVENT_STATE_INITIALIZING;
 let setValueFn;
 let ptrObj;
 let isMouseDown = false;
-/** @type MouseEvent */ let lastMouseEvent;
+/**
+ * @typedef LastMouseEvent
+ * @type {Object}
+ * @property {number} x
+ * @property {number} y
+ * @property {number} button
+ */
+/** @type LastMouseEvent */ let lastMouseEvent;
 
 /**
  * @param {HTMLCanvasElement} canvas 
@@ -56,8 +63,11 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     ptrObj = ptr;
     canvasObj = document.getElementById("game");
     canvasObj.addEventListener("mousedown", onCanvasMouseDown);
+    canvasObj.addEventListener("touchstart", onCanvasMouseDown);
     canvasObj.addEventListener("mousemove", onCanvasDrag);
+    canvasObj.addEventListener("touchmove", onCanvasDrag);
     canvasObj.addEventListener("mouseup", onCanvasMouseUp);
+    canvasObj.addEventListener("touchend", onCanvasMouseUp);
     canvasObj.addEventListener("keypress", onCanvasKeyPress);
 
     emitResizeEvent();
@@ -90,31 +100,54 @@ export function emitResizeEvent() {
 }
 
 /**
- * @param {MouseEvent} event 
+ * @param {MouseEvent|TouchEvent} event 
  */
 function onCanvasMouseDown(event) {
-  lastMouseEvent = event;
+  setLastEvent(event);
   isMouseDown = true;
   makeMouseEvent(ev_buttondown)
 }
 
 /**
- * @param {MouseEvent} event
+ * @param {MouseEvent|TouchEvent} event
  */
 function onCanvasDrag(event) {
-  lastMouseEvent = event;
+  setLastEvent(event);
   if (isMouseDown) {
+    event.preventDefault();
     makeMouseEvent(ev_motion);
   }
 }
 
 /**
- * @param {MouseEvent} event
+ * @param {MouseEvent|TouchEvent} event
  */
 function onCanvasMouseUp(event) {
-  lastMouseEvent = event;
+  event.preventDefault();
+  setLastEvent(event);
   isMouseDown = false;
   makeMouseEvent(ev_buttonup);
+}
+
+/**
+ * @param {MouseEvent|TouchEvent} event
+ */
+function setLastEvent(event) {
+  if (event instanceof MouseEvent) {
+    lastMouseEvent = {
+      x: event.clientX,
+      y: event.clientY,
+      button: event.button,
+    };
+  }
+  else if (event instanceof TouchEvent) {
+    const touchEvent = event.changedTouches.item(0);
+    lastMouseEvent = {
+      x: touchEvent.clientX,
+      y: touchEvent.clientY,
+      button: 0,
+    };
+  }
 }
 
 function makeMouseEvent(type) {
@@ -125,8 +158,7 @@ function makeMouseEvent(type) {
     case 2: button = 3; break;
   }
 
-  const rect = canvasObj.getBoundingClientRect();
-  setEventPointer(type, generateMouseEvent());
+  setEventPointer(type, generateMouseEvent(button));
   wakeUpFn();
 }
 
@@ -134,8 +166,8 @@ function generateMouseEvent(button) {
   const rect = canvasObj.getBoundingClientRect();
   return {
     "button": button,
-    "x": lastMouseEvent.clientX - rect.left,
-    "y": lastMouseEvent.clientY - rect.top,
+    "x": lastMouseEvent.x - rect.left,
+    "y": lastMouseEvent.y - rect.top,
     "time": Date.now(),
   };
 }
@@ -156,6 +188,9 @@ function onCanvasKeyPress(event) {
   }
   else if (event.key in KEY_MAPPINGS) {
     key = KEY_MAPPINGS[event.key];
+  }
+  else {
+    return;
   }
 
   setEventPointer(ev_keypress, {
