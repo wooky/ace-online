@@ -40,3 +40,9 @@ target_include_directories(ace-online PUBLIC
 set_target_properties(ace-online PROPERTIES
   OUTPUT_NAME "ace-online.js"
 )
+
+add_custom_target(pages
+  COMMAND ${NPM} run build || true
+  COMMAND ${NPM} run build
+)
+add_dependencies(pages ace-online)
