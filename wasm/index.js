@@ -14,7 +14,7 @@ import { loadImages } from "@/imagelib";
 
   createAce({ noInitialRun: true }).then((Module) => {
     loadImages(Module);
-    Module._main();
+    Module._thornq_main();
     window.addEventListener("resize", onWindowResize);
   });
 })();
