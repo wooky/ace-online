@@ -68,7 +68,7 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     canvasObj.addEventListener("touchmove", onCanvasDrag);
     canvasObj.addEventListener("mouseup", onCanvasMouseUp);
     canvasObj.addEventListener("touchend", onCanvasMouseUp);
-    canvasObj.addEventListener("keypress", onCanvasKeyPress);
+    canvasObj.addEventListener("keydown", onCanvasKeyPress);
 
     emitResizeEvent();
   }
