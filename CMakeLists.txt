@@ -13,8 +13,12 @@ find_program(NPM
 set(ACE_ONLINE_EXPORTED_FUNCTIONS "setValue")
 function(add_game filename)
   set(SOURCE_FILENAME "${CMAKE_CURRENT_SOURCE_DIR}/games/${filename}.c")
+  set(CODEGEN_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/codegen/${filename}_codegen.c")
   set(NEW_MAIN "${filename}_main")
-  target_sources(ace-online PRIVATE ${SOURCE_FILENAME})
+
+  file(WRITE ${CODEGEN_FILENAME} "const char *${filename}_help = 0;")
+
+  target_sources(ace-online PRIVATE ${SOURCE_FILENAME} ${CODEGEN_FILENAME})
   set_property(SOURCE ${SOURCE_FILENAME} PROPERTY COMPILE_OPTIONS
     -Dmain=${NEW_MAIN}
   )

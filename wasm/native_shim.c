@@ -7,9 +7,6 @@
 /** "Alias" for the screen. May be used as the `dest` parameter in some functions. */
 image *display_image;
 
-// TODO auto-purge these _help variables from the codebase
-char *thornq_help;
-
 /**
  * Initialize the screen. In WASM, shouldn't do much.
  */
@@ -87,8 +84,9 @@ void flushsync()
 
 void help(char *filename, char *text)
 {
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO help");
+  EM_ASM({
+    window.open("http://www.delorie.com/store/ace/docs/" + UTF8ToString($0));
+  }, filename);
 }
 
 void flush()
