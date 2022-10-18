@@ -1,7 +1,6 @@
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { WebpackTexturePackerPlugin } = require('webpack-texture-packer');
 
 module.exports = {
   mode: 'development',
@@ -15,14 +14,6 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
-      },
-      {
-        test: /\.in$/,
-        loader: 'csv-loader',
-        options: {
-          delimiter: " ",
-          skipEmptyLines: true,
-        }
       },
     ],
   },
@@ -41,23 +32,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         "./build/ace-online.wasm",
-      ],
-    }),
-    new WebpackTexturePackerPlugin({
-      rootDir: __dirname,
-      items: [
-        {
-          name: "ace-texture",
-          source: [
-            "games",
-            "lib/png",
-          ],
-          packerOptions: {
-            allowRotation: false,
-            prependFolderName: false,
-            removeFileExtension: true,
-          },
-        },
       ],
     }),
     new HtmlWebpackPlugin({

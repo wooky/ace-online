@@ -49,10 +49,16 @@ void put_image(image *src, int x, int y, int w, int h,
   {
     src->synth_func(src);
   }
+  // TODO why is EM_ASM so picky when it comes to creating objects/arrays?
   EM_ASM(
       {
         const {drawImage} = require("@/drawer");
-        const src = $0 ? UTF8ToString($0) : null;
+        let src = null;
+        if ($0) {
+          src = {};
+          src.x = ($0 >> 16);
+          src.y = ($0 & 0xFFFF);
+        }
         drawImage(src, $1, $2, $3, $4, $5, $6, $7, $8);
       },
       src->file_data, x, y, w, h, dest != display_image, dx, dy, flags);
@@ -69,7 +75,7 @@ int xwin_nextevent(XWin_Event *ev)
   EM_ASM(
       {
         const {setUpEvents} = require("@/event");
-        return Asyncify.handleSleep(function (wakeUp) {
+        return Asyncify.handleSleep(function(wakeUp) {
           setUpEvents(wakeUp, setValue, $0);
         });
       },
@@ -86,7 +92,8 @@ void help(char *filename, char *text)
 {
   EM_ASM({
     window.open("http://www.delorie.com/store/ace/docs/" + UTF8ToString($0));
-  }, filename);
+  },
+         filename);
 }
 
 void flush()

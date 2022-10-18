@@ -1,0 +1,19 @@
+#include "imagelib.h"
+
+image_list appimglib_imagelib[] = {
+{{#textures}}
+  { "{{filename}}", {{across}}, {{down}}, {
+    (image[]){
+{{#frames}}
+      {.width = {{w}}, .height = {{h}}, .file_data = (const unsigned char*)(({{x}} << 16) | ({{y}}))},
+{{/frames}}
+      {0}
+    },
+    0,
+    0
+  }, 0, 0, 0 },
+{{/textures}}
+  {0}
+};
+
+image_list cards_imagelib[] = { {0} };
