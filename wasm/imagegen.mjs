@@ -29,6 +29,7 @@ const files = await packAsync(images, {
   prependFolderName: false,
   removeFileExtension: true,
   packer: "OptimalPacker",
+  extrude: 1,
 });
 const jsonFile = JSON.parse(files[0].buffer.toString());
 const textureFile = files[1].buffer;
@@ -70,7 +71,7 @@ function combineTextures(aceTextures, imagesMeta) {
 }
 
 async function writeCFile(textures, cFilename) {
-  const templateFile = (await fs.promises.readFile("wasm/imagelib.c.mustache")).toString();
+  const templateFile = (await fs.promises.readFile("wasm/imagegen.c.mustache")).toString();
   const cFile = Mustache.render(templateFile, { textures });
   await fs.promises.writeFile(cFilename, cFile);
 }

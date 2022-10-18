@@ -1,4 +1,3 @@
-import { getImage } from "@/imagelib";
 import textureUrl from "@build/dist/ace-texture.png";
 
 const PUT_INVERTED = 0x01;
@@ -52,7 +51,9 @@ export function drawRect(temp, x, y, w, h, r, g, b) {
 }
 
 /**
- * @param {String|null} src
+ * @param {Object|null} src
+ * @param {Number} src.x
+ * @param {Number} src.y
  * @param {Number} x
  * @param {Number} y
  * @param {Number} w
@@ -69,9 +70,8 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
 
   if (flags & PUT_ROTATED) {
     if (src) {
-      const frame = getImage(src);
-      sx = textureRotated.width - frame.frame.x - w - x;
-      sy = textureRotated.height - frame.frame.y - h - y;
+      sx = textureRotated.width - src.x - w - x;
+      sy = textureRotated.height - src.y - h - y;
       srcCanvas = textureRotated;
     }
     else {
@@ -79,9 +79,8 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
     }
   }
   else if (src) {
-    const frame = getImage(src);
-    sx += frame.frame.x;
-    sy += frame.frame.y;
+    sx += src.x;
+    sy += src.y;
     srcCanvas = texture;
   }
 

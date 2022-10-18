@@ -10,6 +10,13 @@ find_program(NPM
   REQUIRED
 )
 
+set(IMAGES_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/codegen/images.c")
+add_custom_command(
+  OUTPUT ${IMAGES_FILENAME}
+  COMMAND ${NPM} run imagegen -- "${CMAKE_CURRENT_SOURCE_DIR}/lib/images.in" ${IMAGES_FILENAME} "${CMAKE_CURRENT_BINARY_DIR}/ace-textures.png"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/wasm/imagegen.mjs" "${CMAKE_CURRENT_SOURCE_DIR}/wasm/imagegen.c.mustache"
+)
+
 set(ACE_ONLINE_EXPORTED_FUNCTIONS "setValue")
 function(add_game filename)
   set(SOURCE_FILENAME "${CMAKE_CURRENT_SOURCE_DIR}/games/${filename}.c")
@@ -31,6 +38,8 @@ set(CMAKE_CXX_STANDARD 11)
 add_compile_options(-Wno-implicit-function-declaration)
 
 add_executable(ace-online
+  ${IMAGES_FILENAME}
+
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/funcs.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/imagelib.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/stack.c"

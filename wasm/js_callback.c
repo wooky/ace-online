@@ -3,10 +3,10 @@
 #include "imagelib.h"
 
 /** List of per-application images, located in games/. In WASM, images are added through `addImageFilename`, so this variable is unused. */
-image_list appimglib_imagelib[] = {{0}};
+// image_list appimglib_imagelib[] = {{0}};
 
 /** List of card images, located in lib/png. In WASM, images are added through `addImageFilename`, so this variable is unused. */
-image_list cards_imagelib[] = {{0}};
+// image_list cards_imagelib[] = {{0}};
 
 typedef struct
 {
@@ -26,5 +26,5 @@ void EMSCRIPTEN_KEEPALIVE addImageFilename(const char *filename, int across, int
   image_list *il = malloc(sizeof(image_list) * 2);
   il[0] = (image_list){filename, across, down, {img, 0, 0}, 0, 0, 0};
   il[1] = (image_list){0};
-  register_imagelib(il);
+  // register_imagelib(il);
 }
