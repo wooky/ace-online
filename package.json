@@ -10,7 +10,7 @@
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "csv-parse": "^5.3.1",
-    "free-tex-packer-core": "^0.3.4",
+    "free-tex-packer-core": "git+https://github.com/astrocreep/free-tex-packer-core.git#4e640809a51e423fdaf9b04e29c0533efba54085",
     "globby": "^13.1.2",
     "html-webpack-plugin": "^5.5.0",
     "tslib": "^2.4.0",
