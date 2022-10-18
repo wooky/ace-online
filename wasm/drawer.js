@@ -1,4 +1,4 @@
-import textureUrl from "@build/dist/ace-texture.png";
+import textureUrl from "@build/ace-texture.png";
 
 const PUT_INVERTED = 0x01;
 const PUT_ROTATED = 0x02;

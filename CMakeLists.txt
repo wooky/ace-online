@@ -13,7 +13,7 @@ find_program(NPM
 set(IMAGES_FILENAME "${CMAKE_CURRENT_BINARY_DIR}/codegen/images.c")
 add_custom_command(
   OUTPUT ${IMAGES_FILENAME}
-  COMMAND ${NPM} run imagegen -- "${CMAKE_CURRENT_SOURCE_DIR}/lib/images.in" ${IMAGES_FILENAME} "${CMAKE_CURRENT_BINARY_DIR}/ace-textures.png"
+  COMMAND ${NPM} run imagegen -- "${CMAKE_CURRENT_SOURCE_DIR}/lib/images.in" ${IMAGES_FILENAME} "${CMAKE_CURRENT_BINARY_DIR}/ace-texture.png"
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/wasm/imagegen.mjs" "${CMAKE_CURRENT_SOURCE_DIR}/wasm/imagegen.c.mustache"
 )
 
@@ -45,7 +45,6 @@ add_executable(ace-online
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/stack.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/table.c"
   
-  "${CMAKE_CURRENT_SOURCE_DIR}/wasm/js_callback.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/wasm/native_shim.c"
 )
 add_game(thornq)
@@ -63,7 +62,6 @@ set_property(TARGET ace-online PROPERTY LINK_OPTIONS
 )
 
 add_custom_target(pages
-  COMMAND ${NPM} run build || true
   COMMAND ${NPM} run build
 )
 add_dependencies(pages ace-online)
