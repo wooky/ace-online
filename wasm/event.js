@@ -36,6 +36,19 @@ const EVENT_STATE_INITIALIZING = 0;
 const EVENT_STATE_EXPOSING = 1;
 const EVENT_STATE_NORMAL = 2;
 
+const CANVAS_EVENTS = {
+  "mousedown": onCanvasMouseDown,
+  "touchstart": onCanvasMouseDown,
+  "mousemove": onCanvasDrag,
+  "touchmove": onCanvasDrag,
+  "mouseup": onCanvasMouseUp,
+  "touchend": onCanvasMouseUp,
+  "keydown": onCanvasKeyPress,
+};
+const WINDOW_EVENTS = {
+  "resize": onWindowResize,
+};
+
 let eventState = EVENT_STATE_INITIALIZING;
 /** @type Function */ let wakeUpFn;
 /** @type HTMLCanvasElement */ let canvasObj;
@@ -58,20 +71,26 @@ export function initEvents(canvas) {
   canvasObj = canvas;
 }
 
+export function deinitEvents() {
+  for (const event in CANVAS_EVENTS) {
+    canvasObj.removeEventListener(event, CANVAS_EVENTS[event]);
+  }
+  for (const event in WINDOW_EVENTS) {
+    window.removeEventListener(event, WINDOW_EVENTS[event]);
+  }
+}
+
 export function setUpEvents(wakeUp, setValue, ptr) {
   wakeUpFn = wakeUp;
   if (eventState === EVENT_STATE_INITIALIZING) {
     setValueFn = setValue;
     ptrObj = ptr;
-    canvasObj = document.getElementById("game");
-    canvasObj.addEventListener("mousedown", onCanvasMouseDown);
-    canvasObj.addEventListener("touchstart", onCanvasMouseDown);
-    canvasObj.addEventListener("mousemove", onCanvasDrag);
-    canvasObj.addEventListener("touchmove", onCanvasDrag);
-    canvasObj.addEventListener("mouseup", onCanvasMouseUp);
-    canvasObj.addEventListener("touchend", onCanvasMouseUp);
-    canvasObj.addEventListener("keydown", onCanvasKeyPress);
-    window.addEventListener("resize", onWindowResize);
+    for (const event in CANVAS_EVENTS) {
+      canvasObj.addEventListener(event, CANVAS_EVENTS[event]);
+    }
+    for (const event in WINDOW_EVENTS) {
+      window.addEventListener(event, WINDOW_EVENTS[event]);
+    }
 
     emitResizeEvent();
   }

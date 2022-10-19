@@ -1,6 +1,6 @@
 import createAce from "@build/ace-online";
 import { initDrawer, resizeCanvases } from "@/drawer";
-import { initEvents } from "@/event";
+import { deinitEvents, initEvents } from "@/event";
 import games from "@/games.json";
 
 (async function () {
@@ -21,15 +21,18 @@ import games from "@/games.json";
     li.appendChild(a);
     gameList.appendChild(li);
   }
+
+  document.getElementById("goback").onclick = unloadGame;
 })();
 
 /**
  * @param {Event} event
  * @param {String} name
  */
-async function loadGame(event, name) {
+function loadGame(event, name) {
   event.preventDefault();
   setPage("loading");
+  document.getElementById("goback").classList.remove("is-hidden");
 
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
   initEvents(canvas);
@@ -39,6 +42,17 @@ async function loadGame(event, name) {
     resizeCanvases();
     Module[`_${name}_main`]();
   });
+}
+
+/**
+ * @param {Event} event
+ */
+function unloadGame(event) {
+  event.preventDefault();
+  document.getElementById("goback").classList.add("is-hidden");
+
+  setPage("description");
+  deinitEvents();
 }
 
 /**
