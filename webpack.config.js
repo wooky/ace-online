@@ -32,6 +32,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         "./build/ace-online.wasm",
+        "./wasm/ace-online.css",
       ],
     }),
     new HtmlWebpackPlugin({

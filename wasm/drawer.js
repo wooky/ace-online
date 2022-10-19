@@ -22,8 +22,6 @@ export async function initDrawer(canvas) {
   textureRotatedCtx.translate(texture.width / 2, texture.height / 2);
   textureRotatedCtx.rotate(Math.PI);
   textureRotatedCtx.drawImage(texture, -texture.width / 2, -texture.height / 2);
-
-  resizeCanvases();
 }
 
 export function resizeCanvases() {

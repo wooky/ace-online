@@ -1,3 +1,5 @@
+import { resizeCanvases } from "@/drawer";
+
 const ev_none = 0;
 const ev_keypress = 1;
 const ev_buttondown = 2;
@@ -69,6 +71,7 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     canvasObj.addEventListener("mouseup", onCanvasMouseUp);
     canvasObj.addEventListener("touchend", onCanvasMouseUp);
     canvasObj.addEventListener("keydown", onCanvasKeyPress);
+    window.addEventListener("resize", onWindowResize);
 
     emitResizeEvent();
   }
@@ -220,4 +223,9 @@ function setEventPointer(type, {
   setValueFn(ptrObj + 0x18, shifts, 'i32');
   setValueFn(ptrObj + 0x1c, key, 'i32');
   setValueFn(ptrObj + 0x20, time, 'i32');
+}
+
+function onWindowResize() {
+  resizeCanvases();
+  emitResizeEvent();
 }
