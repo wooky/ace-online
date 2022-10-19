@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.19)
 project(ace-online)
 
 find_program(EMCC
@@ -47,7 +47,15 @@ add_executable(ace-online
   
   "${CMAKE_CURRENT_SOURCE_DIR}/wasm/native_shim.c"
 )
-add_game(thornq)
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/wasm/games.json" GAMES_JSON)
+string(JSON GAMES_LENGTH LENGTH ${GAMES_JSON})
+math(EXPR GAMES_LENGTH "${GAMES_LENGTH}-1")
+foreach(GAME_IDX RANGE ${GAMES_LENGTH})
+  string(JSON GAME_JSON GET ${GAMES_JSON} ${GAME_IDX})
+  string(JSON GAME_FILENAME GET ${GAME_JSON} "name")
+  add_game(${GAME_FILENAME})
+endforeach()
 
 target_include_directories(ace-online PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/lib"
