@@ -6,6 +6,10 @@ body,
   margin: 0;
 }
 
+.header {
+  white-space: nowrap;
+}
+
 .big {
   width: 100%;
   height: calc(100% - 31pt);
