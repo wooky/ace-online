@@ -1,6 +1,6 @@
 import createAce from "@build/ace-online";
 import { initDrawer, resizeCanvases } from "@/drawer";
-import { deinitEvents, initEvents } from "@/event";
+import { initEvents, sendExitEvent } from "@/event";
 import games from "@/games.json";
 
 (async function () {
@@ -22,7 +22,7 @@ import games from "@/games.json";
     gameList.appendChild(li);
   }
 
-  document.getElementById("goback").onclick = unloadGame;
+  document.getElementById("goback").onclick = sendExitEvent;
 })();
 
 /**
@@ -35,7 +35,7 @@ function loadGame(event, name) {
   document.getElementById("goback").classList.remove("is-hidden");
 
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
-  initEvents(canvas);
+  initEvents(canvas, unloadGame);
 
   createAce({ noInitialRun: true }).then((Module) => {
     setPage("playfield");
@@ -47,12 +47,9 @@ function loadGame(event, name) {
 /**
  * @param {Event} event
  */
-function unloadGame(event) {
-  event.preventDefault();
+function unloadGame() {
   document.getElementById("goback").classList.add("is-hidden");
-
   setPage("description");
-  deinitEvents();
 }
 
 /**

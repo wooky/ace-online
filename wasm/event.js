@@ -49,12 +49,13 @@ const WINDOW_EVENTS = {
   "resize": onWindowResize,
 };
 
-let eventState = EVENT_STATE_INITIALIZING;
+/** @type number */ let eventState;
 /** @type Function */ let wakeUpFn;
 /** @type HTMLCanvasElement */ let canvasObj;
+/** @type Function */ let quitFn;
 let setValueFn;
 let ptrObj;
-let isMouseDown = false;
+/** @type boolean */ let isMouseDown = false;
 /**
  * @typedef LastMouseEvent
  * @type {Object}
@@ -65,19 +66,22 @@ let isMouseDown = false;
 /** @type LastMouseEvent */ let lastMouseEvent;
 
 /**
- * @param {HTMLCanvasElement} canvas 
+ * @param {HTMLCanvasElement} canvas
+ * @param {Function} quit
  */
-export function initEvents(canvas) {
+export function initEvents(canvas, quit) {
   canvasObj = canvas;
+  quitFn = quit;
+  eventState = EVENT_STATE_INITIALIZING;
+  isMouseDown = false;
 }
 
-export function deinitEvents() {
-  for (const event in CANVAS_EVENTS) {
-    canvasObj.removeEventListener(event, CANVAS_EVENTS[event]);
-  }
-  for (const event in WINDOW_EVENTS) {
-    window.removeEventListener(event, WINDOW_EVENTS[event]);
-  }
+/**
+ * @param {Event} otherEvent
+ */
+export function sendExitEvent(otherEvent) {
+  otherEvent.preventDefault();
+  canvasObj.dispatchEvent(new KeyboardEvent("keydown", { key: 'q' }));
 }
 
 export function setUpEvents(wakeUp, setValue, ptr) {
@@ -198,11 +202,6 @@ function generateMouseEvent(button) {
  * @param {KeyboardEvent} event
  */
 function onCanvasKeyPress(event) {
-  //Stop quit events from going through
-  if (event.key == 'q') {
-    return;
-  }
-
   const mouseEvent = generateMouseEvent(null);
   let key = 0;
   if (event.key.length == 1) {
@@ -220,7 +219,17 @@ function onCanvasKeyPress(event) {
     "x": mouseEvent.x,
     "y": mouseEvent.y,
   });
-  wakeUpFn();
+  try {
+    wakeUpFn();
+  }
+  catch (e) {
+    if (e.name === "ExitStatus" && e.status === 0) {
+      onExit();
+    }
+    else {
+      throw e;
+    }
+  }
 }
 
 function setEventPointer(type, {
@@ -247,4 +256,14 @@ function setEventPointer(type, {
 function onWindowResize() {
   resizeCanvases();
   emitResizeEvent();
+}
+
+function onExit() {
+  for (const event in CANVAS_EVENTS) {
+    canvasObj.removeEventListener(event, CANVAS_EVENTS[event]);
+  }
+  for (const event in WINDOW_EVENTS) {
+    window.removeEventListener(event, WINDOW_EVENTS[event]);
+  }
+  quitFn();
 }
