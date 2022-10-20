@@ -1,3 +1,5 @@
+import { resizeCanvases } from "@/drawer";
+
 const ev_none = 0;
 const ev_keypress = 1;
 const ev_buttondown = 2;
@@ -34,12 +36,26 @@ const EVENT_STATE_INITIALIZING = 0;
 const EVENT_STATE_EXPOSING = 1;
 const EVENT_STATE_NORMAL = 2;
 
-let eventState = EVENT_STATE_INITIALIZING;
+const CANVAS_EVENTS = {
+  "mousedown": onCanvasMouseDown,
+  "touchstart": onCanvasMouseDown,
+  "mousemove": onCanvasDrag,
+  "touchmove": onCanvasDrag,
+  "mouseup": onCanvasMouseUp,
+  "touchend": onCanvasMouseUp,
+  "keydown": onCanvasKeyPress,
+};
+const WINDOW_EVENTS = {
+  "resize": onWindowResize,
+};
+
+/** @type number */ let eventState;
 /** @type Function */ let wakeUpFn;
 /** @type HTMLCanvasElement */ let canvasObj;
+/** @type Function */ let quitFn;
 let setValueFn;
 let ptrObj;
-let isMouseDown = false;
+/** @type boolean */ let isMouseDown = false;
 /**
  * @typedef LastMouseEvent
  * @type {Object}
@@ -50,10 +66,22 @@ let isMouseDown = false;
 /** @type LastMouseEvent */ let lastMouseEvent;
 
 /**
- * @param {HTMLCanvasElement} canvas 
+ * @param {HTMLCanvasElement} canvas
+ * @param {Function} quit
  */
-export function initEvents(canvas) {
+export function initEvents(canvas, quit) {
   canvasObj = canvas;
+  quitFn = quit;
+  eventState = EVENT_STATE_INITIALIZING;
+  isMouseDown = false;
+}
+
+/**
+ * @param {Event} otherEvent
+ */
+export function sendExitEvent(otherEvent) {
+  otherEvent.preventDefault();
+  canvasObj.dispatchEvent(new KeyboardEvent("keydown", { key: 'q' }));
 }
 
 export function setUpEvents(wakeUp, setValue, ptr) {
@@ -61,14 +89,12 @@ export function setUpEvents(wakeUp, setValue, ptr) {
   if (eventState === EVENT_STATE_INITIALIZING) {
     setValueFn = setValue;
     ptrObj = ptr;
-    canvasObj = document.getElementById("game");
-    canvasObj.addEventListener("mousedown", onCanvasMouseDown);
-    canvasObj.addEventListener("touchstart", onCanvasMouseDown);
-    canvasObj.addEventListener("mousemove", onCanvasDrag);
-    canvasObj.addEventListener("touchmove", onCanvasDrag);
-    canvasObj.addEventListener("mouseup", onCanvasMouseUp);
-    canvasObj.addEventListener("touchend", onCanvasMouseUp);
-    canvasObj.addEventListener("keydown", onCanvasKeyPress);
+    for (const event in CANVAS_EVENTS) {
+      canvasObj.addEventListener(event, CANVAS_EVENTS[event]);
+    }
+    for (const event in WINDOW_EVENTS) {
+      window.addEventListener(event, WINDOW_EVENTS[event]);
+    }
 
     emitResizeEvent();
   }
@@ -176,11 +202,6 @@ function generateMouseEvent(button) {
  * @param {KeyboardEvent} event
  */
 function onCanvasKeyPress(event) {
-  //Stop quit events from going through
-  if (event.key == 'q') {
-    return;
-  }
-
   const mouseEvent = generateMouseEvent(null);
   let key = 0;
   if (event.key.length == 1) {
@@ -198,7 +219,17 @@ function onCanvasKeyPress(event) {
     "x": mouseEvent.x,
     "y": mouseEvent.y,
   });
-  wakeUpFn();
+  try {
+    wakeUpFn();
+  }
+  catch (e) {
+    if (e.name === "ExitStatus" && e.status === 0) {
+      onExit();
+    }
+    else {
+      throw e;
+    }
+  }
 }
 
 function setEventPointer(type, {
@@ -220,4 +251,19 @@ function setEventPointer(type, {
   setValueFn(ptrObj + 0x18, shifts, 'i32');
   setValueFn(ptrObj + 0x1c, key, 'i32');
   setValueFn(ptrObj + 0x20, time, 'i32');
+}
+
+function onWindowResize() {
+  resizeCanvases();
+  emitResizeEvent();
+}
+
+function onExit() {
+  for (const event in CANVAS_EVENTS) {
+    canvasObj.removeEventListener(event, CANVAS_EVENTS[event]);
+  }
+  for (const event in WINDOW_EVENTS) {
+    window.removeEventListener(event, WINDOW_EVENTS[event]);
+  }
+  quitFn();
 }

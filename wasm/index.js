@@ -1,6 +1,7 @@
 import createAce from "@build/ace-online";
 import { initDrawer, resizeCanvases } from "@/drawer";
-import { emitResizeEvent, initEvents } from "@/event";
+import { initEvents, sendExitEvent } from "@/event";
+import games from "@/games.json";
 
 (async function () {
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
@@ -9,15 +10,53 @@ import { emitResizeEvent, initEvents } from "@/event";
     return false;
   });
   await initDrawer(canvas);
-  initEvents(canvas);
 
-  createAce({ noInitialRun: true }).then((Module) => {
-    Module._thornq_main();
-    window.addEventListener("resize", onWindowResize);
-  });
+  const gameList = document.getElementById("games");
+  for (const game of games) {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.onclick = e => loadGame(e, game.name);
+    a.text = game.english;
+    const li = document.createElement("li");
+    li.appendChild(a);
+    gameList.appendChild(li);
+  }
+
+  document.getElementById("goback").onclick = sendExitEvent;
 })();
 
-function onWindowResize() {
-  resizeCanvases();
-  emitResizeEvent();
+/**
+ * @param {Event} event
+ * @param {String} name
+ */
+function loadGame(event, name) {
+  event.preventDefault();
+  setPage("loading");
+  document.getElementById("goback").classList.remove("is-hidden");
+
+  /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
+  initEvents(canvas, unloadGame);
+
+  createAce({ noInitialRun: true }).then((Module) => {
+    setPage("playfield");
+    resizeCanvases();
+    Module[`_${name}_main`]();
+  });
+}
+
+/**
+ * @param {Event} event
+ */
+function unloadGame() {
+  document.getElementById("goback").classList.add("is-hidden");
+  setPage("description");
+}
+
+/**
+ * @param {string} name
+ */
+function setPage(name) {
+  for (const el of document.getElementById("content").children) {
+    el.id === name ? el.classList.remove("is-hidden") : el.classList.add("is-hidden");
+  }
 }

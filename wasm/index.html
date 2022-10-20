@@ -1,16 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <style>
-      html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="game" tabindex="1"></canvas>
-  </body>
+
+<head>
+  <title>Ace of Penguins Online</title>
+  <link rel="stylesheet" href="https://yakov.ca/include/style.css">
+  <link rel="stylesheet" href="ace-online.css">
+  <link rel="icon" href="/favicon.ico">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  <div class="header">
+    <div>
+      <a href="#" id="goback" class="homelink is-hidden" title="Back to game menu">&#x2190;</a>
+      <a href="/" class="homelink"><img src="https://yakov.ca/include/logo.png" alt="JY">Ace of Penguins Online</a>
+    </div>
+  </div>
+  <div id="content">
+    <div id="description">
+      <h1>Ace of Penguins Online</h1>
+      <p>
+        Ace of Penguins Online is a WASM port of <a href="http://www.delorie.com/store/ace/">The Ace of Penguins</a>.
+        Play
+        all the games right in your browser.
+      </p>
+      <p>Select a game to play:
+      <ul id="games"></ul>
+      </p>
+    </div>
+    <div id="loading" class="big is-hidden">Loading...</div>
+    <div id="playfield" class="big is-hidden">
+      <canvas id="game" tabindex="1"></canvas>
+    </div>
+  </div>
+</body>
+
 </html>
