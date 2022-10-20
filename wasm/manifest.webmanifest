@@ -3,12 +3,12 @@
   "short_name": "ace-online",
   "start_url": "/ace-online/",
   "background_color": "#0080ff",
-  "display": "standalone",
+  "display": "fullscreen",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/vnd.microsoft.icon"
+      "src": "/icon.png",
+      "sizes": "144x144",
+      "type": "image/png"
     }
   ]
 }
