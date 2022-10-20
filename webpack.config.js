@@ -33,6 +33,7 @@ module.exports = {
       patterns: [
         "./build/ace-online.wasm",
         "./wasm/ace-online.css",
+        "./wasm/manifest.webmanifest",
       ],
     }),
     new HtmlWebpackPlugin({

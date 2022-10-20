@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - a2hs
   
 jobs:
   build:
