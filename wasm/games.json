@@ -1,5 +1,13 @@
 [
   {
+    "name": "freecell",
+    "english": "Freecell"
+  },
+  {
+    "name": "spider",
+    "english": "Spider"
+  },
+  {
     "name": "thornq",
     "english": "Thornq"
   }
