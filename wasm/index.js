@@ -4,6 +4,17 @@ import { initEvents, sendExitEvent } from "@/event";
 import games from "@/games.json";
 
 (async function () {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("service-worker.js", {
+        scope: ".",
+      });
+    }
+    catch (e) {
+      console.log("service-worker registration failed:", e);
+    }
+  }
+
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
   canvas.addEventListener("contextmenu", e => {
     e.preventDefault();

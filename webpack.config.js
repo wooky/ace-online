@@ -33,6 +33,9 @@ module.exports = {
       patterns: [
         "./build/ace-online.wasm",
         "./wasm/ace-online.css",
+        "./wasm/icon.png",
+        "./wasm/manifest.webmanifest",
+        "./wasm/service-worker.js",
       ],
     }),
     new HtmlWebpackPlugin({
