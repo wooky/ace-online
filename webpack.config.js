@@ -35,6 +35,7 @@ module.exports = {
         "./wasm/ace-online.css",
         "./wasm/icon.png",
         "./wasm/manifest.webmanifest",
+        "./wasm/service-worker.js",
       ],
     }),
     new HtmlWebpackPlugin({
