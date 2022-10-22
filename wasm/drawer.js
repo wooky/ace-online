@@ -31,6 +31,22 @@ export function resizeCanvases() {
 }
 
 /**
+ * @param {string} text
+ * @returns {Object} Measurement
+ * @returns {number} Measurement.width
+ * @returns {number} Measurement.height
+ */
+export function calculateTextSize(text) {
+  const ctx = mainCanvas.getContext("2d", { alpha: false });
+  ctx.font = "13pt monospace"
+
+  const metrics = ctx.measureText(text);
+  const width = metrics.width;
+  const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  return { width, height };
+}
+
+/**
  * @param {boolean} temp
  * @param {Number} x 
  * @param {Number} y 
@@ -97,13 +113,10 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
  * @param {number} y
  */
 export function drawText(text, x, y) {
-  const ctx = mainCanvas.getContext("2d", { alpha: false });
-  ctx.font = "13pt monospace"
+  const measurements = calculateTextSize(text);
+  drawRect(false, x, y - measurements.height, measurements.width, measurements.height, 0x00, 0x66, 0x00);
 
-  const metrics = ctx.measureText(text);
-  const rectHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-  drawRect(false, x, y - rectHeight, metrics.width, rectHeight, 0x00, 0x66, 0x00);
-  
+  const ctx = mainCanvas.getContext("2d", { alpha: false });
   ctx.fillStyle = "white";
   ctx.fillText(text, x, y);
 }

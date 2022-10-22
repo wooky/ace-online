@@ -7,6 +7,8 @@
 /** "Alias" for the screen. May be used as the `dest` parameter in some functions. */
 image *display_image;
 
+int font_width, font_height;
+
 /**
  * Initialize the screen. In WASM, shouldn't do much, except set some hardcoded values.
  */
@@ -15,6 +17,15 @@ int xwin_init(int argc, char **argv)
   table_type = TABLE_COLOR;
   display_width = __INT_MAX__;
   display_height = __INT_MAX__;
+
+  int font_size = EM_ASM_INT({
+    const {calculateTextSize} = require("@/drawer");
+    const measurements = calculateTextSize("@");
+    return (measurements.width << 16) | (measurements.height);
+  });
+  font_width = font_size >> 16;
+  font_height = font_size & 0xFFFF;
+
   return 0;
 }
 
