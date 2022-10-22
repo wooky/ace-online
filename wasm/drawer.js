@@ -1,4 +1,5 @@
 import textureUrl from "@build/ace-texture.png";
+import { deinitResizeEvent } from "./event";
 
 const PUT_INVERTED = 0x01;
 const PUT_ROTATED = 0x02;
@@ -88,4 +89,31 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
   }
 
   destCtx.drawImage(srcCanvas, sx, sy, w, h, dx + x, dy + y, w, h);
+}
+
+/**
+ * @param {string} text
+ * @param {number} x
+ * @param {number} y
+ */
+export function drawText(text, x, y) {
+  const ctx = mainCanvas.getContext("2d", { alpha: false });
+  ctx.font = "13pt monospace"
+
+  const metrics = ctx.measureText(text);
+  const rectHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  drawRect(false, x, y - rectHeight, metrics.width, rectHeight, 0x00, 0x66, 0x00);
+  
+  ctx.fillStyle = "white";
+  ctx.fillText(text, x, y);
+}
+
+/**
+ * @param {number} width
+ * @param {number} height
+ */
+export function setFixedSize(width, height) {
+  deinitResizeEvent();
+  mainCanvas.width = tempCanvas.width = width;
+  mainCanvas.height = tempCanvas.height = height;
 }

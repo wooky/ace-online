@@ -8,11 +8,13 @@
 image *display_image;
 
 /**
- * Initialize the screen. In WASM, shouldn't do much.
+ * Initialize the screen. In WASM, shouldn't do much, except set some hardcoded values.
  */
 int xwin_init(int argc, char **argv)
 {
   table_type = TABLE_COLOR;
+  display_width = __INT_MAX__;
+  display_height = __INT_MAX__;
   return 0;
 }
 
@@ -54,7 +56,8 @@ void put_image(image *src, int x, int y, int w, int h,
       {
         const {drawImage} = require("@/drawer");
         let src = null;
-        if ($0) {
+        if ($0)
+        {
           src = {};
           src.x = ($0 >> 16);
           src.y = ($0 & 0xFFFF);
@@ -64,10 +67,22 @@ void put_image(image *src, int x, int y, int w, int h,
       src->file_data, x, y, w, h, dest != display_image, dx, dy, flags);
 }
 
+void text(char *s, int x, int y)
+{
+  EM_ASM({
+    const {drawText} = require("@/drawer");
+    drawText(UTF8ToString($0), $1, $2);
+  },
+         s, x, y);
+}
+
 void xwin_fixed_size(int width, int height)
 {
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO xwin_fixed_size");
+  EM_ASM({
+    const {setFixedSize} = require("@/drawer");
+    setFixedSize($0, $1);
+  },
+         width, height);
 }
 
 int xwin_nextevent(XWin_Event *ev)

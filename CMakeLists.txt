@@ -40,11 +40,11 @@ add_compile_options(-Wno-implicit-function-declaration)
 add_executable(ace-online
   ${IMAGES_FILENAME}
 
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/funcs.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/imagelib.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/stack.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/table.c"
   
+  "${CMAKE_CURRENT_SOURCE_DIR}/wasm/funcs_shim.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/wasm/native_shim.c"
 )
 

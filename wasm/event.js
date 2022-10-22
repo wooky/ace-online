@@ -45,9 +45,6 @@ const CANVAS_EVENTS = {
   "touchend": onCanvasMouseUp,
   "keydown": onCanvasKeyPress,
 };
-const WINDOW_EVENTS = {
-  "resize": onWindowResize,
-};
 
 /** @type number */ let eventState;
 /** @type Function */ let wakeUpFn;
@@ -92,9 +89,7 @@ export function setUpEvents(wakeUp, setValue, ptr) {
     for (const event in CANVAS_EVENTS) {
       canvasObj.addEventListener(event, CANVAS_EVENTS[event]);
     }
-    for (const event in WINDOW_EVENTS) {
-      window.addEventListener(event, WINDOW_EVENTS[event]);
-    }
+    window.addEventListener("resize", onWindowResize);
 
     emitResizeEvent();
   }
@@ -114,7 +109,11 @@ export function setUpEvents(wakeUp, setValue, ptr) {
   }
 }
 
-export function emitResizeEvent() {
+export function deinitResizeEvent() {
+  window.removeEventListener("resize", onWindowResize);
+}
+
+function emitResizeEvent() {
   eventState = EVENT_STATE_EXPOSING;
   setEventPointer(ev_resize, {
     "x": 0,
@@ -262,8 +261,6 @@ function onExit() {
   for (const event in CANVAS_EVENTS) {
     canvasObj.removeEventListener(event, CANVAS_EVENTS[event]);
   }
-  for (const event in WINDOW_EVENTS) {
-    window.removeEventListener(event, WINDOW_EVENTS[event]);
-  }
+  deinitResizeEvent();
   quitFn();
 }
