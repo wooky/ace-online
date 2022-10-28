@@ -1,4 +1,6 @@
 #include <emscripten.h>
+#include <stdlib.h>
+#include <time.h>
 #include "imagelib.h"
 #include "table.h"
 #include "cards.h"
@@ -14,6 +16,8 @@ int font_width, font_height;
  */
 int xwin_init(int argc, char **argv)
 {
+  srand(time(0));
+
   table_type = TABLE_COLOR;
   display_width = __INT_MAX__;
   display_height = __INT_MAX__;
