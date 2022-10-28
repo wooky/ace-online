@@ -35,3 +35,7 @@ body,
 .is-hidden {
   display: none;
 }
+
+.is-beeping {
+  cursor: not-allowed;
+}

@@ -1,4 +1,6 @@
 import textureUrl from "@build/ace-texture.png";
+import fontUrl from "@/6x13bold.ttf";
+import { deinitResizeEvent } from "@/event";
 
 const PUT_INVERTED = 0x01;
 const PUT_ROTATED = 0x02;
@@ -7,6 +9,7 @@ const PUT_ROTATED = 0x02;
 const tempCanvas = document.createElement("canvas");
 const texture = new Image();
 const textureRotated = document.createElement("canvas");
+const font = "x11-6x13bold";
 
 /**
  * @param {HTMLCanvasElement} canvas 
@@ -15,18 +18,42 @@ export async function initDrawer(canvas) {
   mainCanvas = canvas;
 
   texture.src = textureUrl;
-  await texture.decode();
-  textureRotated.width = texture.width;
-  textureRotated.height = texture.height;
-  const textureRotatedCtx = textureRotated.getContext("2d");
-  textureRotatedCtx.translate(texture.width / 2, texture.height / 2);
-  textureRotatedCtx.rotate(Math.PI);
-  textureRotatedCtx.drawImage(texture, -texture.width / 2, -texture.height / 2);
+  const texturePromise = texture.decode().then(() => {
+    textureRotated.width = texture.width;
+    textureRotated.height = texture.height;
+    const textureRotatedCtx = textureRotated.getContext("2d");
+    textureRotatedCtx.translate(texture.width / 2, texture.height / 2);
+    textureRotatedCtx.rotate(Math.PI);
+    textureRotatedCtx.drawImage(texture, -texture.width / 2, -texture.height / 2);
+  });
+
+  const fontFace = new FontFace(font, `url(${fontUrl})`);
+  const fontPromise = fontFace.load().then(theFont => {
+    document.fonts.add(theFont);
+  });
+
+  await Promise.all([texturePromise, fontPromise]);
 }
 
 export function resizeCanvases() {
   mainCanvas.width = tempCanvas.width = mainCanvas.parentElement.offsetWidth;
   mainCanvas.height = tempCanvas.height = mainCanvas.parentElement.offsetHeight - 4;
+}
+
+/**
+ * @param {string} text
+ * @returns {Object} Measurement
+ * @returns {number} Measurement.width
+ * @returns {number} Measurement.height
+ */
+export function calculateTextSize(text) {
+  const ctx = mainCanvas.getContext("2d", { alpha: false });
+  ctx.font = "13px " + font;
+
+  const metrics = ctx.measureText(text);
+  const width = metrics.width;
+  const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  return { width, height };
 }
 
 /**
@@ -82,10 +109,37 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
     srcCanvas = texture;
   }
 
-  if (flags & PUT_INVERTED) {
-    // TODO
-    console.warn("TODO drawImage inverted");
-  }
-
   destCtx.drawImage(srcCanvas, sx, sy, w, h, dx + x, dy + y, w, h);
+
+  if (flags & PUT_INVERTED) {
+    destCtx.save();
+    destCtx.globalCompositeOperation = "difference";
+    destCtx.fillStyle = "white";
+    destCtx.fillRect(dx + x, dy + y, w, h);
+    destCtx.restore();
+  }
+}
+
+/**
+ * @param {string} text
+ * @param {number} x
+ * @param {number} y
+ */
+export function drawText(text, x, y) {
+  const measurements = calculateTextSize(text);
+  drawRect(false, x, y - measurements.height, measurements.width, measurements.height, 0x00, 0x66, 0x00);
+
+  const ctx = mainCanvas.getContext("2d", { alpha: false });
+  ctx.fillStyle = "white";
+  ctx.fillText(text, x, y);
+}
+
+/**
+ * @param {number} width
+ * @param {number} height
+ */
+export function setFixedSize(width, height) {
+  deinitResizeEvent();
+  mainCanvas.width = tempCanvas.width = width;
+  mainCanvas.height = tempCanvas.height = height;
 }

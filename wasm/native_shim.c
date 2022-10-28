@@ -1,4 +1,6 @@
 #include <emscripten.h>
+#include <stdlib.h>
+#include <time.h>
 #include "imagelib.h"
 #include "table.h"
 #include "cards.h"
@@ -7,12 +9,27 @@
 /** "Alias" for the screen. May be used as the `dest` parameter in some functions. */
 image *display_image;
 
+int font_width, font_height;
+
 /**
- * Initialize the screen. In WASM, shouldn't do much.
+ * Initialize the screen. In WASM, shouldn't do much, except set some hardcoded values.
  */
 int xwin_init(int argc, char **argv)
 {
+  srand(time(0));
+
   table_type = TABLE_COLOR;
+  display_width = __INT_MAX__;
+  display_height = __INT_MAX__;
+
+  int font_size = EM_ASM_INT({
+    const {calculateTextSize} = require("@/drawer");
+    const measurements = calculateTextSize("@");
+    return (measurements.width << 16) | (measurements.height);
+  });
+  font_width = font_size >> 16;
+  font_height = font_size & 0xFFFF;
+
   return 0;
 }
 
@@ -54,7 +71,8 @@ void put_image(image *src, int x, int y, int w, int h,
       {
         const {drawImage} = require("@/drawer");
         let src = null;
-        if ($0) {
+        if ($0)
+        {
           src = {};
           src.x = ($0 >> 16);
           src.y = ($0 & 0xFFFF);
@@ -64,10 +82,22 @@ void put_image(image *src, int x, int y, int w, int h,
       src->file_data, x, y, w, h, dest != display_image, dx, dy, flags);
 }
 
+void text(char *s, int x, int y)
+{
+  EM_ASM({
+    const {drawText} = require("@/drawer");
+    drawText(UTF8ToString($0), $1, $2);
+  },
+         s, x, y);
+}
+
 void xwin_fixed_size(int width, int height)
 {
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO xwin_fixed_size");
+  EM_ASM({
+    const {setFixedSize} = require("@/drawer");
+    setFixedSize($0, $1);
+  },
+         width, height);
 }
 
 int xwin_nextevent(XWin_Event *ev)
@@ -83,6 +113,15 @@ int xwin_nextevent(XWin_Event *ev)
   return 0;
 }
 
+void beep()
+{
+  EM_ASM(
+      {
+        const {beep} = require("@/beeper");
+        beep();
+      });
+}
+
 void flushsync()
 {
   emscripten_sleep(0);
@@ -94,6 +133,12 @@ void help(char *filename, char *text)
     window.open("http://www.delorie.com/store/ace/docs/" + UTF8ToString($0));
   },
          filename);
+}
+
+void put_mask(image *src, int x, int y, int w, int h,
+              image *dest, int dx, int dy, int flags)
+{
+  // Do nothing.
 }
 
 void flush()

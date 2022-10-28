@@ -1,5 +1,46 @@
 [
   {
+    "name": "canfield",
+    "english": "Canfield"
+  },
+  {
+    "name": "freecell",
+    "english": "Freecell"
+  },
+  {
+    "name": "golf",
+    "english": "Golf"
+  },
+  {
+    "name": "mastermind",
+    "english": "Mastermind"
+  },
+  {
+    "name": "merlin",
+    "english": "Merlin"
+  },
+  {
+    "name": "minesweeper",
+    "english": "Minesweeper"
+  },
+  {
+    "name": "pegged",
+    "english": "Pegged"
+  },
+  {
+    "name": "solitaire",
+    "english": "Solitaire",
+    "codegen": true
+  },
+  {
+    "name": "spider",
+    "english": "Spider"
+  },
+  {
+    "name": "taipei",
+    "english": "Taipei"
+  },
+  {
     "name": "thornq",
     "english": "Thornq"
   }

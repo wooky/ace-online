@@ -2,6 +2,7 @@ import createAce from "@build/ace-online";
 import { initDrawer, resizeCanvases } from "@/drawer";
 import { initEvents, sendExitEvent } from "@/event";
 import games from "@/games.json";
+import { initBeeper } from "./beeper";
 
 (async function () {
   if ("serviceWorker" in navigator) {
@@ -47,6 +48,7 @@ function loadGame(event, name) {
 
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
   initEvents(canvas, unloadGame);
+  initBeeper(canvas);
 
   createAce({ noInitialRun: true }).then((Module) => {
     setPage("playfield");
