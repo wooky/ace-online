@@ -28,6 +28,11 @@
     "english": "Pegged"
   },
   {
+    "name": "solitaire",
+    "english": "Solitaire",
+    "codegen": true
+  },
+  {
     "name": "spider",
     "english": "Spider"
   },

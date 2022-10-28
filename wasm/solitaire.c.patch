@@ -1,0 +1,13 @@
+diff --git a/games/solitaire.c b/games/solitaire.c
+index 4c6c1ea..59ad2eb 100644
+--- a/games/solitaire.c
++++ b/games/solitaire.c
+@@ -60,8 +60,6 @@ static OptionDesc new_options[] = {
+   { 0, 0, 0 }
+ };
+ 
+-OptionDesc *app_options = new_options;
+-
+ static void
+ start_again()
+ {
