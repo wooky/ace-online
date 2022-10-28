@@ -111,8 +111,11 @@ int xwin_nextevent(XWin_Event *ev)
 
 void beep()
 {
-  // TODO
-  emscripten_log(EM_LOG_WARN, "TODO beep()");
+  EM_ASM(
+      {
+        const {beep} = require("@/beeper");
+        beep();
+      });
 }
 
 void flushsync()
