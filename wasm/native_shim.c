@@ -109,6 +109,12 @@ int xwin_nextevent(XWin_Event *ev)
   return 0;
 }
 
+void beep()
+{
+  // TODO
+  emscripten_log(EM_LOG_WARN, "TODO beep()");
+}
+
 void flushsync()
 {
   emscripten_sleep(0);
@@ -120,6 +126,12 @@ void help(char *filename, char *text)
     window.open("http://www.delorie.com/store/ace/docs/" + UTF8ToString($0));
   },
          filename);
+}
+
+void put_mask(image *src, int x, int y, int w, int h,
+              image *dest, int dx, int dy, int flags)
+{
+  // Do nothing.
 }
 
 void flush()

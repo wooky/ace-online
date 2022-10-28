@@ -13,6 +13,9 @@ find_package(Patch
   REQUIRED
 )
 
+set(GAMES_JSON_FILENAME "${CMAKE_CURRENT_SOURCE_DIR}/wasm/games.json")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${GAMES_JSON_FILENAME})
+
 set(CODEGEN_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/codegen")
 file(MAKE_DIRECTORY ${CODEGEN_DIRECTORY})
 
@@ -64,6 +67,8 @@ add_compile_options(-Wno-implicit-function-declaration)
 add_executable(ace-online
   ${IMAGES_FILENAME}
 
+  "${CMAKE_CURRENT_SOURCE_DIR}/games/taipeilib.c"
+
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/imagelib.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/stack.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/table.c"
@@ -74,7 +79,7 @@ add_executable(ace-online
 patch_file("games" "solitaire.c")
 patch_file("lib" "funcs.c")
 
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/wasm/games.json" GAMES_JSON)
+file(READ ${GAMES_JSON_FILENAME} GAMES_JSON)
 string(JSON GAMES_LENGTH LENGTH ${GAMES_JSON})
 math(EXPR GAMES_LENGTH "${GAMES_LENGTH}-1")
 foreach(GAME_IDX RANGE ${GAMES_LENGTH})

@@ -109,12 +109,15 @@ export function drawImage(src, x, y, w, h, destIsTemp, dx, dy, flags) {
     srcCanvas = texture;
   }
 
-  if (flags & PUT_INVERTED) {
-    // TODO
-    console.warn("TODO drawImage inverted");
-  }
-
   destCtx.drawImage(srcCanvas, sx, sy, w, h, dx + x, dy + y, w, h);
+
+  if (flags & PUT_INVERTED) {
+    destCtx.save();
+    destCtx.globalCompositeOperation = "difference";
+    destCtx.fillStyle = "white";
+    destCtx.fillRect(dx + x, dy + y, w, h);
+    destCtx.restore();
+  }
 }
 
 /**
