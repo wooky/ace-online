@@ -1,47 +1,36 @@
-[
-  {
-    "name": "canfield",
+{
+  "canfield": {
     "english": "Canfield"
   },
-  {
-    "name": "freecell",
+  "freecell": {
     "english": "Freecell"
   },
-  {
-    "name": "golf",
+  "golf": {
     "english": "Golf"
   },
-  {
-    "name": "mastermind",
+  "mastermind": {
     "english": "Mastermind"
   },
-  {
-    "name": "merlin",
+  "merlin": {
     "english": "Merlin"
   },
-  {
-    "name": "minesweeper",
+  "minesweeper": {
     "english": "Minesweeper"
   },
-  {
-    "name": "pegged",
+  "pegged": {
     "english": "Pegged"
   },
-  {
-    "name": "solitaire",
+  "solitaire": {
     "english": "Solitaire",
     "codegen": true
   },
-  {
-    "name": "spider",
+  "spider": {
     "english": "Spider"
   },
-  {
-    "name": "taipei",
+  "taipei": {
     "english": "Taipei"
   },
-  {
-    "name": "thornq",
+  "thornq": {
     "english": "Thornq"
   }
-]
+}
