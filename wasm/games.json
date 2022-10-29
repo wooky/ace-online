@@ -1,36 +1,388 @@
 {
   "canfield": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      }
+    ],
     "english": "Canfield"
   },
   "freecell": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Freecell"
   },
   "golf": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Golf"
   },
   "mastermind": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "F2",
+        "english": "New game"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Mastermind"
   },
   "merlin": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Merlin"
   },
   "minesweeper": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "1️⃣",
+        "key": "1",
+        "english": "Difficulty 1"
+      },
+      {
+        "icon": "2️⃣",
+        "key": "2",
+        "english": "Difficulty 2"
+      },
+      {
+        "icon": "3️⃣",
+        "key": "3",
+        "english": "Difficulty 3"
+      },
+      {
+        "icon": "4️⃣",
+        "key": "4",
+        "english": "Difficulty 4"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Minesweeper"
   },
   "pegged": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "1️⃣",
+        "key": "1",
+        "english": "Layout 1"
+      },
+      {
+        "icon": "2️⃣",
+        "key": "2",
+        "english": "Layout 2"
+      },
+      {
+        "icon": "3️⃣",
+        "key": "3",
+        "english": "Layout 3"
+      },
+      {
+        "icon": "4️⃣",
+        "key": "4",
+        "english": "Layout 4"
+      },
+      {
+        "icon": "5️⃣",
+        "key": "5",
+        "english": "Layout 5"
+      },
+      {
+        "icon": "6️⃣",
+        "key": "6",
+        "english": "Layout 6"
+      },
+      {
+        "icon": "7️⃣",
+        "key": "7",
+        "english": "Layout 7"
+      },
+      {
+        "icon": "8️⃣",
+        "key": "8",
+        "english": "Layout 8"
+      },
+      {
+        "icon": "9️⃣",
+        "key": "9",
+        "english": "Layout 9"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Pegged"
   },
   "solitaire": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Solitaire",
     "codegen": true
   },
   "spider": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "1️⃣",
+        "key": "1",
+        "english": "1 suite"
+      },
+      {
+        "icon": "2️⃣",
+        "key": "2",
+        "english": "2 suites"
+      },
+      {
+        "icon": "4️⃣",
+        "key": "4",
+        "english": "4 suites"
+      },
+      {
+        "icon": "🔼",
+        "key": "a",
+        "english": "Toggle arrows"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Spider"
   },
   "taipei": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "F2",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "1️⃣",
+        "key": "1",
+        "english": "Layout 1"
+      },
+      {
+        "icon": "2️⃣",
+        "key": "2",
+        "english": "Layout 2"
+      },
+      {
+        "icon": "3️⃣",
+        "key": "3",
+        "english": "Layout 3"
+      },
+      {
+        "icon": "4️⃣",
+        "key": "4",
+        "english": "Layout 4"
+      },
+      {
+        "icon": "5️⃣",
+        "key": "5",
+        "english": "Layout 5"
+      },
+      {
+        "icon": "6️⃣",
+        "key": "6",
+        "english": "Layout 6"
+      },
+      {
+        "icon": "7️⃣",
+        "key": "7",
+        "english": "Layout 7"
+      },
+      {
+        "icon": "8️⃣",
+        "key": "8",
+        "english": "Layout 8"
+      },
+      {
+        "icon": "9️⃣",
+        "key": "9",
+        "english": "Layout 9"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Taipei"
   },
   "thornq": {
+    "icons": [
+      {
+        "icon": "⬅",
+        "key": "q",
+        "english": "Back to game menu"
+      },
+      {
+        "icon": "🔁",
+        "key": "r",
+        "english": "New game"
+      },
+      {
+        "icon": "↩",
+        "key": "Delete",
+        "english": "Undo"
+      },
+      {
+        "icon": "🆘",
+        "key": "h",
+        "english": "Help"
+      }
+    ],
     "english": "Thornq"
   }
 }

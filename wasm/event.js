@@ -75,10 +75,11 @@ export function initEvents(canvas, quit) {
 
 /**
  * @param {Event} otherEvent
+ * @param {string} key
  */
-export function sendExitEvent(otherEvent) {
+export function sendKeyPress(otherEvent, key) {
   otherEvent.preventDefault();
-  canvasObj.dispatchEvent(new KeyboardEvent("keydown", { key: 'q' }));
+  canvasObj.dispatchEvent(new KeyboardEvent("keydown", { key }));
 }
 
 export function setUpEvents(wakeUp, setValue, ptr) {

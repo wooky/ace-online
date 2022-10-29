@@ -1,8 +1,10 @@
 import createAce from "@build/ace-online";
 import { initDrawer, resizeCanvases } from "@/drawer";
-import { initEvents, sendExitEvent } from "@/event";
+import { initEvents, sendKeyPress } from "@/event";
 import games from "@/games.json";
 import { initBeeper } from "./beeper";
+
+const gameButtons = document.getElementById("game-buttons");
 
 (async function () {
   if ("serviceWorker" in navigator) {
@@ -24,17 +26,15 @@ import { initBeeper } from "./beeper";
   await initDrawer(canvas);
 
   const gameList = document.getElementById("games");
-  for (const game of games) {
+  for (const game in games) {
     const a = document.createElement("a");
     a.href = "#";
-    a.onclick = e => loadGame(e, game.name);
-    a.text = game.english;
+    a.onclick = e => loadGame(e, game);
+    a.text = games[game].english;
     const li = document.createElement("li");
     li.appendChild(a);
     gameList.appendChild(li);
   }
-
-  document.getElementById("goback").onclick = sendExitEvent;
 })();
 
 /**
@@ -44,7 +44,16 @@ import { initBeeper } from "./beeper";
 function loadGame(event, name) {
   event.preventDefault();
   setPage("loading");
-  document.getElementById("goback").classList.remove("is-hidden");
+
+  for (const icon of games[name].icons) {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.onclick = e => sendKeyPress(e, icon.key);
+    a.text = icon.icon;
+    a.title = icon.english;
+    a.className = "homelink emoji";
+    gameButtons.appendChild(a);
+  }
 
   /** @type HTMLCanvasElement */ const canvas = document.getElementById("game");
   initEvents(canvas, unloadGame);
@@ -61,7 +70,7 @@ function loadGame(event, name) {
  * @param {Event} event
  */
 function unloadGame() {
-  document.getElementById("goback").classList.add("is-hidden");
+  gameButtons.textContent = "";
   setPage("description");
 }
 

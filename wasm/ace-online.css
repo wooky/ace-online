@@ -10,6 +10,10 @@ body,
   white-space: nowrap;
 }
 
+.emoji {
+  font-family: "Segoe UI Emoji";
+}
+
 .big {
   width: 100%;
   height: calc(100% - 31pt);
