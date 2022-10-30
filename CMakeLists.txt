@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 project(ace-online)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
 
 find_program(EMCC
   NAMES emcc

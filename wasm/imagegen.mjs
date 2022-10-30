@@ -66,12 +66,6 @@ function combineTextures(aceTextures, imagesMeta) {
       };
     }
 
-    // TODO HACK: taipei-tiles, for whatever reason, is expected to be 243px wide, or else garbage gets drawn.
-    // But the texture is only 234px. WTF?
-    if (filename == "taipei-tiles") {
-      aceTextures.frames[frame].frame.w = 243;
-    }
-
     images[filename].frames.push(aceTextures.frames[frame].frame);
   }
 

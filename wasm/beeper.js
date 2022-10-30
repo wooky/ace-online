@@ -10,7 +10,7 @@ export function initBeeper(canvas) {
 }
 
 export function beep() {
-  window.navigator.vibrate(100);
+  window.navigator.vibrate(10);
   canvasObj.classList.add(CLASS_BEEPING);
   setTimeout(() => canvasObj.classList.remove(CLASS_BEEPING), 500);
 }
