@@ -26,9 +26,12 @@
         Play
         all the games right in your browser.
       </p>
-      <p>Select a game to play:
-      <ul id="games"></ul>
-      </p>
+      <p>Select a game to play:</p>
+      <ul>
+      <% for (const game in games) { %>
+        <li><a href="#" class="game-link" data-gamename="<%= game %>"><%= games[game].english %></a></li>
+      <% } %>
+      </ul>
     </div>
     <div id="loading" class="big is-hidden">Loading...</div>
     <div id="playfield" class="big is-hidden">

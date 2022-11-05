@@ -25,15 +25,9 @@ const gameButtons = document.getElementById("game-buttons");
   });
   await initDrawer(canvas);
 
-  const gameList = document.getElementById("games");
-  for (const game in games) {
-    const a = document.createElement("a");
-    a.href = "#";
-    a.onclick = e => loadGame(e, game);
-    a.text = games[game].english;
-    const li = document.createElement("li");
-    li.appendChild(a);
-    gameList.appendChild(li);
+  /** @type {HTMLCollectionOf<HTMLAnchorElement>} */ const gameLinks = document.getElementsByClassName("game-link");
+  for (let i = 0; i < gameLinks.length; i++) {
+    gameLinks[i].onclick = e => loadGame(e, gameLinks[i].dataset.gamename);
   }
 })();
 

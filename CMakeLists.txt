@@ -3,6 +3,9 @@ project(ace-online)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
+if(${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
+  add_compile_options(-O3)
+endif()
 
 find_program(EMCC
   NAMES emcc

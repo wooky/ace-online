@@ -4,8 +4,8 @@
   "description": "Ace of Penguins",
   "scripts": {
     "imagegen": "node wasm/imagegen.mjs",
-    "build": "webpack",
-    "serve": "webpack serve"
+    "build": "webpack --mode=production",
+    "serve": "webpack serve --mode=development"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",

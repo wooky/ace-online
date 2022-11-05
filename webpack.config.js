@@ -1,9 +1,10 @@
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const games = require("./wasm/games.json");
 
 module.exports = {
-  mode: 'development',
   entry: './wasm/index.js',
   output: {
     filename: 'ace-online.js',
@@ -44,6 +45,9 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: "wasm/index.html",
+      templateParameters: {
+        games,
+      },
     }),
   ],
 };
