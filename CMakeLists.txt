@@ -1,11 +1,4 @@
 cmake_minimum_required(VERSION 3.19)
-project(ace-online)
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif()
-if(${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
-  add_compile_options(-O3)
-endif()
 
 find_program(EMCC
   NAMES emcc
@@ -18,6 +11,31 @@ find_program(NPM
 find_package(Patch
   REQUIRED
 )
+
+execute_process(
+  COMMAND ${NPM} --version
+  OUTPUT_VARIABLE npm_version_str
+  COMMAND_ERROR_IS_FATAL ANY
+)
+string(REPLACE "." ";" npm_version ${npm_version_str})
+list(GET npm_version 0 npm_version_major)
+if(${npm_version_major} LESS 8)
+  message(FATAL_ERROR "npm version 8+ is required, found " ${npm_version_str})
+endif()
+
+
+set(CMAKE_C_COMPILER ${EMCC})
+set(CMAKE_CXX_COMPILER ${EMCC})
+set(CMAKE_CXX_STANDARD 11)
+add_compile_options(-Wno-implicit-function-declaration)
+
+project(ace-online)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+if(${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
+  add_compile_options(-O3)
+endif()
 
 set(GAMES_JSON_FILENAME "${CMAKE_CURRENT_SOURCE_DIR}/wasm/games.json")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${GAMES_JSON_FILENAME})
@@ -64,11 +82,6 @@ function(patch_file source_path source_file)
   )
   target_sources(ace-online PRIVATE ${CODEGEN_FILENAME})
 endfunction()
-
-set(CMAKE_C_COMPILER ${EMCC})
-set(CMAKE_CXX_COMPILER ${EMCC})
-set(CMAKE_CXX_STANDARD 11)
-add_compile_options(-Wno-implicit-function-declaration)
 
 add_executable(ace-online
   ${IMAGES_FILENAME}
