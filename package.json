@@ -14,7 +14,7 @@
     "globby": "^13.2.2",
     "html-webpack-plugin": "^5.5.3",
     "tslib": "^2.6.0",
-    "webpack": "^5.88.1",
+    "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   },
