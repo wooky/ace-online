@@ -5,7 +5,8 @@ import games from "@/games.json";
 import { initBeeper } from "./beeper";
 
 const gameButtons = document.getElementById("game-buttons");
-const installLink = document.getElementById("install-link");
+const installP = document.getElementById("install-p");
+const installA = document.getElementById("install-a");
 /** @type BeforeInstallPromptEvent */ let deferredPrompt;
 
 (async function () {
@@ -13,7 +14,7 @@ const installLink = document.getElementById("install-link");
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       deferredPrompt = e;
-      installLink.classList.remove('is-hidden');
+      installP.classList.remove('is-hidden');
     });
 
     try {
@@ -38,7 +39,8 @@ const installLink = document.getElementById("install-link");
     gameLinks[i].onclick = e => loadGame(e, gameLinks[i].dataset.gamename);
   }
 
-  installLink.addEventListener('click', () => {
+  installA.addEventListener('click', e => {
+    e.preventDefault();
     deferredPrompt.prompt();
   });
 })();
