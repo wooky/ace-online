@@ -5,9 +5,17 @@ import games from "@/games.json";
 import { initBeeper } from "./beeper";
 
 const gameButtons = document.getElementById("game-buttons");
+const installLink = document.getElementById("install-link");
+/** @type BeforeInstallPromptEvent */ let deferredPrompt;
 
 (async function () {
   if ("serviceWorker" in navigator) {
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installLink.classList.remove('is-hidden');
+    });
+
     try {
       const registration = await navigator.serviceWorker.register("service-worker.js", {
         scope: ".",
@@ -29,6 +37,10 @@ const gameButtons = document.getElementById("game-buttons");
   for (let i = 0; i < gameLinks.length; i++) {
     gameLinks[i].onclick = e => loadGame(e, gameLinks[i].dataset.gamename);
   }
+
+  installLink.addEventListener('click', () => {
+    deferredPrompt.prompt();
+  });
 })();
 
 /**
