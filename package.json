@@ -12,7 +12,7 @@
     "csv-parse": "^5.5.2",
     "free-tex-packer-core": "git+https://github.com/astrocreep/free-tex-packer-core.git#4e640809a51e423fdaf9b04e29c0533efba54085",
     "globby": "^14.0.0",
-    "html-webpack-plugin": "^5.5.3",
+    "html-webpack-plugin": "^5.6.0",
     "tslib": "^2.6.2",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
