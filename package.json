@@ -8,7 +8,7 @@
     "serve": "webpack serve --mode=development"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^11.0.0",
+    "copy-webpack-plugin": "^12.0.1",
     "csv-parse": "^5.5.3",
     "free-tex-packer-core": "git+https://github.com/astrocreep/free-tex-packer-core.git#4e640809a51e423fdaf9b04e29c0533efba54085",
     "globby": "^14.0.0",
