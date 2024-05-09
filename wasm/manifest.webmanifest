@@ -3,7 +3,7 @@
   "short_name": "ace-online",
   "start_url": "/ace-online/",
   "background_color": "#0080ff",
-  "display": "fullscreen",
+  "display": "standalone",
   "icons": [
     {
       "src": "icon.png",
