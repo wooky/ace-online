@@ -10,12 +10,15 @@
   "devDependencies": {
     "copy-webpack-plugin": "^13.0.0",
     "csv-parse": "^5.6.0",
-    "free-tex-packer-core": "git+https://github.com/tsraveling/free-tex-packer-core.git#075a75614a0bb15022f6f12059704942f328a806",
+    "free-tex-packer-core": "git+https://github.com/astrocreep/free-tex-packer-core.git#4e640809a51e423fdaf9b04e29c0533efba54085",
     "globby": "^14.1.0",
     "html-webpack-plugin": "^5.6.3",
     "tslib": "^2.8.1",
     "webpack": "^5.99.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
+  },
+  "overrides": {
+    "xml2js": "^0.5.0"
   }
 }
