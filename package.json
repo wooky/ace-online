@@ -8,7 +8,7 @@
     "serve": "webpack serve --mode=development"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^13.0.1",
+    "copy-webpack-plugin": "^14.0.0",
     "csv-parse": "^6.1.0",
     "free-tex-packer-core": "^0.3.5",
     "globby": "^16.1.1",
