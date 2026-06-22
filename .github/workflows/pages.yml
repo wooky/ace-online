@@ -2,7 +2,7 @@ name: Build & Deploy Pages
 on:
   push:
     branches:
-      - master
+      - old-wasm
   
 jobs:
   build:
