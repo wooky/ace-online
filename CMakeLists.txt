@@ -24,6 +24,10 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/wooky/ace-online.git
   GIT_TAG        upstream
   GIT_SHALLOW    TRUE
+  # Rewrite the fetched sources for the combined launcher build (issue #160):
+  # rename each game's main() -> <game>_main() and redirect exit() back to the
+  # launcher.  This is the "FetchContent patch capability" the issue calls for.
+  PATCH_COMMAND  sh ${CMAKE_CURRENT_SOURCE_DIR}/tools/patch-sources.sh
 )
 # The upstream branch has no CMakeLists.txt, so we only populate it (we must
 # not let FetchContent try to add_subdirectory() it as a sub-project).
@@ -34,7 +38,7 @@ endif()
 
 set(SRC ${acesrc_SOURCE_DIR})
 set(GEN ${CMAKE_BINARY_DIR}/generated)
-file(MAKE_DIRECTORY ${GEN}/lib ${GEN}/games)
+file(MAKE_DIRECTORY ${GEN}/lib ${GEN}/games ${CMAKE_BINARY_DIR}/gameobj)
 
 # --------------------------------------------------------------------------
 # Dependencies (these replace AC_PATH_XTRA / --with-png / --with-z).
@@ -114,9 +118,12 @@ function(add_help outvar name)
 endfunction()
 
 # ==========================================================================
-# Stage 3: libcards (the shared support library every game links against).
+# Stage 3: libcards (the support library the launcher and every game use).
+# Static, so the result is a single self-contained executable and the games'
+# references to launcher-provided symbols (ace_return_to_launcher, etc.)
+# resolve at the final link.
 # ==========================================================================
-add_library(cards SHARED
+add_library(cards STATIC
   ${SRC}/lib/table.c
   ${SRC}/lib/help.c
   ${SRC}/lib/stack.c
@@ -126,18 +133,26 @@ add_library(cards SHARED
   ${SRC}/lib/funcs.c
   ${GEN}/lib/images.c
 )
-set_target_properties(cards PROPERTIES VERSION 1.0.0 SOVERSION 1)
 target_include_directories(cards PUBLIC ${SRC}/lib ${X11_INCLUDE_DIR})
 target_link_libraries(cards PUBLIC PNG::PNG ZLIB::ZLIB ${X11_LIBRARIES} m)
 
 # ==========================================================================
-# Stage 4: the games.
+# Stage 4: the games, each compiled into one relocatable object exposing only
+# <game>_main().
+#
+# All 12 games are linked into a single executable, but they were written as
+# independent programs: every game's generated -img.c defines the same global
+# `appimglib_imagelib`, and games share other global names.  To avoid clashes,
+# each game's objects are partial-linked (cc -r) into one object and then all
+# symbols except <game>_main are made local (objcopy --keep-global-symbol).
 #
 # add_game(<name> [NOHELP] PNGS <png>... [EXTRA <src>...])
 #   PNGS   -> images compiled into <name>-img.c
 #   NOHELP -> game has no .html help page (only canfield)
 #   EXTRA  -> additional source files (taipeilib.c for the taipei games)
 # ==========================================================================
+set(GAME_OBJECTS "")
+
 function(add_game name)
   cmake_parse_arguments(G "NOHELP" "" "PNGS;EXTRA" ${ARGN})
 
@@ -153,9 +168,22 @@ function(add_game name)
     list(APPEND sources ${helpsrc})
   endif()
 
-  add_executable(${name} ${sources})
-  target_include_directories(${name} PRIVATE ${SRC}/lib ${SRC}/games)
-  target_link_libraries(${name} PRIVATE cards)
+  add_library(${name}_obj OBJECT ${sources})
+  target_include_directories(${name}_obj PRIVATE ${SRC}/lib ${SRC}/games)
+
+  set(part ${CMAKE_BINARY_DIR}/gameobj/${name}_part.o)
+  set(obj  ${CMAKE_BINARY_DIR}/gameobj/${name}.o)
+  add_custom_command(
+    OUTPUT ${obj}
+    COMMAND ${CMAKE_C_COMPILER} -r -nostdlib $<TARGET_OBJECTS:${name}_obj> -o ${part}
+    COMMAND ${CMAKE_OBJCOPY} --keep-global-symbol=${name}_main ${part} ${obj}
+    DEPENDS $<TARGET_OBJECTS:${name}_obj>
+    COMMENT "Localizing ${name} (keep only ${name}_main global)"
+    COMMAND_EXPAND_LISTS
+    VERBATIM
+  )
+  set_source_files_properties(${obj} PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
+  set(GAME_OBJECTS "${GAME_OBJECTS};${obj}" PARENT_SCOPE)
 endfunction()
 
 add_game(canfield   NOHELP PNGS canfield.png)
@@ -178,3 +206,10 @@ add_game(taipedit   PNGS taipedit.png taipedit-bu.png taipedit-bs.png
                     EXTRA taipeilib.c)
 add_game(taipei     PNGS taipei.png taipei-tiles.png
                     EXTRA taipeilib.c)
+
+# ==========================================================================
+# Stage 5: the combined executable (launcher + all games).
+# ==========================================================================
+add_executable(ace ${CMAKE_CURRENT_SOURCE_DIR}/src/launcher.c ${GAME_OBJECTS})
+target_include_directories(ace PRIVATE ${SRC}/lib ${SRC}/games)
+target_link_libraries(ace PRIVATE cards)
