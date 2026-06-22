@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -34,6 +35,11 @@ module.exports = {
     },
   },
   plugins: [
+    // Emscripten output uses `require('node:fs')`; rewrite the `node:` scheme
+    // back to bare specifiers so the resolve.fallback entries below apply.
+    new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+      resource.request = resource.request.replace(/^node:/, '');
+    }),
     new CopyPlugin({
       patterns: [
         "./build/ace-online.wasm",
